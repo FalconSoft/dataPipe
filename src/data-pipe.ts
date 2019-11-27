@@ -1,10 +1,11 @@
 import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy, joinArray } from './array';
 import { Selector, Predicate } from './models';
+import { fromTable, toTable } from './table';
 
 export class DataPipe<T = any> {
   private data: Array<T | any>;
 
-  constructor(data: T[]) {
+  constructor(data: T[] = []) {
     this.data = data;
   }
 
@@ -149,4 +150,26 @@ export class DataPipe<T = any> {
   }
 
   filter = this.where.bind(this);
+
+
+  /**
+   * Get JSON type array for tabel type array.
+   * @param rows Table data. Array of values array.
+   * @param fieldNames Column names
+   */
+  fromTable(rows: Array<any[]>, fieldNames: string[]): DataPipe {
+    this.data = fromTable(rows, fieldNames);
+    return this;
+  }
+
+  /**
+   * Gets table data from JSON type array.
+   * @param rowsFieldName
+   * @param fieldsFieldName
+   */
+  toTable(rowsFieldName = 'rows', fieldsFieldName = 'fields'): {[key: string]: any} {
+    return toTable(this.data, rowsFieldName, fieldsFieldName);
+  }
+
+
 }

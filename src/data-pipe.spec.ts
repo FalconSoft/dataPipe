@@ -1,13 +1,9 @@
 import dataPipe from './index';
 import { DataPipe } from './data-pipe';
+import { data } from './array.spec';
+import { table } from './table.spec';
 
 describe('DataPipe specification', () => {
-
-  const data = [
-    { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
-    { name: "Scott", country: "UK" }, { name: "Diana", country: "UK" }, { name: "Marry", country: "FR" }, { name: "Luc", country: "FR" }
-  ]
-
   it('dataPipe returns DataPipe', () => {
     expect(dataPipe([]) instanceof DataPipe).toBeTruthy();
   });
@@ -27,5 +23,13 @@ describe('DataPipe specification', () => {
   it('groupBy', () => {
     const dp = dataPipe(data).groupBy(i => i.country)
     expect(dp.toArray().length).toBe(3);
+  })
+
+  it('fromTable/toTable', () => {
+    const tData = dataPipe()
+      .fromTable(table.rows, table.fields)
+      .filter(r => r.country !== 'US')
+      .toTable();
+    expect(tData.rows.length).toBe(5);
   })
 })

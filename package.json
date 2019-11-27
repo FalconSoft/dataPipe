@@ -13,7 +13,8 @@
     "test:dev": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
     "build": "npx rollup -c && npm pack && npm run docs",
     "docs": "npx typedoc src --plugin none",
-    "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown"
+    "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
+    "deploy": "npm run docs && npx gh-pages -d docs"
   },
   "repository": {
     "type": "git",

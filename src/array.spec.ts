@@ -1,5 +1,10 @@
 import * as pipeFuncs from './array';
 
+export const data = [
+  { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
+  { name: "Scott", country: "UK" }, { name: "Diana", country: "UK" }, { name: "Marry", country: "FR" }, { name: "Luc", country: "FR" }
+]
+
 describe('Test array methods', () => {
 
   const testNumberArray = [2, 6, 3, 7, 11, 7, -1];
@@ -13,32 +18,6 @@ describe('Test array methods', () => {
   const testAnyPrimitiveArrayMax = 33;
 
   const testObjArray = testNumberArray.map(value => ({value}));
-
-  const data = [{
-    name: 'John',
-    country: 'US'
-  }, {
-    name: 'Joe',
-    country: 'US'
-  }, {
-    name: 'Bill',
-    country: 'US'
-  }, {
-    name: 'Adam',
-    country: 'UK'
-  }, {
-    name: 'Scott',
-    country: 'UK'
-  }, {
-    name: 'Diana',
-    country: 'UK'
-  }, {
-    name: 'Marry',
-    country: 'FR'
-  }, {
-    name: 'Luc',
-    country: 'FR'
-  }];
 
   it('count', () => {
     expect(pipeFuncs.count(testNumberArray)).toBe(testNumberArray.length);
