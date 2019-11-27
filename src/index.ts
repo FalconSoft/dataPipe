@@ -1,4 +1,5 @@
 import { DataPipe } from "./data-pipe";
+export * from './utils-pipe';
 
 /**
  * Data Pipeline factory function what creates DataPipe

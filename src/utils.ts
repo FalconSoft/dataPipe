@@ -7,7 +7,7 @@ import { Selector } from "./models";
  * @private
  */
 export function getNumberValuesArray(array: any[], elementSelector?: Selector): number[] {
-  return array.map(item => getNumberValue(item, elementSelector)).filter(v => v !== undefined) as number[];
+  return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
 }
 
 /**
@@ -16,13 +16,19 @@ export function getNumberValuesArray(array: any[], elementSelector?: Selector): 
  * @param val Primitive or object.
  * @param elementSelector Function invoked per iteration.
  */
-export function getNumberValue(val: any, elementSelector?: Selector): number | undefined {
+export function parseNumber(val: any, elementSelector?: Selector): number | undefined {
   if (elementSelector && typeof elementSelector === 'function') {
     val = elementSelector(val);
   }
   switch (typeof val) {
-    case 'string': return parseFloat(val);
+    case 'string': {
+      const fV = parseFloat(val);
+      if (!isNaN(fV)) {
+        return fV;
+      }
+      break;
+    }
     case 'boolean': return Number(val);
-    case 'number': return val;
+    case 'number': return isNaN(val) ? undefined : val;
   }
 }

@@ -1,5 +1,5 @@
 import { Selector, Predicate } from './models';
-import { getNumberValuesArray, getNumberValue } from './utils';
+import { getNumberValuesArray, parseNumber } from './utils';
 
 /**
  * Sum of items in array.
@@ -15,7 +15,7 @@ import { getNumberValuesArray, getNumberValue } from './utils';
 export function sum(array: any[], elementSelector?: Selector): number | undefined {
   if (!Array.isArray(array)) return;
   const sum: number = (array.reduce((prev: number, val) => {
-    const numberVal = getNumberValue(val, elementSelector);
+    const numberVal = parseNumber(val, elementSelector);
     if (numberVal !== undefined) {
       prev += numberVal;
     }
