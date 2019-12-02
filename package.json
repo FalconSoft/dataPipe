@@ -1,6 +1,6 @@
 {
   "name": "datapipe-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "dataPipe is data transformation and analytical library inspired by LINQ (C#) and Pandas - (Python)",
   "main": "lib/data-pipe.umd.js",
   "module": "lib/data-pipe.esm.js",
@@ -11,7 +11,8 @@
   "scripts": {
     "test": "jest",
     "test:dev": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
-    "build": "npx rollup -c && npm pack && npm run docs",
+    "build": "npx rollup -c && npm run docs",
+    "build:publish": "npm run build && npm publish",
     "docs": "npx typedoc src --plugin none",
     "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
     "deploy": "npm run docs && npx gh-pages -d docs"

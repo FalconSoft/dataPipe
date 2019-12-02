@@ -66,7 +66,7 @@ export class DataPipe<T = any> {
    * Computes the minimum value of array.
    * @param elementSelector Function invoked per iteration.
    */
-  min(elementSelector?: Selector): number | undefined {
+  min(elementSelector?: Selector): number | Date | undefined {
     return min(this.data, elementSelector);
   }
 
@@ -74,7 +74,7 @@ export class DataPipe<T = any> {
    * Computes the maximum value of array.
    * @param elementSelector Function invoked per iteration.
    */
-  max(elementSelector?: Selector): number | null {
+  max(elementSelector?: Selector): number | Date | null {
     return max(this.data, elementSelector);
   }
 

@@ -58,7 +58,7 @@ export function count(array: any[], predicate?: Predicate): number | undefined {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function min(array: any[], elementSelector?: Selector): number | undefined {
+export function min(array: any[], elementSelector?: Selector): number | Date | undefined {
   if (!Array.isArray(array)) return;
   return Math.min(...getNumberValuesArray(array, elementSelector));
 }
@@ -69,7 +69,7 @@ export function min(array: any[], elementSelector?: Selector): number | undefine
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function max(array: any[], elementSelector?: Selector): number | null {
+export function max(array: any[], elementSelector?: Selector): number | Date | null {
   if (!Array.isArray(array)) return null;
   return Math.max(...getNumberValuesArray(array, elementSelector));
 }
