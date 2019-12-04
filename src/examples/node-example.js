@@ -19,5 +19,5 @@ const summaryForUS = dataPipe(data)
   .where(r => r.country === "US")
   .toArray()
 
-  console.log(dP.dataUtils().parseDate('10-10-2019'));
+  console.log(dP.utils().parseDate('10-10-2019'));
   console.log(summaryForUS);

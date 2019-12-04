@@ -1,4 +1,7 @@
-import { parseNumber } from "./utils";
+import {
+  parseDatetimeOrNull, deepClone,
+  dateToString, formatCamelStr, parseNumberOrNull
+} from "./utils";
 
 /**
  * DataUtils
@@ -6,25 +9,16 @@ import { parseNumber } from "./utils";
  * @example
  * dataUtils().parseData("10-03-2019") // Date
  */
-export function dataUtils() {
+export function utils() {
   return {
-    parseDate(date: any): Date|undefined {
-      switch (typeof date) {
-        case 'string':
-        case 'number': {
-          const d = new Date(date);
-          if (!isNaN(d.getTime())) {
-            return d;
-          }
-          break;
-        };
-        case 'object': {
-          if (date instanceof Date) {
-            return date;
-          }
-        }
-      }
+    parseDate(date: any): Date | null {
+      return parseDatetimeOrNull(date);
     },
-    parseNumber
+    dateToString,
+    parseNumber(str: string): number | null {
+      return parseNumberOrNull(str)
+    },
+    deepClone,
+    formatCamelStr
   }
 }
