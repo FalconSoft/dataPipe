@@ -6,7 +6,7 @@ import { parseNumber } from "./utils";
  * @example
  * dataUtils().parseData("10-03-2019") // Date
  */
-export default function dataUtils() {
+export function dataUtils() {
   return {
     parseDate(date: any): Date|undefined {
       switch (typeof date) {

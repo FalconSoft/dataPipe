@@ -1,9 +1,11 @@
-const dataPipe = require("../../lib/data-pipe.umd").dataPipe;
+const dP = require("../../lib/data-pipe.umd");
 
 const data = [
   { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"}, { name: "Adam", country: "UK"},
   { name: "Scott", country: "UK"}, { name: "Diana",country: "UK"}, { name: "Marry",country: "FR"}, { name: "Luc",country: "FR"}
 ]
+
+const dataPipe = dP.default;
 
 const summaryForUS = dataPipe(data)
   .groupBy(i => i.country)
@@ -17,4 +19,5 @@ const summaryForUS = dataPipe(data)
   .where(r => r.country === "US")
   .toArray()
 
+  console.log(dP.dataUtils().parseDate('10-10-2019'));
   console.log(summaryForUS);
