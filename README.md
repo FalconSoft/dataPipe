@@ -1,4 +1,6 @@
-# dataPipe (WIP - new release is comming by end of 2019)
+# dataPipe
+
+(WIP - a stable release is comming by the end of 2019)
 
 dataPipe is data transformation and analytical library inspired by LINQ (C#) and Pandas - (Python). It provides a facilities for data loading, data transformation and other helpful data manipulation functions. Originally DataPipe project was created to power [JSPython](https://github.com/jspython-dev/jspython) and [Worksheet Systems](https://worksheet.systems) related projects, but it is also a can be used as a standalone library for your data-driven JavaScript or JSPython applications on both the client (web browser) and server (NodeJS).
 
