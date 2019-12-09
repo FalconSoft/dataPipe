@@ -8,6 +8,6 @@ export * from './utils-pipe';
  * @example
  * dataPipe([1, 2, 3])
  */
-export default function dataPipe<T = any>(data?: T[]): DataPipe<T> {
+export function dataPipe<T = any>(data?: T[]): DataPipe<T> {
   return new DataPipe<T>(data);
 }

@@ -7,7 +7,7 @@ const input = 'src/index.ts';
 export default [{
   input,
   output: [
-    { file: pkg.main, name: 'P', format: 'umd', sourcemap: true, compact: true },
+    { file: pkg.main, name: 'dP', format: 'umd', sourcemap: true, compact: true },
   ],
   treeshake: true,
   plugins: [

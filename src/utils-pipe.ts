@@ -15,7 +15,7 @@ export function utils() {
       return parseDatetimeOrNull(date);
     },
     dateToString,
-    parseNumber(str: string): number | null {
+    parseNumber(str: string | number): number | null {
       return parseNumberOrNull(str)
     },
     deepClone,

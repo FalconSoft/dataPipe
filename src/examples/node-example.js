@@ -1,11 +1,11 @@
-const dP = require("../../lib/data-pipe.umd");
+const dP = require("../../dist/data-pipe.min");
 
 const data = [
   { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"}, { name: "Adam", country: "UK"},
   { name: "Scott", country: "UK"}, { name: "Diana",country: "UK"}, { name: "Marry",country: "FR"}, { name: "Luc",country: "FR"}
 ]
 
-const dataPipe = dP.default;
+const dataPipe = dP.dataPipe;
 
 const summaryForUS = dataPipe(data)
   .groupBy(i => i.country)

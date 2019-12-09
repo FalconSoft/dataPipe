@@ -1,4 +1,4 @@
-import dataPipe from './index';
+import { dataPipe } from './index';
 import { DataPipe } from './data-pipe';
 import { data } from './array.spec';
 import { table } from './table.spec';
