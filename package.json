@@ -1,6 +1,6 @@
 {
   "name": "datapipe-js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "dataPipe is data transformation and analytical library inspired by LINQ (C#) and Pandas - (Python)",
   "main": "dist/data-pipe.min.js",
   "module": "dist/data-pipe.esm.js",

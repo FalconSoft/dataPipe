@@ -32,4 +32,9 @@ describe('DataPipe specification', () => {
       .toTable();
     expect(tData.rows.length).toBe(5);
   })
+
+  it('unique', () => {
+    const arr = [1, '5', 3, 5, 3, 4, 3, 1];
+    expect(dataPipe(arr).unique().toArray().length).toBe(5)
+  });
 })

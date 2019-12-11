@@ -9,7 +9,7 @@ dataPipe is data transformation and analytical library inspired by LINQ (C#) and
 A quick way to use it in html
 
 ```
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/datapipe-js@0.0.5/dist/data-pipe.min.js">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/datapipe-js@0.0.6/dist/data-pipe.min.js">
 </script>
 ```
 

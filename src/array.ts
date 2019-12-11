@@ -60,7 +60,12 @@ export function count(array: any[], predicate?: Predicate): number | undefined {
  */
 export function min(array: any[], elementSelector?: Selector): number | Date | undefined {
   if (!Array.isArray(array)) return;
-  return Math.min(...getNumberValuesArray(array, elementSelector));
+  const item = elementSelector ? elementSelector(array[0]) : array[0];
+  const min = Math.min(...getNumberValuesArray(array, elementSelector));
+  if (item instanceof Date) {
+    return new Date(min);
+  }
+  return min;
 }
 
 /**
@@ -70,8 +75,13 @@ export function min(array: any[], elementSelector?: Selector): number | Date | u
  * @param elementSelector Function invoked per iteration.
  */
 export function max(array: any[], elementSelector?: Selector): number | Date | null {
-  if (!Array.isArray(array)) return null;
-  return Math.max(...getNumberValuesArray(array, elementSelector));
+  if (!(Array.isArray(array) && array.length)) return null;
+  const item = elementSelector ? elementSelector(array[0]) : array[0];
+  const max = Math.max(...getNumberValuesArray(array, elementSelector));
+  if (item instanceof Date) {
+    return new Date(max);
+  }
+  return max;
 }
 
 /**

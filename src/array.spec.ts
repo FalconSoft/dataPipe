@@ -18,6 +18,7 @@ describe('Test array methods', () => {
   const testAnyPrimitiveArrayMax = 33;
 
   const testObjArray = testNumberArray.map(value => ({value}));
+  const dates = [new Date('10/01/12'), new Date('10/01/10'), new Date('10/01/09'), new Date('10/01/11')]
 
   it('count', () => {
     expect(pipeFuncs.count(testNumberArray)).toBe(testNumberArray.length);
@@ -48,12 +49,22 @@ describe('Test array methods', () => {
     expect(pipeFuncs.min(testNumberArray)).toBe(Math.min(...testNumberArray));
     expect(pipeFuncs.min(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArrayMin);
     expect(pipeFuncs.min(testObjArray, obj => obj.value)).toBe(Math.min(...testNumberArray));
+    const mindate = pipeFuncs.min(dates);
+    expect(mindate).toBeInstanceOf(Date);
+    if (mindate instanceof Date) {
+      expect(mindate.getFullYear()).toBe(2009)
+    }
   })
 
   it('max', () => {
     expect(pipeFuncs.max(testNumberArray)).toBe(Math.max(...testNumberArray));
     expect(pipeFuncs.max(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArrayMax);
     expect(pipeFuncs.max(testObjArray, obj => obj.value)).toBe(Math.max(...testNumberArray));
+    const maxdate = pipeFuncs.max(dates);
+    expect(maxdate).toBeInstanceOf(Date);
+    if (maxdate instanceof Date) {
+      expect(maxdate.getFullYear()).toBe(2012)
+    }
   })
 
   it('first', () => {

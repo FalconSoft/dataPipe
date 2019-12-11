@@ -20,6 +20,9 @@ export function parseNumber(val: any, elementSelector?: Selector): number | unde
   if (elementSelector && typeof elementSelector === 'function') {
     val = elementSelector(val);
   }
+  if (val instanceof Date) {
+    return val.getTime();
+  }
   switch (typeof val) {
     case 'string': {
       const fV = parseFloat(val);
@@ -47,7 +50,7 @@ export function parseNumberOrNull(value: string | number): number | null {
 }
 /**
  * More wider datetime parser
- * @param value 
+ * @param value
  */
 export function parseDatetimeOrNull(value: string | Date): Date | null {
   if (!value) { return null; }

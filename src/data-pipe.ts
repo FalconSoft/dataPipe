@@ -171,5 +171,15 @@ export class DataPipe<T = any> {
     return toTable(this.data, rowsFieldName, fieldsFieldName);
   }
 
-
+  /**
+   * Get unique values
+   * @param elementSelector Function invoked per iteration.
+   */
+  unique(elementSelector?: Selector) {
+    if (elementSelector) {
+      this.select(elementSelector);
+    }
+    this.data = Array.from(new Set(this.data));
+    return this;
+  }
 }
