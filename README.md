@@ -95,7 +95,7 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
 
 ### Aggregation and other numerical functions
 
- - **avg**([propertySelector, predicate]) synonym **average** - returns an average value for a gived array. With `propertySelector` you can choose the property to calculate average on. And with `predicate` you can filter elements if needed. Both properties are optional.
+ - [**avg**](https://falconsoft.github.io/dataPipe/modules/_array_.html#avg)([propertySelector, predicate]) synonym **average** - returns an average value for a gived array. With `propertySelector` you can choose the property to calculate average on. And with `predicate` you can filter elements if needed. Both properties are optional.
  - **max**([propertySelector, predicate]) synonym **maximum** - returns a maximum value for a gived array. With `propertySelector` you can choose the property to calculate maximum on. And with `predicate` you can filter elements if needed. Both properties are optional.
  - **min**([propertySelector, predicate]) synonym **minimum** - returns a minimum value for a gived array. With `propertySelector` you can choose the property to calculate minimum on. And with `predicate` you can filter elements if needed. Both properties are optional.
  - **count**([predicate]) - returns the count for an elements in a pipe. With `predicate` function you can specify criteria
