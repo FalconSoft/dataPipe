@@ -1,0 +1,26 @@
+<html>
+
+<head>
+  <title>Data Pipe JS</title>
+  <script src="./dist/data-pipe.min.js"></script>
+
+</head>
+
+<body>
+  <h4>Data Pipe testing page. Do not expect anything here! </h4>
+
+  <script>
+    const csv = `
+F1,F2
+11,12
+21,22
+    `;
+
+    const arr = dataPipe.dataPipe()
+      .fromCsv(csv)
+      .toArray();
+    console.log(arr);
+  </script>
+</body>
+
+</html>

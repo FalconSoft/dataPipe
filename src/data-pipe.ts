@@ -1,6 +1,7 @@
 import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy, joinArray } from './array';
 import { Selector, Predicate } from './models';
 import { fromTable, toTable } from './table';
+import { ParsingOptions, fromCsv } from './dsv-parser';
 
 export class DataPipe<T = any> {
   private data: Array<T | any>;
@@ -8,6 +9,8 @@ export class DataPipe<T = any> {
   constructor(data: T[] = []) {
     this.data = data;
   }
+
+ 
 
   /**
    * Get pipes currrent array data.
@@ -151,6 +154,10 @@ export class DataPipe<T = any> {
 
   filter = this.where.bind(this);
 
+  fromCsv(content: string, options?: ParsingOptions): DataPipe {   
+    this.data = fromCsv(content, options);
+    return this;
+  }
 
   /**
    * Get JSON type array for tabel type array.
@@ -167,7 +174,7 @@ export class DataPipe<T = any> {
    * @param rowsFieldName
    * @param fieldsFieldName
    */
-  toTable(rowsFieldName = 'rows', fieldsFieldName = 'fields'): {[key: string]: any} {
+  toTable(rowsFieldName = 'rows', fieldsFieldName = 'fields'): { [key: string]: any } {
     return toTable(this.data, rowsFieldName, fieldsFieldName);
   }
 
