@@ -1,7 +1,7 @@
 {
   "name": "datapipe-js",
-  "version": "0.0.6",
-  "description": "dataPipe is data transformation and analytical library inspired by LINQ (C#) and Pandas - (Python)",
+  "version": "0.0.7",
+  "description": "dataPipe is a JavaScript library for data manipulations, data transformations and data analytics inspired by LINQ (C#) and Pandas - (Python)",
   "main": "dist/data-pipe.min.js",
   "module": "dist/data-pipe.esm.js",
   "typings": "dist/index.d.ts",
@@ -15,7 +15,8 @@
     "build:publish": "npm run build && npm publish",
     "docs": "npx typedoc src --plugin none",
     "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
-    "deploy": "npm run docs && npx gh-pages -d docs"
+    "deploy": "npm run docs && npx gh-pages -d docs",
+    "dev": "npx rollup --config rollup.config.dev.js --watch"
   },
   "repository": {
     "type": "git",
@@ -36,7 +37,7 @@
     "data-science",
     "data-manipulation",
     "json",
-    "data-munging",
+    "data-mungling",
     "data-cleaning",
     "data-clensing"
   ],
@@ -45,6 +46,9 @@
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",
     "rollup": "^1.27.0",
+    "rollup-plugin-copy": "^3.1.0",
+    "rollup-plugin-livereload": "^1.0.4",
+    "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-typescript2": "^0.25.2",
     "rollup-plugin-uglify": "^6.0.3",
     "ts-jest": "^24.1.0",

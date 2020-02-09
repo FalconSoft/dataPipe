@@ -9,17 +9,26 @@
 <body>
   <h4>Data Pipe testing page. Do not expect anything here! </h4>
 
+  <button onclick="onButtonClick()">++ Click ++ </button onclick="myFunction()">
+
   <script>
+
     const csv = `
-F1,F2
-11,12
-21,22
+F1,F2,F3,F4
+11,12,tt,"1 2 3 4 5"
+21,22,yy,"5 4 3 2 1"
     `;
 
-    const arr = dataPipe.dataPipe()
-      .fromCsv(csv)
-      .toArray();
-    console.log(arr);
+    function onButtonClick() {
+      const arr = dataPipe.dataPipe()
+        .fromCsv(csv)
+        .toArray();
+      console.log(arr);
+    }
+
+    onButtonClick();
+
+
   </script>
 </body>
 

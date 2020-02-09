@@ -1,3 +1,5 @@
+import { parseNumberOrNull } from "./utils";
+
 export class ParsingOptions {
     separator: string = ',';
     skipRows: number = 0;
@@ -9,6 +11,23 @@ export class ParsingOptions {
 
 type ParsingContext = { content: string, currentIndex: number };
 
+function getLineTokens(content: string, delimiter: string): any[][] {
+    const ctx = <ParsingContext>{
+        content: content,
+        currentIndex: 0
+
+    };
+
+    const result = [];
+
+    do {
+        const tokens = nextLineTokens(ctx, delimiter);
+        result.push(tokens);
+    }
+    while (++ctx.currentIndex < ctx.content.length)
+    return result;
+}
+
 export function fromCsv(content: string, options?: ParsingOptions): any[] {
     const result: any[] = [];
     content = (content || '').trim();
@@ -18,45 +37,47 @@ export function fromCsv(content: string, options?: ParsingOptions): any[] {
         return result;
     }
 
-    const lineTokens = content.split('\n').map(line => line.split(delimiter))
 
+    // a silly way to implement csv parser
+    const lineTokens = content.split('\n').map(line => line.split(delimiter))
     const fieldNames = lineTokens.shift() || [];
 
     return lineTokens
         .map(l => {
             const obj = Object.create(null);
             for (let i = 0; i < fieldNames.length; i++) {
-                obj[fieldNames[i]] = l[i].trim();
+                let value: string | number = l[i].trim();
+                if(value.length){
+                    const num = parseNumberOrNull(value);
+                    value = num || value;
+                }
+                obj[fieldNames[i]] = value
             }
             return obj;
         })
 
 
-    // const ctx = <ParsingContext>{
-    //     content: content,
-    //     currentIndex: 0
-    // };
-
-    // nextLineTokens(ctx, delimiter);
-    // // while(){}
-
-
     // return result;
 }
 
-function nextLineTokens(context: ParsingContext, delimiter: string = ','): string[] {
+function nextLineTokens(context: ParsingContext, delimiter: string = ','): any[] {
     const tokens: string[] = [];
     let token = '';
 
-    while (context.currentIndex < context.content.length
-        || context.content[context.currentIndex]) {
-        const currentChar = context.content[context.currentIndex++];
+    context.currentIndex = 0;
+    do {
+        const currentChar = context.content[context.currentIndex];
         if (currentChar === delimiter) {
-            tokens.push(token);
+            if (token.length) {
+                token = '';
+                tokens.push(token);
+            }
         } else {
             token += currentChar;
         }
     }
+    while (++context.currentIndex < context.content.length
+        || context.content[context.currentIndex] === '\n')
 
     tokens.push(token);
     return tokens;
