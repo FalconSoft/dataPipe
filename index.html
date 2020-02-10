@@ -13,13 +13,15 @@
 
   <script>
 
-    const csv = `
-F1,F2,F3,F4
-11,12,tt,"1 2 3 4 5"
-21,22,yy,"5 4 3 2 1"
+    let csv = `
+F1,F2,F3,F4,F5
+11,12.5,1234.22,tt,"1 2,t3 4 5"
+21,22.2,1321.32,yy,"5 4,t3 2 1"
     `;
 
     function onButtonClick() {
+      const csv = ["F1,F2,F3",`1,,"Test, comma"`].join('\n')
+
       const arr = dataPipe.dataPipe()
         .fromCsv(csv)
         .toArray();

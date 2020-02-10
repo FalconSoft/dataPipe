@@ -6,25 +6,51 @@ export class ParsingOptions {
     skipUntil?: (tokens: string[]) => boolean;
     takeWhile?: (tokens: string[]) => boolean;
     parseFields?: {};
-    elementSelector?: (tokens: any[]) => any;
+    elementSelector?: (headers: string[], tokens: string[]) => any;
 }
 
 type ParsingContext = { content: string, currentIndex: number };
 
-function getLineTokens(content: string, delimiter: string): any[][] {
+function getObjectElement(fieldNames: string[], tokens: string[]): any {
+    const obj = Object.create(null);
+    for (let i = 0; i < fieldNames.length; i++) {
+        let value: string | number | null = tokens[i] || null;
+        if (value && value.length) {
+            const num = parseNumberOrNull(value);
+            value = num || value;
+        }
+        obj[fieldNames[i]] = value
+    }
+    return obj;
+}
+
+function getLineTokens(content: string, options: ParsingOptions): string[][] {
     const ctx = <ParsingContext>{
         content: content,
         currentIndex: 0
-
     };
+    content = (content || '').trim();
+    const delimiter = options.separator || ',';
 
     const result = [];
+    let line = 0;
+    let fieldNames: string[] | null = null;
 
     do {
         const tokens = nextLineTokens(ctx, delimiter);
-        result.push(tokens);
+        if (!fieldNames) {
+            fieldNames = tokens;
+            continue;
+        }
+
+        const obj = (typeof options.elementSelector === "function") ?
+            options.elementSelector(fieldNames, tokens)
+            : getObjectElement(fieldNames, tokens)
+
+        result.push(obj);
     }
     while (++ctx.currentIndex < ctx.content.length)
+
     return result;
 }
 
@@ -37,47 +63,33 @@ export function fromCsv(content: string, options?: ParsingOptions): any[] {
         return result;
     }
 
-
-    // a silly way to implement csv parser
-    const lineTokens = content.split('\n').map(line => line.split(delimiter))
-    const fieldNames = lineTokens.shift() || [];
-
-    return lineTokens
-        .map(l => {
-            const obj = Object.create(null);
-            for (let i = 0; i < fieldNames.length; i++) {
-                let value: string | number = l[i].trim();
-                if(value.length){
-                    const num = parseNumberOrNull(value);
-                    value = num || value;
-                }
-                obj[fieldNames[i]] = value
-            }
-            return obj;
-        })
-
-
-    // return result;
+    return getLineTokens(content, options || new ParsingOptions());
 }
 
-function nextLineTokens(context: ParsingContext, delimiter: string = ','): any[] {
+function nextLineTokens(context: ParsingContext, delimiter: string = ','): string[] {
     const tokens: string[] = [];
     let token = '';
 
-    context.currentIndex = 0;
     do {
         const currentChar = context.content[context.currentIndex];
-        if (currentChar === delimiter) {
-            if (token.length) {
-                token = '';
-                tokens.push(token);
+        if (currentChar === '\n') {
+            if (context.content[context.currentIndex + 1] === '\r') { context.currentIndex++; }
+            break;
+        }
+
+        if (token.length === 0 && currentChar === '"') {
+            while (context.content[++context.currentIndex] !== '"') {
+                token += context.content[context.currentIndex];
             }
+
+        } else if (currentChar === delimiter) {
+            tokens.push(token);
+            token = '';
         } else {
             token += currentChar;
         }
     }
-    while (++context.currentIndex < context.content.length
-        || context.content[context.currentIndex] === '\n')
+    while (++context.currentIndex < context.content.length)
 
     tokens.push(token);
     return tokens;

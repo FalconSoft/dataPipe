@@ -45,6 +45,16 @@ export function parseNumberOrNull(value: string | number): number | null {
     return null;
   }
 
+  // Just to make sure string contains digits only and '.', ','. Otherwise, parseFloat can incorrectly parse into number
+  for (let i = value.length - 1; i >= 0; i--) {
+    const d = value.charCodeAt(i);
+    if (d < 48 || d > 57) {
+      // '.' - 46 ',' - 44
+      if (d !== 46 && d !== 44)
+        return null;
+    }
+  }
+
   const res = parseFloat(value.replace(/,/g, ''));
   return !isNaN(res) ? res : null;
 }
