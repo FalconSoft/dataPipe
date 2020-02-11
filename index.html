@@ -20,10 +20,9 @@ F1,F2,F3,F4,F5
     `;
 
     function onButtonClick() {
-      const csv = ["F1,F2,F3",`1,,"Test, comma"`].join('\n')
-
+      const csv = ["", "", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`, "\t\t"].join('\n')
       const arr = dataPipe.dataPipe()
-        .fromCsv(csv)
+        .fromCsv(csv, { separator: '\t' })
         .toArray();
       console.log(arr);
     }

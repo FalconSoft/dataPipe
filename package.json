@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "test": "jest",
-    "test:dev": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
+    "test:dev": "jest --watch",
+    "test:dev:debug": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
     "build": "npx rollup -c && npm run docs",
     "build:publish": "npm run build && npm publish",
     "docs": "npx typedoc src --plugin none",
