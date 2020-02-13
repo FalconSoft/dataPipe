@@ -180,12 +180,13 @@ export function countBy(array: any[], elementSelector: Selector): { [key: string
 }
 
 /**
- * Joins data in array by elementSelector functions.
+  * Joins data in array by elementSelector functions.
  * @param array The array to process.
  * @param array2 The array to join.
  * @param elementSelector Gets key value of array.
  * @param elementSelector2 Gets key value of array2.
  */
+
 export function joinArray(array: any[], array2: object[], elementSelector: Selector, elementSelector2: Selector): any[] {
   const length = array.length;
   const res = [];
@@ -197,3 +198,4 @@ export function joinArray(array: any[], array2: object[], elementSelector: Selec
 
   return res;
 }
+

@@ -2,6 +2,7 @@ import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy, join
 import { Selector, Predicate } from './models';
 import { fromTable, toTable } from './table';
 import { ParsingOptions, fromCsv } from './dsv-parser';
+import { leftJoin, innerJoin, fullJoin } from './array-joins';
 
 export class DataPipe<T = any> {
   private data: Array<T | any>;
@@ -10,7 +11,7 @@ export class DataPipe<T = any> {
     this.data = data;
   }
 
- 
+
 
   /**
    * Get pipes currrent array data.
@@ -124,14 +125,56 @@ export class DataPipe<T = any> {
     return countBy(this.data, elementSelector);
   }
 
-  /**
-   * Joins data in array by iteratee functions.
-   * @param array2 The array to join.
-   * @param keySelector1 Gets key value of array.
-   * @param keySelector1 Gets key value of array2.
-   */
-  joinArray(array2: object[], keySelector1: Selector, keySelector2: Selector): DataPipe {
-    this.data = joinArray(this.data, array2, keySelector1, keySelector2);
+  innerJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  innerJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  innerJoin(rightArray: any[], leftKey: any, rightKey: any,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
+    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
+
+    this.data = innerJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+    return this;
+  }
+
+  leftJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  leftJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  leftJoin(rightArray: any[], leftKey: any, rightKey: any,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
+    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
+
+    this.data = leftJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+    return this;
+  }
+
+  fullJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  fullJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe;
+
+  fullJoin(rightArray: any[], leftKey: any, rightKey: any,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
+    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
+    this.data = fullJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
     return this;
   }
 
@@ -154,7 +197,7 @@ export class DataPipe<T = any> {
 
   filter = this.where.bind(this);
 
-  fromCsv(content: string, options?: ParsingOptions): DataPipe {   
+  fromCsv(content: string, options?: ParsingOptions): DataPipe {
     this.data = fromCsv(content, options);
     return this;
   }
