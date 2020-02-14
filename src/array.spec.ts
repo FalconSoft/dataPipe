@@ -1,4 +1,5 @@
 import * as pipeFuncs from './array';
+import { leftJoin } from './array-joins';
 
 export const data = [
   { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
@@ -17,7 +18,7 @@ describe('Test array methods', () => {
   const testAnyPrimitiveArrayMin = 0;
   const testAnyPrimitiveArrayMax = 33;
 
-  const testObjArray = testNumberArray.map(value => ({value}));
+  const testObjArray = testNumberArray.map(value => ({ value }));
   const dates = [new Date('10/01/12'), new Date('10/01/10'), new Date('10/01/09'), new Date('10/01/11')]
 
   it('count', () => {
@@ -104,8 +105,8 @@ describe('Test array methods', () => {
   });
 
   it('joinArray', () => {
-    const countries = [{code: 'US',  capital: 'Washington'}, {code: 'UK', capital: 'London'}];
-    const joinedArray = pipeFuncs.joinArray(data, countries, i => i.country, i2 => i2.code);
+    const countries = [{ code: 'US', capital: 'Washington' }, { code: 'UK', capital: 'London' }];
+    const joinedArray = leftJoin(data, countries, i => i.country, i2 => i2.code, (l, r) => ({ ...r, ...l }));
     expect(joinedArray.length).toBe(8);
     const item = pipeFuncs.first(joinedArray, i => i.country === 'US');
     expect(item.country).toBe('US');

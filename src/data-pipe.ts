@@ -1,8 +1,9 @@
-import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy, joinArray } from './array';
+import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy } from './array';
 import { Selector, Predicate } from './models';
 import { fromTable, toTable } from './table';
-import { ParsingOptions, fromCsv } from './dsv-parser';
-import { leftJoin, innerJoin, fullJoin } from './array-joins';
+import { ParsingOptions, parseCsv } from './dsv-parser';
+import { leftJoin, innerJoin, fullJoin, merge, FieldSelectorFunction } from './array-joins';
+
 
 export class DataPipe<T = any> {
   private data: Array<T | any>;
@@ -125,56 +126,47 @@ export class DataPipe<T = any> {
     return countBy(this.data, elementSelector);
   }
 
-  innerJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  innerJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  innerJoin(rightArray: any[], leftKey: any, rightKey: any,
+  /**
+   * Joins two arrays together by selecting elements that have matching values in both arrays 
+   * @param rightArray array of elements to join
+   * @param leftKey left Key
+   * @param rightKey 
+   * @param resultSelector 
+   */
+  innerJoin(rightArray: any[],
+    leftKey: string | string[] | FieldSelectorFunction,
+    rightKey: string | string[] | FieldSelectorFunction,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
-    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
-    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
-
-    this.data = innerJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+    this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
     return this;
   }
 
-  leftJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  leftJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  leftJoin(rightArray: any[], leftKey: any, rightKey: any,
+  leftJoin(rightArray: any[],
+    leftKey: string | string[] | FieldSelectorFunction,
+    rightKey: string | string[] | FieldSelectorFunction,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
-    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
-    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
 
-    this.data = leftJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+    this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
     return this;
   }
 
-  fullJoin(rightArray: any[], leftKeyField: string, rightKeyField: string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  fullJoin(rightArray: any[], leftKeySelector: (item: any) => string, rightKeySelector: (item: any) => string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe;
-
-  fullJoin(rightArray: any[], leftKey: any, rightKey: any,
+  fullJoin(rightArray: any[],
+    leftKey: string | string[] | FieldSelectorFunction,
+    rightKey: string | string[] | FieldSelectorFunction,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
-    const leftKeySelector: (item: any) => string = typeof leftKey === "function" ? leftKey : (item) => item[String(leftKey)];
-    const rightKeySelector: (item: any) => string = typeof rightKey === "function" ? rightKey : (item) => item[String(rightKey)];
-    this.data = fullJoin(this.data, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+    this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
+    return this;
+  }
+
+  merge(
+    sourceArray: any[],
+    targetKey: string | string[] | FieldSelectorFunction,
+    sourceKey: string | string[] | FieldSelectorFunction
+  ): DataPipe {
+    this.data = merge(this.data, sourceArray, targetKey, sourceKey);
     return this;
   }
 
@@ -198,7 +190,7 @@ export class DataPipe<T = any> {
   filter = this.where.bind(this);
 
   fromCsv(content: string, options?: ParsingOptions): DataPipe {
-    this.data = fromCsv(content, options);
+    this.data = parseCsv(content, options);
     return this;
   }
 
@@ -232,4 +224,6 @@ export class DataPipe<T = any> {
     this.data = Array.from(new Set(this.data));
     return this;
   }
+
+
 }
