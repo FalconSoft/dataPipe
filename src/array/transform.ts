@@ -98,7 +98,4 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
     }
 
     return result;
-
-    throw Error('Not Implemented');
-
 }
