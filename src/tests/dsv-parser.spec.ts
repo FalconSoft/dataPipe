@@ -1,5 +1,6 @@
-import { dataPipe } from './index';
-import { ParsingOptions, parseCsv, toCsv } from './dsv-parser';
+
+import { parseCsv, toCsv } from '../utils';
+import { ParsingOptions } from '../types';
 
 describe('Dsv Parser specification', () => {
   it('simple numbers', () => {

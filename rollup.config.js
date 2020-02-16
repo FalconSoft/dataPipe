@@ -7,7 +7,7 @@ const input = 'src/index.ts';
 export default [{
   input,
   output: [
-    { file: pkg.main, name: 'dataPipe', format: 'umd', sourcemap: true, compact: true },
+    { file: pkg.main, name: 'dp', format: 'umd', sourcemap: true, compact: true },
   ],
   treeshake: true,
   plugins: [

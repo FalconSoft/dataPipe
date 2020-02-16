@@ -1,5 +1,8 @@
 import { DataPipe } from "./data-pipe";
-export * from './utils-pipe';
+
+export * from './array'
+export * from './utils'
+export * from './string'
 
 /**
  * Data Pipeline factory function what creates DataPipe
@@ -8,6 +11,7 @@ export * from './utils-pipe';
  * @example
  * dataPipe([1, 2, 3])
  */
-export function dataPipe<T = any>(data?: T[]): DataPipe<T> {
-  return new DataPipe<T>(data);
+export function dataPipe(data?: any[]): DataPipe {
+  data = data || [];
+  return new DataPipe(data);
 }

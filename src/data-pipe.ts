@@ -1,23 +1,20 @@
 import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy } from './array';
-import { Selector, Predicate } from './models';
-import { fromTable, toTable } from './table';
-import { ParsingOptions, parseCsv } from './dsv-parser';
-import { leftJoin, innerJoin, fullJoin, merge, FieldSelectorFunction } from './array-joins';
+import { Selector, Predicate, ParsingOptions } from './types';
+import { parseCsv, fromTable, toTable } from './utils';
+import { leftJoin, innerJoin, fullJoin, merge } from './array';
 
 
-export class DataPipe<T = any> {
-  private data: Array<T | any>;
+export class DataPipe {
+  private data: any[];
 
-  constructor(data: T[] = []) {
+  constructor(data: any[] = []) {
     this.data = data;
   }
-
-
 
   /**
    * Get pipes currrent array data.
    */
-  toArray(): T[] {
+  toArray(): any[] {
     return this.data;
   }
 
@@ -29,7 +26,7 @@ export class DataPipe<T = any> {
    *
    * dataPipe([{ val: 1 }, { val: 5 }]).sum(i => i.val); // 6
    */
-  sum(elementSelector?: Selector): number | undefined {
+  sum(elementSelector?: Selector): number | null {
     return sum(this.data, elementSelector);
   }
 
@@ -53,7 +50,7 @@ export class DataPipe<T = any> {
    * @example
    * dataPipe([1, 5, 3]).avg(); // 3
    */
-  avg(elementSelector?: Selector): number | undefined {
+  avg(elementSelector?: Selector): number | null {
     return avg(this.data, elementSelector);
   }
 
@@ -63,7 +60,7 @@ export class DataPipe<T = any> {
    * Count of elements in array.
    * @param predicate Predicate function invoked per iteration.
    */
-  count(predicate?: Predicate): number | undefined {
+  count(predicate?: Predicate): number | null {
     return count(this.data, predicate);
   }
 
@@ -71,7 +68,7 @@ export class DataPipe<T = any> {
    * Computes the minimum value of array.
    * @param elementSelector Function invoked per iteration.
    */
-  min(elementSelector?: Selector): number | Date | undefined {
+  min(elementSelector?: Selector): number | Date | null {
     return min(this.data, elementSelector);
   }
 
@@ -87,7 +84,7 @@ export class DataPipe<T = any> {
    * Gets first item in array satisfies predicate.
    * @param predicate Predicate function invoked per iteration.
    */
-  first(predicate?: Predicate): T | undefined {
+  first(predicate?: Predicate): any | undefined {
     return first(this.data, predicate);
   }
 
@@ -96,7 +93,7 @@ export class DataPipe<T = any> {
    * @param array The array to process.
    * @param predicate Predicate function invoked per iteration.
    */
-  last(predicate?: Predicate): T | undefined {
+  last(predicate?: Predicate): any | undefined {
     return last(this.data, predicate);
   }
 
@@ -114,7 +111,7 @@ export class DataPipe<T = any> {
    * @example
    * dataPipe([1, 4, [2, [5, 5, [9, 7]], 11], 0]).flatten(); // length 9
    */
-  flatten(): T[] {
+  flatten(): any[] {
     return flatten(this.data);
   }
 
@@ -134,8 +131,8 @@ export class DataPipe<T = any> {
    * @param resultSelector 
    */
   innerJoin(rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
     this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
@@ -143,8 +140,8 @@ export class DataPipe<T = any> {
   }
 
   leftJoin(rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
 
@@ -153,8 +150,8 @@ export class DataPipe<T = any> {
   }
 
   fullJoin(rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
     this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
@@ -163,8 +160,8 @@ export class DataPipe<T = any> {
 
   merge(
     sourceArray: any[],
-    targetKey: string | string[] | FieldSelectorFunction,
-    sourceKey: string | string[] | FieldSelectorFunction
+    targetKey: string | string[] | Selector<any, string>,
+    sourceKey: string | string[] | Selector<any, string>
   ): DataPipe {
     this.data = merge(this.data, sourceArray, targetKey, sourceKey);
     return this;

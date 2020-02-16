@@ -6,7 +6,7 @@ export default {
 
   input: 'src/index.ts',
   output: {
-    name: 'dataPipe',
+    name: 'dp',
     file: 'dist/data-pipe.min.js',
     format: 'umd',
     sourcemap: true,

@@ -1,14 +1,5 @@
-import { Selector } from "./models";
+import { Selector } from "../types";
 
-/**
- * Get selector number values.
- * @param array The array to process.
- * @param elementSelector Function invoked per iteration.
- * @private
- */
-export function getNumberValuesArray(array: any[], elementSelector?: Selector): number[] {
-  return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
-}
 
 /**
  * Formats selected value to number.
@@ -175,6 +166,3 @@ export function deepClone(obj: any): any {
   return obj;
 }
 
-export function formatCamelStr(str: string = ''): string {
-  return str.replace(/^\w/, c => c.toUpperCase()).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/_/g, ' ');
-}

@@ -1,5 +1,5 @@
-import * as pipeFuncs from './array';
-import { leftJoin } from './array-joins';
+import * as pipeFuncs from '../array'
+import { leftJoin, pivot, avg, sum } from '../array';
 
 export const data = [
   { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
@@ -39,7 +39,7 @@ describe('Test array methods', () => {
     expect(pipeFuncs.avg(testObjArray, obj => obj.value)).toBe(testNumberArrayAvg);
 
     const avg = pipeFuncs.avg(testAnyPrimitiveArray);
-    if (avg !== undefined) {
+    if (avg) {
       expect(Math.round(avg * 100) / 100).toBe(testAnyPrimitiveArrayAvg);
     } else {
       throw Error('testAnyPrimitiveArray failed');
@@ -114,4 +114,86 @@ describe('Test array methods', () => {
     expect(item.capital).toBe('Washington');
     expect(item.name).toBeTruthy();
   })
+
+  it('simple pivot', () => {
+    const arr = [
+      { product: 'P1', year: '2018', sale: '11' },
+      { product: 'P1', year: '2019', sale: '12' },
+      { product: 'P2', year: '2018', sale: '21' },
+      { product: 'P2', year: '2019', sale: '22' },
+    ];
+
+    const res = pivot(arr, 'product', 'year', 'sale')
+    expect(res.length).toBe(2);
+    expect(res.filter(r => r.product === 'P1')[0]['2018']).toBe(11);
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
+  })
+
+  it('pivot with default sum', () => {
+    const arr = [
+      { product: 'P1', year: '2018', sale: '11' },
+      { product: 'P1', year: '2019', sale: '12' },
+      { product: 'P1', year: '2019', sale: '22' },
+      { product: 'P2', year: '2018', sale: '21' },
+      { product: 'P2', year: '2019', sale: '22' },
+    ];
+
+    const res = pivot(arr, 'product', 'year', 'sale')
+    expect(res.length).toBe(2);
+    expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(34);
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
+  })
+
+  it('pivot with specified AVG', () => {
+    const arr = [
+      { product: 'P1', year: '2018', sale: '11' },
+      { product: 'P1', year: '2019', sale: '12' },
+      { product: 'P1', year: '2019', sale: '22' },
+      { product: 'P2', year: '2018', sale: '21' },
+      { product: 'P2', year: '2019', sale: '22' },
+    ];
+
+    const res = pivot(arr, 'product', 'year', 'sale', avg)
+    expect(res.length).toBe(2);
+    expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(17);
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
+  })
+
+
+  it('pivot with null value', () => {
+    const arr = [
+      { product: 'P1', year: '2018', sale: '11' },
+      { product: 'P1', year: '2019', sale: '12' },
+      { product: 'P1', year: '2019', sale: '22' },
+      { product: 'P2', year: '2018', sale: '21' },
+      { product: 'P2', year: '2019', sale: '22' },
+      { product: 'P3', year: '2019', sale: '33' },
+    ];
+
+    const res = pivot(arr, 'product', 'year', 'sale', avg)
+    expect(res.length).toBe(3);
+    expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(17);
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
+    expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe(33);
+    expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
+  })
+
+  it('pivot with null value with sum', () => {
+    const arr = [
+      { product: 'P1', year: '2018', sale: '11' },
+      { product: 'P1', year: '2019', sale: '12' },
+      { product: 'P1', year: '2019', sale: '22' },
+      { product: 'P2', year: '2018', sale: '21' },
+      { product: 'P2', year: '2019', sale: '22' },
+      { product: 'P3', year: '2019', sale: '33' },
+    ];
+
+    const res = pivot(arr, 'product', 'year', 'sale', sum)
+    expect(res.length).toBe(3);
+    expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(34);
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
+    expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe(33);
+    expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
+  })
+
 })

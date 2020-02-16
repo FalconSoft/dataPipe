@@ -1,32 +1,20 @@
-
-export type FieldSelectorFunction = (item: any) => string;
-
-function fieldSelector(input: string | string[] | FieldSelectorFunction): FieldSelectorFunction {
-  if (typeof input === "function") {
-    return input;
-  } else if (typeof input === "string") {
-    return (item) => item[input];
-  } else if (Array.isArray(input)) {
-    return (item) => input.map(r => item[r]).join('|');
-  } else {
-    throw Error(`Unknown input. Can't create a fieldSelector`)
-  }
-}
+import { Selector } from "../types";
+import { fieldSelector } from "../_internals";
 
 /**
  * leftJoin returns all elements from the left array (leftArray), and the matched elements from the right array (rightArray).
  * The result is NULL from the right side, if there is no match.
- * @param leftArray : array for left side in a join  
- * @param rightArray : array for right side in a join
- * @param leftKey : A key from left side array. What can be as a fieldName, multiple fields or key Selector
- * @param rightKey : A key from right side array. what can be as a fieldName, multiple fields or key Selector
+ * @param leftArray array for left side in a join  
+ * @param rightArray array for right side in a join
+ * @param leftKey A key from left side array. What can be as a fieldName, multiple fields or key Selector
+ * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
 export function leftJoin(
     leftArray: any[],
     rightArray: any[],
-    leftKeySelector: string | string[] | FieldSelectorFunction,
-    rightKeySelector: string | string[] | FieldSelectorFunction,
+    leftKeySelector: string | string[] | Selector<any, string>,
+    rightKeySelector: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
 ): any[] {
     return leftOrInnerJoin(false, leftArray, rightArray, leftKeySelector, rightKeySelector, resultSelector);
@@ -35,17 +23,17 @@ export function leftJoin(
 /**
  * innerJoin - Joins two arrays together by selecting elements that have matching values in both arrays.
  * If there are elements in any array that do not have matches in other array, these elements will not be shown!
- * @param leftArray : array for left side in a join  
- * @param rightArray : array for right side in a join
- * @param leftKey : A key from left side array. What can be as a fieldName, multiple fields or key Selector
- * @param rightKey : A key from right side array. what can be as a fieldName, multiple fields or key Selector
+ * @param leftArray array for left side in a join  
+ * @param rightArray array for right side in a join
+ * @param leftKey A key from left side array. What can be as a fieldName, multiple fields or key Selector
+ * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
 export function innerJoin(
     leftArray: any[],
     rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
 ): any[] {
     return leftOrInnerJoin(true, leftArray, rightArray, leftKey, rightKey, resultSelector);
@@ -54,17 +42,17 @@ export function innerJoin(
 /**
  * fullJoin returns all elements from the left array (leftArray), and all elements from the right array (rightArray).
  * The result is NULL from the right/left side, if there is no match.
- * @param leftArray : array for left side in a join  
- * @param rightArray : array for right side in a join
- * @param leftKey : A key from left side array. What can be as a fieldName, multiple fields or key Selector
- * @param rightKey : A key from right side array. what can be as a fieldName, multiple fields or key Selector
+ * @param leftArray array for left side in a join  
+ * @param rightArray array for right side in a join
+ * @param leftKey A key from left side array. What can be as a fieldName, multiple fields or key Selector
+ * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
 export function fullJoin(
     leftArray: any[],
     rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
 ): any[] {
     const leftKeySelector = fieldSelector(leftKey);
@@ -120,8 +108,8 @@ export function fullJoin(
 export function merge(
     targetArray: any[],
     sourceArray: any[],
-    targetKey: string | string[] | FieldSelectorFunction,
-    sourceKey: string | string[] | FieldSelectorFunction
+    targetKey: string | string[] | Selector<any, string>,
+    sourceKey: string | string[] | Selector<any, string>
 ): any[] {
 
     const targetKeySelector = fieldSelector(targetKey);
@@ -142,7 +130,7 @@ export function merge(
 
     for (let sourceItemKey of Object.keys(sourceArrayMap)) {
         const sourceItem = sourceArrayMap[sourceItemKey];
-        if(!targetArrayMap[sourceItemKey]){
+        if (!targetArrayMap[sourceItemKey]) {
             targetArray.push(sourceItem);
         } else {
             // merge properties in
@@ -181,12 +169,15 @@ function verifyJoinArgs(
     }
 }
 
+
+
+
 function leftOrInnerJoin(
     isInnerJoin: boolean,
     leftArray: any[],
     rightArray: any[],
-    leftKey: string | string[] | FieldSelectorFunction,
-    rightKey: string | string[] | FieldSelectorFunction,
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
 ): any[] {
     const leftKeySelector = fieldSelector(leftKey);

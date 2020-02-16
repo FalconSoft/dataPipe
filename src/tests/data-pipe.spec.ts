@@ -1,7 +1,7 @@
-import { dataPipe } from './index';
-import { DataPipe } from './data-pipe';
-import { data } from './array.spec';
+import { dataPipe } from '../index';
 import { table } from './table.spec';
+import { data } from './array.spec';
+import { DataPipe } from '../data-pipe';
 
 describe('DataPipe specification', () => {
   it('dataPipe returns DataPipe', () => {

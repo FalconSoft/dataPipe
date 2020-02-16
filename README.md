@@ -23,8 +23,9 @@ npm install datapipe-js
 JavaScript / TypeScript
 ```js
 const data = [
-  { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"}, { name: "Adam", country: "UK"}, 
-  { name: "Scott", country: "UK"}, { name: "Diana",country: "UK"}, { name: "Marry",country: "FR"}, { name: "Luc",country: "FR"}
+  { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"},
+  { name: "Adam", country: "UK"}, { name: "Scott", country: "UK"}, { name: "Diana",country: "UK"},
+  { name: "Marry",country: "FR"}, { name: "Luc",country: "FR"}
 ];
 
 const summaryForUS = dataPipe(data)

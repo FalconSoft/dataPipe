@@ -1,5 +1,6 @@
+
 import { data } from "./array.spec";
-import { toTable, fromTable } from "./table";
+import { fromTable, toTable } from "../utils";
 
 export const table = {
   fields: ['name', 'country'],

@@ -75,6 +75,10 @@
     "out": "docs",
     "excludeExternals": true,
     "exclude": "**/*+(index|.spec|.e2e).ts",
-    "readme": "README.md"
+    "excludeNotExported": false,
+    "readme": "README.md",
+    "toc": [
+      "data-pipe"
+    ]
   }
 }

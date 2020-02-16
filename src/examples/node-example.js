@@ -11,7 +11,7 @@ const summaryForUS = dataPipe(data)
   .groupBy(i => i.country)
   .select(g => {
     const r = {}
-    r.country = dataPipe(g).first().country
+    r.country = first(g).country
     r.names = dataPipe(g).map(r => r.name).join(", ")
     r.count = dataPipe(g).count()
     return r;
