@@ -150,6 +150,103 @@ export function countBy(array: any[], elementSelector: Selector): { [key: string
     return results;
 }
 
+/**
+ * Get mean of an array.
+ * @param array The array to process.
+ * @param field Property name or Selector function invoked per iteration.
+ */
+export function mean(array: any[], field?: Selector | string) {
+  let res = 0;
+  for (let i = 0, c = 0, len = array.length; i < len; ++i) {
+    const val = parseNumber(array[i], fieldSelector(field));
+    if (typeof val === 'number') {
+      const delta = val - res;
+      res = res + delta / (++c);
+    }
+  }
+  return res;
+}
+
+/**
+ * Get quantile of a sorted array.
+ * @param array The array to process.
+ * @param field Property name or Selector function invoked per iteration.
+ * @param p quantile.
+ */
+export function quantile(array: any[], p: number, field?: Selector | string): number | null {
+  if (!Array.isArray(array)) {
+    return null;
+  }
+  const len = (array.length - 1) * p + 1;
+  const l = Math.floor(len);
+  const elementSelector = fieldSelector(field);
+  const val = elementSelector ? elementSelector(array[l - 1]) : array[l - 1];
+  const e = len - l;
+  return e ? val + e * (array[l] - val) : val;
+};
+
+/**
+ * Get sample variance of an array.
+ * @param array The array to process.
+ * @param field Property name or Selector function invoked per iteration.
+ */
+export function variance(array: any[], field?: Selector | string): number {
+  const elementSelector = fieldSelector(field);
+  if (!Array.isArray(array) || array.length < 2) {
+    return 0;
+  }
+  let mean = 0, M2 = 0, c = 0;
+  for (let i = 0; i < array.length; ++i) {
+    const val = parseNumber(array[i], elementSelector);
+    if (typeof val === 'number') {
+      const delta = val - mean;
+      mean = mean + delta / (++c);
+      M2 = M2 + delta * (val - mean);
+    }
+  }
+  M2 = M2 / (c - 1);
+  return M2;
+};
+
+/**
+ * Get the sample standard deviation of an array.
+ * @param array The array to process.
+ * @param field Property name or Selector function invoked per iteration.
+ */
+export function stdev(array: any[], field?: Selector | string): number {
+  return Math.sqrt(variance(array, field));
+};
+
+/**
+ * Get median of an array.
+ * @param array The array to process.
+ * @param field Property name or Selector function invoked per iteration.
+ */
+export function median(array: any[], field?: Selector | string): number | null {
+  if (!Array.isArray(array)) {
+    return array;
+  }
+  array.sort(fieldComparator(field));
+  return quantile(getNumberValuesArray(array, field), 0.5);
+};
+
+function fieldComparator(field?: string | Selector): (a: any, b:any) => number {
+  return (a: any, b: any) => {
+    const aVal = parseNumber(a, fieldSelector(field));
+    const bVal = parseNumber(b, fieldSelector(field));
+
+    if (bVal === undefined) {
+      return 1;
+    }
+
+    if (aVal === undefined) {
+      return -1;
+    }
+
+    return aVal - bVal >= 0 ? 1 : -1;
+  }
+}
+
 function fieldSelector(field?: string | Selector): Selector {
     if (!field) {
         return (item: any) => item;
@@ -157,6 +254,7 @@ function fieldSelector(field?: string | Selector): Selector {
     return typeof field === 'function' ? field as Selector : (item: any) => item[String(field)];
 }
 
-function getNumberValuesArray(array: any[], elementSelector?: Selector): number[] {
-    return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
+function getNumberValuesArray(array: any[], field?: string | Selector): number[] {
+  const elementSelector = fieldSelector(field);
+  return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
 }

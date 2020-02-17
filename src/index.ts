@@ -1,8 +1,10 @@
 import { DataPipe } from "./data-pipe";
 
-export * from './array'
-export * from './utils'
-export * from './string'
+import * as arrayUtils from './array'
+import * as utils from './utils'
+import * as stringUtils from './string'
+
+export { arrayUtils, utils, stringUtils };
 
 /**
  * Data Pipeline factory function what creates DataPipe

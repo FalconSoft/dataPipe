@@ -1,5 +1,5 @@
 import * as pipeFuncs from '../array'
-import { leftJoin, pivot, avg, sum } from '../array';
+import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median } from '../array';
 
 export const data = [
   { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
@@ -196,4 +196,72 @@ describe('Test array methods', () => {
     expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
   })
 
+  it('stats quantile for sorted array', () => {
+    const data = [3, 1, 2, 4, 0].sort();
+    expect(quantile(data, 0)).toBe(0);
+    expect(quantile(data, 1 / 4)).toBe(1);
+    expect(quantile(data, 1.5 / 4)).toBe(1.5);
+    expect(quantile(data, 2 / 4)).toBe(2);
+    expect(quantile(data, 2.5 / 4)).toBe(2.5);
+    expect(quantile(data, 3 / 4)).toBe(3);
+    expect(quantile(data, 3.2 / 4)).toBe(3.2);
+    expect(quantile(data, 4 / 4)).toBe(4);
+
+    var even = [3, 6, 7, 8, 8, 10, 13, 15, 16, 20];
+    expect(quantile(even, 0)).toBe(3);
+    expect(quantile(even, 0.25)).toBe(7.25);
+    expect(quantile(even, 0.5)).toBe(9);
+    expect(quantile(even, 0.75)).toBe(14.5);
+    expect(quantile(even, 1)).toBe(20);
+
+    var odd = [3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20];
+    expect(quantile(odd, 0)).toBe(3);
+    expect(quantile(odd, 0.25)).toBe(7.5);
+    expect(quantile(odd, 0.5)).toBe(9);
+    expect(quantile(odd, 0.75)).toBe(14);
+    expect(quantile(odd, 1)).toBe(20);
+
+    expect(quantile([3, 5, 10], 0.5)).toBe(5);
+  });
+
+  it('stats mean', () => {
+    expect(mean([1])).toBe(1);
+    expect(mean([5, 1, 2, 3, 4])).toBe(3);
+    expect(mean([19, 4])).toBe(11.5);
+    expect(mean([4, 19])).toBe(11.5);
+    expect(mean([NaN, 1, 2, 3, 4, 5])).toBe(3);
+    expect(mean([1, 2, 3, 4, 5, NaN])).toBe(3);
+    expect(mean([9, null, 4, undefined, 5, NaN])).toBe(6);
+  });
+
+  it('stats variance', () => {
+    expect(variance([5, 1, 2, 3, 4])).toBe(2.5);
+    expect(variance([20, 3])).toBe(144.5);
+    expect(variance([3, 20])).toBe(144.5);
+    expect(variance([NaN, 1, 2, 3, 4, 5])).toBe(2.5);
+    expect(variance([1, 2, 3, 4, 5, NaN])).toBe(2.5);
+    expect(variance([10, null, 3, undefined, 5, NaN])).toBe(13);
+  });
+
+  it('stats stdev', () => {
+    expect(stdev([5, 1, 2, 3, 4])).toEqual(Math.sqrt(2.5));
+    expect(stdev([20, 3])).toEqual(Math.sqrt(144.5));
+    expect(stdev([3, 20])).toEqual(Math.sqrt(144.5));
+    expect(stdev([NaN, 1, 2, 3, 4, 5])).toEqual(Math.sqrt(2.5));
+    expect(stdev([1, 2, 3, 4, 5, NaN])).toEqual(Math.sqrt(2.5));
+    expect(stdev([10, null, 3, undefined, 5, NaN])).toEqual(Math.sqrt(13));
+  });
+
+  it('stats median', () => {
+    expect(median([1])).toBe(1);
+    expect(median([5, 1, 2, 3])).toBe(2.5);
+    expect(median([5, 1, 2, 3, 4])).toBe(3);
+    expect(median([20, 3])).toBe(11.5);
+    expect(median([3, 20])).toBe(11.5);
+    expect(median([10, 3, 5])).toBe(5);
+    expect(median([NaN, 1, 2, 3, 4, 5])).toBe(3);
+    expect(median([1, 2, 3, 4, 5, NaN])).toBe(3);
+    expect(median([null, 3, undefined, 5, NaN, 10])).toBe(5);
+    expect(median([10, null, 3, undefined, 5, NaN])).toBe(5);
+  });
 })

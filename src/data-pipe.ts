@@ -1,7 +1,7 @@
-import { sum, avg, count, min, max, first, last, groupBy, flatten, countBy } from './array';
+import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
 import { Selector, Predicate, ParsingOptions } from './types';
 import { parseCsv, fromTable, toTable } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge } from './array';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten } from './array';
 
 
 export class DataPipe {
@@ -124,11 +124,11 @@ export class DataPipe {
   }
 
   /**
-   * Joins two arrays together by selecting elements that have matching values in both arrays 
+   * Joins two arrays together by selecting elements that have matching values in both arrays
    * @param rightArray array of elements to join
    * @param leftKey left Key
-   * @param rightKey 
-   * @param resultSelector 
+   * @param rightKey
+   * @param resultSelector
    */
   innerJoin(rightArray: any[],
     leftKey: string | string[] | Selector<any, string>,
@@ -222,5 +222,45 @@ export class DataPipe {
     return this;
   }
 
+  /**
+   * Get mean.
+   * @param field Property name or Selector function invoked per iteration.
+   */
+  mean(field?: Selector | string): number {
+    return mean(this.data, field);
+  }
+
+  /**
+   * Get quantile of a sorted array.
+   * @param field Property name or Selector function invoked per iteration.
+   * @param p quantile.
+   */
+  quantile(p: number, field?: Selector | string): number | null {
+    return quantile(this.data, p, field);
+  }
+
+  /**
+   * Get variance.
+   * @param field Property name or Selector function invoked per iteration.
+   */
+  variance(field?: Selector | string): number | null {
+    return variance(this.data, field);
+  }
+
+  /**
+   * Get the standard deviation.
+   * @param field Property name or Selector function invoked per iteration.
+   */
+  stdev(field?: Selector | string): number | null {
+    return stdev(this.data, field);
+  }
+
+  /**
+   * Get median.
+   * @param field Property name or Selector function invoked per iteration.
+   */
+  median(field?: Selector | string): number | null {
+    return median(this.data, field);
+  }
 
 }

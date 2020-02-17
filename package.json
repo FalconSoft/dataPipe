@@ -1,6 +1,6 @@
 {
   "name": "datapipe-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "dataPipe is a JavaScript library for data manipulations, data transformations and data analytics inspired by LINQ (C#) and Pandas - (Python)",
   "main": "dist/data-pipe.min.js",
   "module": "dist/data-pipe.esm.js",
@@ -43,18 +43,18 @@
     "data-clensing"
   ],
   "devDependencies": {
-    "@types/jest": "^24.0.23",
+    "@types/jest": "^24.9.1",
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",
-    "rollup": "^1.27.0",
+    "rollup": "^1.31.1",
     "rollup-plugin-copy": "^3.1.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-typescript2": "^0.25.2",
-    "rollup-plugin-uglify": "^6.0.3",
-    "ts-jest": "^24.1.0",
-    "typedoc": "^0.15.2",
-    "typedoc-plugin-markdown": "^2.2.11",
-    "typescript": "^3.7.2"
+    "rollup-plugin-typescript2": "^0.25.3",
+    "rollup-plugin-uglify": "^6.0.4",
+    "ts-jest": "^24.3.0",
+    "typedoc": "^0.15.8",
+    "typedoc-plugin-markdown": "^2.2.16",
+    "typescript": "^3.7.5"
   }
 }
