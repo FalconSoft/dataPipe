@@ -6,13 +6,16 @@
   "module": "dist/data-pipe.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "array",
+    "string",
+    "utils"
   ],
   "scripts": {
     "test": "jest",
     "test:dev": "jest --watch",
     "test:dev:debug": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
-    "build": "npx rollup -c && npm run docs",
+    "build": "npx rollup -c && npm run docs && node copy-types",
     "build:publish": "npm run build && npm publish",
     "docs": "npx typedoc src --plugin none",
     "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
@@ -47,7 +50,7 @@
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",
     "rollup": "^1.31.1",
-    "rollup-plugin-copy": "^3.1.0",
+    "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-serve": "^1.0.1",
     "rollup-plugin-typescript2": "^0.25.3",

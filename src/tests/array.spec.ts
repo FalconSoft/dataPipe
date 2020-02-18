@@ -264,4 +264,9 @@ describe('Test array methods', () => {
     expect(median([null, 3, undefined, 5, NaN, 10])).toBe(5);
     expect(median([10, null, 3, undefined, 5, NaN])).toBe(5);
   });
+
+  fit('utils sort', () => {
+    const arr = pipeFuncs.sort(data, 'country ASC', 'name DESC');
+    console.log(arr);
+  })
 })

@@ -5,7 +5,7 @@ const pkg = require('./package.json');
 const input = 'src/index.ts';
 
 export default [{
-  input,
+  input: 'src/commonjs.ts',
   output: [
     { file: pkg.main, name: 'dp', format: 'umd', sourcemap: true, compact: true },
   ],
@@ -17,7 +17,7 @@ export default [{
     uglify()
   ]
 }, {
-  input,
+  input: input,
   output: { file: pkg.module, format: 'esm', sourcemap: true, compact: true },
   treeshake: true,
   plugins: [
@@ -25,4 +25,13 @@ export default [{
       clean: true
     })
   ]
-}];
+}, ...['array', 'string', 'utils'].map(subFolder => ({
+    input: `src/${subFolder}/index.ts`,
+    output: { file: `${subFolder}/index.js`, format: 'esm', sourcemap: true, compact: true },
+    treeshake: true,
+    plugins: [
+      typescript({
+        clean: true
+      })
+    ]
+  }))];
