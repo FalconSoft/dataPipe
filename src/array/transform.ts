@@ -99,3 +99,26 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
 
     return result;
 }
+
+/**
+ * Transpose Array. Row to columns
+ * @param data 
+ */
+export function transposeData(data: any[]) {
+    if (!data) {
+      return null;
+    }
+  
+    return Object.keys(data[0]).map(key => {
+      const res: { [key: string]: any } = {};
+      data.forEach((item, i) => {
+        if (i === 0) {
+          res.fieldName = key;
+        }
+  
+        res['row' + i] = item[key];
+      });
+      return res;
+    });
+  }
+  

@@ -1,6 +1,5 @@
 import { Selector } from "../types";
 
-
 /**
  * Formats selected value to number.
  * @private
@@ -49,6 +48,7 @@ export function parseNumberOrNull(value: string | number): number | null {
   const res = parseFloat(value.replace(/,/g, ''));
   return !isNaN(res) ? res : null;
 }
+
 /**
  * More wider datetime parser
  * @param value
@@ -119,6 +119,25 @@ export function parseDatetimeOrNull(value: string | Date): Date | null {
   // then US
   d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), correctYear(dt[1]), dt[3] || 0, dt[4] || 0, dt[5] || 0);
   if (d) { return d; }
+
+  return null;
+}
+
+export function parseBooleanOrNull(val: boolean | string): boolean | null {
+  if (!val) { return null; }
+  if (typeof val === 'boolean') { return val; }
+
+  const trulyVals = ['1', 'yes', 'true', 'on'];
+  const falsyVals = ['0', 'no', 'false', 'off'];
+  const checkVal = val.toString().toLowerCase();
+
+  if (trulyVals.includes(checkVal)) {
+    return true;
+  }
+
+  if (falsyVals.includes(checkVal)) {
+    return false;
+  }
 
   return null;
 }
