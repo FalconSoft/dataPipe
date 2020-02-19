@@ -2,8 +2,14 @@ import * as pipeFuncs from '../array'
 import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median } from '../array';
 
 export const data = [
-  { name: "John", country: "US" }, { name: "Joe", country: "US" }, { name: "Bill", country: "US" }, { name: "Adam", country: "UK" },
-  { name: "Scott", country: "UK" }, { name: "Diana", country: "UK" }, { name: "Marry", country: "FR" }, { name: "Luc", country: "FR" }
+  { name: "John", country: "US", age: 32 },
+  { name: "Joe", country: "US", age: 24 },
+  { name: "Bill", country: "US", age: 27 },
+  { name: "Adam", country: "UK", age: 18 },
+  { name: "Scott", country: "UK", age: 45 },
+  { name: "Diana", country: "UK" },
+  { name: "Marry", country: "FR", age: 18 },
+  { name: "Luc", country: "FR", age: null }
 ]
 
 describe('Test array methods', () => {
@@ -265,8 +271,12 @@ describe('Test array methods', () => {
     expect(median([10, null, 3, undefined, 5, NaN])).toBe(5);
   });
 
-  fit('utils sort', () => {
-    const arr = pipeFuncs.sort(data, 'country ASC', 'name DESC');
-    console.log(arr);
+  it('utils sort', () => {
+    let arr = pipeFuncs.sort(data, 'country DESC', 'name ASC');
+    expect(arr[0].name).toEqual('Bill');
+    arr = pipeFuncs.sort(data, 'age ASC', 'name DESC');
+    expect(arr[2].name).toBe('Marry');
+    arr = pipeFuncs.sort([5, 2, 9, 4]);
+    expect(arr[2]).toBe(5);
   })
 })

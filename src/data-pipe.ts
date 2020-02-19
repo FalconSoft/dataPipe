@@ -1,7 +1,7 @@
 import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
 import { Selector, Predicate, ParsingOptions } from './types';
 import { parseCsv, fromTable, toTable } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten } from './array';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort } from './array';
 
 
 export class DataPipe {
@@ -223,6 +223,17 @@ export class DataPipe {
   }
 
   /**
+   * Sort array.
+   * @param fields sorts order.
+   * @example
+   * dp.sort('name ASC', 'age DESC');
+   */
+  sort(...fields: string[]) {
+    sort(this.data, ...fields);
+    return this
+  }
+
+  /**
    * Get mean.
    * @param field Property name or Selector function invoked per iteration.
    */
@@ -262,5 +273,4 @@ export class DataPipe {
   median(field?: Selector | string): number | null {
     return median(this.data, field);
   }
-
 }
