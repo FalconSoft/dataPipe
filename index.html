@@ -13,16 +13,19 @@
 
   <script>
     let csv = `
-Product,Year,Sale
-P1,2017,11
-P1,2017,20
-P1,2018,12
-P2,2017,21
-P2,2018,21
-P3,2017,31`;
+Product,Year,NotString
+P1,2017,Data11
+P1,2017,Data20
+P1,2018,Data12
+P2,2017,Data21
+P2,2018,Data21
+P3,2017,Data31`;
 
     function onButtonClick() {
-      const res = dp.pivot(dp.parseCsv(csv), "Product", "Year", "Sale")
+      const res = dp.dataPipe()
+        .fromCsv(csv)
+        .pivot("Year", "Product", "NotString", (a)=> dp.dataPipe(a).first())
+        .toArray();
       console.log(res);
     }
 

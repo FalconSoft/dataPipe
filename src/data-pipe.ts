@@ -1,7 +1,7 @@
 import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
 import { Selector, Predicate, ParsingOptions } from './types';
 import { parseCsv, fromTable, toTable } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort } from './array';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose } from './array';
 
 
 export class DataPipe {
@@ -167,12 +167,16 @@ export class DataPipe {
     return this;
   }
 
-  /**
-   * Gets joined as sring array items.
-   * @param separator String separator.
-   */
-  join(separator?: string): string {
-    return this.data.join(separator);
+  pivot(rowFields: string | string[], columnField: string, dataField: string,
+    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): DataPipe {
+
+    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues)
+    return this;
+  }
+  
+  transpose(): DataPipe {
+    this.data = transpose(this.data) || [];
+    return this;
   }
 
   /**

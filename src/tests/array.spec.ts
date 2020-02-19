@@ -1,5 +1,5 @@
 import * as pipeFuncs from '../array'
-import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median } from '../array';
+import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first } from '../array';
 
 export const data = [
   { name: "John", country: "US", age: 32 },
@@ -199,6 +199,23 @@ describe('Test array methods', () => {
     expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(34);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
     expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe(33);
+    expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
+  })
+
+  it('pivot not string data value', () => {
+    const arr = [
+      { product: 'P1', year: '2018', notAString: 'Data11' },
+      { product: 'P1', year: '2019', notAString: 'Data12' },
+      { product: 'P2', year: '2018', notAString: 'Data21' },
+      { product: 'P2', year: '2019', notAString: 'Data22' },
+      { product: 'P3', year: '2019', notAString: 'Data33' },
+    ];
+
+    const res = pivot(arr, 'year', 'product', 'notAString', first);
+    expect(res.length).toBe(3);
+    expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe('Data12');
+    expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe('Data21');
+    expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe('Data33');
     expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
   })
 

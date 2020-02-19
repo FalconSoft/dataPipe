@@ -53,11 +53,11 @@ export function flatten(array: any[]): any[] {
  * @param columnValues an optional initial column values. Use it to define a set of columns/values you would expect
  */
 export function pivot(array: any, rowFields: string | string[],columnField: string, dataField: string,
-    aggFunction?: (array: number[]) => number | null, columnValues?: string[]): any[] {
+    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): any[] {
 
     const groups: { [key: string]: any[] } = Object.create(null);
     columnValues = columnValues || [];
-    aggFunction = aggFunction || ((a: number[]) => sum(a));
+    aggFunction = aggFunction || ((a: any[]) => sum(a));
 
     const elementSelector = fieldSelector(rowFields);
 
@@ -104,7 +104,7 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
  * Transpose Array. Row to columns
  * @param data 
  */
-export function transposeData(data: any[]) {
+export function transpose(data: any[]): any[] | null {
     if (!data) {
       return null;
     }
