@@ -13,18 +13,23 @@
 
   <script>
     let csv = `
-Product,Year,NotString
-P1,2017,Data11
-P1,2017,Data20
-P1,2018,Data12
-P2,2017,Data21
-P2,2018,Data21
-P3,2017,Data31`;
+keyField,Value1
+k1,21
+k2,22
+k3,23
+k5,24
+`;
+    const arr = [
+      {keyField:'k1', value2: 31},
+      {keyField:'k2', value2: 32},
+      {keyField:'k5', value2: 35},
+      {keyField:'k8', value2: 38},
+    ];
 
     function onButtonClick() {
       const res = dp.dataPipe()
         .fromCsv(csv)
-        .pivot("Year", "Product", "NotString", (a)=> dp.dataPipe(a).first())
+        .fullJoin(arr, l => l.keyField, r => r.keyField, (l, r) => Object.assign(l || {},r || {}))
         .toArray();
       console.log(res);
     }

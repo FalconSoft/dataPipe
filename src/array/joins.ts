@@ -82,7 +82,7 @@ export function fullJoin(
         // if result is null then probably a left item was modified
         result.push(resultItem || leftItem);
         if (rightItem) {
-            delete rightArrayMap.leftKey;
+            delete rightArrayMap[leftKey];
         }
     }
 
