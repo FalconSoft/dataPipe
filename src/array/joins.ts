@@ -169,9 +169,6 @@ function verifyJoinArgs(
     }
 }
 
-
-
-
 function leftOrInnerJoin(
     isInnerJoin: boolean,
     leftArray: any[],

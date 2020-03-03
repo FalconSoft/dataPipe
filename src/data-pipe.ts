@@ -119,7 +119,7 @@ export class DataPipe {
    * Gets counts map of values returned by `elementSelector`.
    * @param elementSelector Function invoked per iteration.
    */
-  countBy(elementSelector: Selector): { [key: string]: number } {
+  countBy(elementSelector: Selector): { [key: string]: number } | null {
     return countBy(this.data, elementSelector);
   }
 
@@ -218,7 +218,7 @@ export class DataPipe {
    * Get unique values
    * @param elementSelector Function invoked per iteration.
    */
-  unique(elementSelector?: Selector) {
+  unique(elementSelector?: Selector): DataPipe {
     if (elementSelector) {
       this.select(elementSelector);
     }
@@ -232,7 +232,7 @@ export class DataPipe {
    * @example
    * dp.sort('name ASC', 'age DESC');
    */
-  sort(...fields: string[]) {
+  sort(...fields: string[]): DataPipe {
     sort(this.data, ...fields);
     return this
   }
@@ -241,7 +241,7 @@ export class DataPipe {
    * Get mean.
    * @param field Property name or Selector function invoked per iteration.
    */
-  mean(field?: Selector | string): number {
+  mean(field?: Selector | string): number | null {
     return mean(this.data, field);
   }
 

@@ -1,6 +1,6 @@
 import { Selector } from "../types";
 import { fieldSelector } from "../_internals";
-import { avg, sum } from "./stats";
+import { sum } from "./stats";
 
 /**
  * Groups array items based on elementSelector function
@@ -8,6 +8,10 @@ import { avg, sum } from "./stats";
  * @param elementSelector Function invoked per iteration.
  */
 export function groupBy(array: any[], groupByFields: string | string[] | Selector): any[] {
+    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+
+    if (!array.length) { return array; }
+
     const groups: { [key: string]: any[] } = {};
 
     const elementSelector = fieldSelector(groupByFields);
@@ -29,6 +33,10 @@ export function groupBy(array: any[], groupByFields: string | string[] | Selecto
  * flatten([1, 4, [2, [5, 5, [9, 7]], 11], 0]); // length 9
  */
 export function flatten(array: any[]): any[] {
+    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+
+    if (!array.length) { return array; }
+
     let res: any = [];
     const length = array.length;
 
@@ -54,6 +62,11 @@ export function flatten(array: any[]): any[] {
  */
 export function pivot(array: any, rowFields: string | string[],columnField: string, dataField: string,
     aggFunction?: (array: any[]) => any | null, columnValues?: string[]): any[] {
+
+    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+
+    if (!array.length) { return array; }
+    
 
     const groups: { [key: string]: any[] } = Object.create(null);
     columnValues = columnValues || [];
@@ -101,13 +114,13 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
 }
 
 /**
- * Transpose Array. Row to columns
+ * Transpose rows to columns in an array
  * @param data 
  */
-export function transpose(data: any[]): any[] | null {
-    if (!data) {
-      return null;
-    }
+export function transpose(data: any[]): any[] {
+    if (!Array.isArray(data)) { throw Error('An array is not provided') };
+
+    if (!data.length) { return data; }
   
     return Object.keys(data[0]).map(key => {
       const res: { [key: string]: any } = {};

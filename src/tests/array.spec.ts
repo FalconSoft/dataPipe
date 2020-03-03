@@ -56,6 +56,7 @@ describe('Test array methods', () => {
     expect(pipeFuncs.min(testNumberArray)).toBe(Math.min(...testNumberArray));
     expect(pipeFuncs.min(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArrayMin);
     expect(pipeFuncs.min(testObjArray, obj => obj.value)).toBe(Math.min(...testNumberArray));
+
     const mindate = pipeFuncs.min(dates);
     expect(mindate).toBeInstanceOf(Date);
     if (mindate instanceof Date) {
@@ -67,6 +68,7 @@ describe('Test array methods', () => {
     expect(pipeFuncs.max(testNumberArray)).toBe(Math.max(...testNumberArray));
     expect(pipeFuncs.max(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArrayMax);
     expect(pipeFuncs.max(testObjArray, obj => obj.value)).toBe(Math.max(...testNumberArray));
+    expect(pipeFuncs.max([])).toBe(null);
     const maxdate = pipeFuncs.max(dates);
     expect(maxdate).toBeInstanceOf(Date);
     if (maxdate instanceof Date) {
@@ -110,6 +112,21 @@ describe('Test array methods', () => {
     expect(countriesCount['FR']).toBe(2);
   });
 
+  it('handle empty arrays', () => {
+    expect(pipeFuncs.max([])).toBe(null);
+    expect(pipeFuncs.min([])).toBe(null);
+    expect(pipeFuncs.avg([])).toBe(null);
+    expect(pipeFuncs.stdev([])).toBe(null);
+    expect(pipeFuncs.first([])).toBe(null);
+    expect(pipeFuncs.last([])).toBe(null);
+    expect(pipeFuncs.mean([])).toBe(null);
+    expect(pipeFuncs.median([])).toBe(null);
+    expect(pipeFuncs.sum([])).toBe(null);
+    expect(pipeFuncs.variance([])).toBe(null);
+    expect(pipeFuncs.quantile([], 0)).toBe(null);
+  });
+
+
   it('leftJoin', () => {
     const countries = [{ code: 'US', capital: 'Washington' }, { code: 'UK', capital: 'London' }];
     const joinedArray = leftJoin(data, countries, i => i.country, i2 => i2.code, (l, r) => ({ ...r, ...l }));
@@ -128,7 +145,7 @@ describe('Test array methods', () => {
       {keyField:'k3', value1: 23},
       {keyField:'k4', value1: 24}
     ];
-    
+
     const arr2 = [
       {keyField:'k1', value2: 31},
       {keyField:'k2', value2: 32},
@@ -150,7 +167,7 @@ describe('Test array methods', () => {
       {keyField:'k3', value1: 23},
       {keyField:'k4', value1: 24}
     ];
-    
+
     const arr2 = [
       {keyField:'k1', value2: 31},
       {keyField:'k2', value2: 32},
@@ -172,7 +189,7 @@ describe('Test array methods', () => {
       {keyField:'k3', value1: 23},
       {keyField:'k4', value1: 24}
     ];
-    
+
     const arr2 = [
       {keyField:'k1', value2: 31},
       {keyField:'k2', value2: 32},
@@ -356,7 +373,8 @@ describe('Test array methods', () => {
   });
 
   it('utils sort', () => {
-    let arr = pipeFuncs.sort(data, 'country DESC', 'name ASC');
+    let arr = pipeFuncs.sort(data, 'country DESC', 'name ASC') || [];
+
     expect(arr[0].name).toEqual('Bill');
     arr = pipeFuncs.sort(data, 'age ASC', 'name DESC');
     expect(arr[2].name).toBe('Marry');
