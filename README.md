@@ -79,20 +79,19 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
  - **dataPipe**(array) - accepts a JavaScript array
  - **fromTable**(rows, fields [, dataTypes]) - load data from two dimentional array (rows) and array for field names (fields). And if dataTypes are supplied it will automatically parse data types - Date, numbers, booleans
  - **fromCsv**(contentOrUrlOrPath[, options]) - it loads a string content or external URL or file system path (NodeJS only) and process each row with optional but robust configuration options and callbacks e.g. skipRows, skipUntil, takeWhile, rowSelector, rowPredicate etc.
-  - **fromTsv** or **fromPsv** - same signature and features as `fromScv`, but handles TAB (\t) or PIPE (|) separated values
 
 ### Data Transformation
 
  - **select**(elementSelector) synonym **map** - creates a new element for each element in a pipe based on elementSelector callback.
  - **where**(predicate) / **filter** - filters elements in a pipe based on predicate
  - **groupBy**(keySelector) - groups elements in a pipe according to the keySelector callback-function. Returns a pipe with new group objects.
- - **join**(array2, keySelector1, keySelector2, resultSelector) - Joins two arrays according to `keySelector`s for each arrays and projects new array according to `resultSelector` callback functions
- - **join**(separator[, elementSelector]) - string style elements concatenation. 
- - **intercept**() - comming soon
- - **except**() - comming soon
- - **pivot**() - comming soon
- - **merge**() - comming soon
- - **union** / concat()  - comming soon
+ - **pivot**(array, rowFields, columnField, dataField, aggFunction?, columnValues?) - Returns a reshaped (pivoted) array based on unique column values.
+ - **transpose**(array) - Transpose rows to columns in an array
+ - **innerJoin**(leftArray, rightArray, leftKey, rightKey, resultSelector) - Joins two arrays together by selecting elements that have matching values in both arrays. The array elements that do not have matche in one array will not be shown!
+ - **leftJoin**(leftArray, rightArray, leftKey, rightKey, resultSelector) - Joins two arrays together by selrcting all elements from the left array (leftArray), and the matched elements from the right array (rightArray). The result is NULL from the right side, if there is no match.
+ - **fullJoin**(leftArray, rightArray, leftKey, rightKey, resultSelector) - Joins two arrays together by selrcting all elements from the left array (leftArray), and the matched elements from the right array (rightArray). The result is NULL from the right side, if there is no match.
+ - **fullJoin**(leftArray, rightArray, leftKey, rightKey, resultSelector) - Joins two arrays together by selrcting all elements from the left array (leftArray), and then all elements from the right array (rightArray). The result element could be NULL oneither side - right or left side, if there is no match.
+ - **merge**(targetArray, sourceArray, targetKey, sourceKey) - merges elements from two arrays. It takes source elements and append or override elements in the target array.Merge or append is based on matching keys provided
 
 ### Aggregation and other numerical functions
 
@@ -102,6 +101,11 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
  - **count**([predicate]) - returns the count for an elements in a pipe. With `predicate` function you can specify criteria
  - **first**([predicate]) - returns a first element in a pipe. If predicate function provided. Then it will return the first element in a pipe for a given criteria.
  - **last**([predicate]) - returns a first element in a pipe. If predicate function provided. Then it will return the first element in a pipe for a given criteria.
+ - **mean**(array, [propertySelector]) - returns a mean in array.
+ - **quantile**(array, [propertySelector]) - returns a quantile in array.
+ - **variance**(array, [propertySelector]) - returns a sample variance of an array.
+ - **stdev**(array, [propertySelector]) - returns a standard deviation in array.
+ - **median**(array, [propertySelector]) - returns a median in array.
  
 ### Output your pipe data to
 
