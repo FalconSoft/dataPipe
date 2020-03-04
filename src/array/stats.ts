@@ -53,12 +53,11 @@ export function avg(array: any[], field?: Selector | string): number | null {
  * @param elementSelector Function invoked per iteration.
  */
 export function min(array: any[], field?: Selector | string): number | Date | null {
-  if (isArrayEmptyOrNull(array)) { return null };
-
   const elementSelector = fieldSelector(field);
-
+  const numberArray = getNumberValuesArray(array, elementSelector);
+  if (isArrayEmptyOrNull(numberArray)) { return null }
+  const min = Math.min(...numberArray);
   const item = elementSelector ? elementSelector(array[0]) : array[0];
-  const min = Math.min(...getNumberValuesArray(array, elementSelector));
   if (item instanceof Date) {
     return new Date(min);
   }
@@ -72,12 +71,11 @@ export function min(array: any[], field?: Selector | string): number | Date | nu
  * @param elementSelector Function invoked per iteration.
  */
 export function max(array: any[], field?: Selector | string): number | Date | null {
-  if (isArrayEmptyOrNull(array)) { return null };
-
   const elementSelector = fieldSelector(field);
-
+  const numberArray = getNumberValuesArray(array, elementSelector);
+  if (isArrayEmptyOrNull(numberArray)) { return null };
+  const max = Math.max(...numberArray);
   const item = elementSelector ? elementSelector(array[0]) : array[0];
-  const max = Math.max(...getNumberValuesArray(array, elementSelector));
   if (item instanceof Date) {
     return new Date(max);
   }

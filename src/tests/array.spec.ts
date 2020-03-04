@@ -114,8 +114,14 @@ describe('Test array methods', () => {
 
   it('handle empty arrays', () => {
     expect(pipeFuncs.max([])).toBe(null);
+    expect(pipeFuncs.max([null])).toBe(null);
+    expect(pipeFuncs.max([undefined])).toBe(null);
     expect(pipeFuncs.min([])).toBe(null);
+    expect(pipeFuncs.min([null])).toBe(null);
+    expect(pipeFuncs.min([undefined])).toBe(null);
     expect(pipeFuncs.avg([])).toBe(null);
+    expect(pipeFuncs.avg([null])).toBe(null);
+    expect(pipeFuncs.avg([undefined])).toBe(null);
     expect(pipeFuncs.stdev([])).toBe(null);
     expect(pipeFuncs.first([])).toBe(null);
     expect(pipeFuncs.last([])).toBe(null);
