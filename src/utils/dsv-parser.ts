@@ -12,10 +12,10 @@ export function parseCsv(content: string, options?: ParsingOptions): any[] {
     return getLineTokens(content, options || new ParsingOptions());
 }
 
-export function toCsv(array: any[], delimiter: string = ','): string {
+export function toCsv(array: any[], delimiter = ','): string {
     array = array || [];
 
-    var result = "";
+    const result = "";
     const headers: string[] = [];
 
     // workout all headers
@@ -47,8 +47,8 @@ export function toCsv(array: any[], delimiter: string = ','): string {
 }
 
 type ParsingContext = {
-    content: string,
-    currentIndex: number
+    content: string;
+    currentIndex: number;
 };
 
 function getObjectElement(fieldNames: string[], tokens: string[], options: ParsingOptions): any {
@@ -135,7 +135,7 @@ function getLineTokens(content: string, options: ParsingOptions): string[][] {
     return result;
 }
 
-function nextLineTokens(context: ParsingContext, delimiter: string = ','): string[] {
+function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
     const tokens: string[] = [];
     let token = '';
 

@@ -8,7 +8,7 @@ import { sum } from "./stats";
  * @param elementSelector Function invoked per iteration.
  */
 export function groupBy(array: any[], groupByFields: string | string[] | Selector): any[] {
-    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+    if (!Array.isArray(array)) { throw Error('An array is not provided') }
 
     if (!array.length) { return array; }
 
@@ -33,7 +33,7 @@ export function groupBy(array: any[], groupByFields: string | string[] | Selecto
  * flatten([1, 4, [2, [5, 5, [9, 7]], 11], 0]); // length 9
  */
 export function flatten(array: any[]): any[] {
-    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+    if (!Array.isArray(array)) { throw Error('An array is not provided') }
 
     if (!array.length) { return array; }
 
@@ -41,7 +41,7 @@ export function flatten(array: any[]): any[] {
     const length = array.length;
 
     for (let i = 0; i < length; i++) {
-        var value = array[i];
+        const value = array[i];
         if (Array.isArray(value)) {
             res = [...res, ...flatten(value)];
         } else {
@@ -63,7 +63,7 @@ export function flatten(array: any[]): any[] {
 export function pivot(array: any, rowFields: string | string[],columnField: string, dataField: string,
     aggFunction?: (array: any[]) => any | null, columnValues?: string[]): any[] {
 
-    if (!Array.isArray(array)) { throw Error('An array is not provided') };
+    if (!Array.isArray(array)) { throw Error('An array is not provided') }
 
     if (!array.length) { return array; }
     
@@ -90,7 +90,7 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
         }
     }
 
-    var result: any[] = [];
+    const result: any[] = [];
     for (const groupName of Object.keys(groups)) {
 
         const item = Object.create(null);
@@ -118,7 +118,7 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
  * @param data 
  */
 export function transpose(data: any[]): any[] {
-    if (!Array.isArray(data)) { throw Error('An array is not provided') };
+    if (!Array.isArray(data)) { throw Error('An array is not provided') }
 
     if (!data.length) { return data; }
   

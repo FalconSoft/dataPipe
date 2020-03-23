@@ -67,7 +67,7 @@ describe('Dsv Parser specification', () => {
 
   it('skipUntil', () => {
     const csv = ["", " * not Empty *", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
-    var options = new ParsingOptions();
+    const options = new ParsingOptions();
     options.delimiter = '\t';
     options.skipUntil = t => t && t.length > 1;
 
@@ -78,7 +78,7 @@ describe('Dsv Parser specification', () => {
 
   it('empty values', () => {
     const csv = ["", "", , "\t\t\t", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`, "\t\t"].join('\n')
-    var options = new ParsingOptions();
+    const options = new ParsingOptions();
     options.delimiter = '\t';
 
     const result = parseCsv(csv, options);
@@ -88,7 +88,7 @@ describe('Dsv Parser specification', () => {
 
   it('Date Fields', () => {
     const csv = ["F1\tF2\tF3", `2020-02-11\t1,000.32\t"Test, comma"`].join('\n')
-    var options = new ParsingOptions();
+    const options = new ParsingOptions();
     options.delimiter = '\t';
     options.dateFields = ['F1']
 

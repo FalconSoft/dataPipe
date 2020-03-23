@@ -2,7 +2,7 @@ import { parseNumber, parseDatetimeOrNull } from "../utils";
 
 /**
  * Checks if array is empty or null or array at all
- * @param array 
+ * @param array
  */
 export function isArrayEmptyOrNull(array: any[]): boolean {
   return !array || !Array.isArray(array) || !array.length;
@@ -30,11 +30,29 @@ export function sort(array: any[], ...fields: string[]) {
     return {
       asc,
       field: field.replace(asc ? /\sASC$/ : /\sDESC$/, '')
-    }
+    };
   });
 
   array.sort(comparator(sortFields));
   return array;
+}
+
+function compare(a: any, b: any, { field, asc }: any): number {
+  const valA = a[field];
+  const valB = b[field];
+  const order = asc ? 1 : -1;
+
+  if (valA !== undefined && valB === undefined) {
+    return order;
+  }
+
+  switch (typeof valA) {
+    case 'number': return order * compareNumbers(valA, valB);
+    case 'string': return order * compareStrings(valA, valB);
+    case 'object': return order * compareObjects(valA, valB);
+    case 'undefined': return valB === undefined ? 0 : (-1 * order);
+  }
+  return 0;
 }
 
 function comparator(sortFields: any[]) {
@@ -48,22 +66,8 @@ function comparator(sortFields: any[]) {
         }
       }
       return 0;
-    }
+    };
   }
-}
-
-function compare(a: any, b: any, { field, asc }: any): number {
-  const valA = a[field];
-  const valB = b[field];
-  const order = asc ? 1 : -1;
-
-  switch (typeof valA) {
-    case 'number': return order * compareNumbers(valA, valB);
-    case 'string': return order * compareStrings(valA, valB);
-    case 'object': return order * compareObjects(valA, valB);
-    case 'undefined': return -1 * order;
-  }
-  return 0;
 }
 
 function compareStrings(a: string, b: any): number {
@@ -72,25 +76,28 @@ function compareStrings(a: string, b: any): number {
 
 function compareNumbers(a: number, b: any): number {
   const bNumVal = parseNumber(b);
-  if (bNumVal == undefined) {
+  if (bNumVal === undefined) {
     return 1;
   }
 
   return a - bNumVal;
 }
 
-function compareObjects(a: any, b: any) {
+function compareObjects(a: any, b: any): number {
   const aDate = parseDatetimeOrNull(a);
-  if (!aDate) {
-    return -1
-  }
   const bDate = parseDatetimeOrNull(b);
-  if (!bDate) {
-    return 1
-  }
-  if (a instanceof Date) {
-    return a.getTime() - bDate.getTime();
+
+  if (!aDate && !bDate) {
+    return 0;
   }
 
-  return -1;
+  if (!aDate) {
+    return -1;
+  }
+
+  if (!bDate) {
+    return 1;
+  }
+
+  return aDate.getTime() - bDate.getTime();
 }

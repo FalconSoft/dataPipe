@@ -63,17 +63,17 @@ export function fullJoin(
     // build a lookup maps for both arrays.
     // so, both of them have to be unique, otherwise it will flattern result
     const leftArrayMap = Object.create(null);
-    for (let item of rightArray) {
+    for (const item of rightArray) {
         leftArrayMap[leftKeySelector(item)] = item;
     }
 
     const rightArrayMap = Object.create(null);
-    for (let item of rightArray) {
+    for (const item of rightArray) {
         rightArrayMap[rightKeySelector(item)] = item;
     }
 
     const result: any[] = [];
-    for (let leftItem of leftArray) {
+    for (const leftItem of leftArray) {
         const leftKey = leftKeySelector(leftItem);
         const rightItem = rightArrayMap[leftKey] || null;
 
@@ -87,7 +87,7 @@ export function fullJoin(
     }
 
     // add remaining right items
-    for (let rightItemKey in rightArrayMap) {
+    for (const rightItemKey in rightArrayMap) {
         const rightItem = rightArrayMap[rightItemKey];
         const resultItem = resultSelector(null, rightItem);
 
@@ -119,16 +119,16 @@ export function merge(
     // build a lookup maps for both arrays.
     // so, both of them have to be unique, otherwise it will flattern result
     const targetArrayMap = Object.create(null);
-    for (let item of sourceArray) {
+    for (const item of sourceArray) {
         targetArrayMap[targetKeySelector(item)] = item;
     }
 
     const sourceArrayMap = Object.create(null);
-    for (let item of sourceArray) {
+    for (const item of sourceArray) {
         sourceArrayMap[sourceKeySelector(item)] = item;
     }
 
-    for (let sourceItemKey of Object.keys(sourceArrayMap)) {
+    for (const sourceItemKey of Object.keys(sourceArrayMap)) {
         const sourceItem = sourceArrayMap[sourceItemKey];
         if (!targetArrayMap[sourceItemKey]) {
             targetArray.push(sourceItem);
@@ -184,12 +184,12 @@ function leftOrInnerJoin(
 
     // build a lookup map
     const rightArrayMap = Object.create(null);
-    for (let item of rightArray) {
+    for (const item of rightArray) {
         rightArrayMap[rightKeySelector(item)] = item;
     }
 
     const result: any[] = [];
-    for (let leftItem of leftArray) {
+    for (const leftItem of leftArray) {
         const leftKey = leftKeySelector(leftItem);
         const rightItem = rightArrayMap[leftKey] || null;
 

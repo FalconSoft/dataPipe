@@ -307,27 +307,27 @@ describe('Test array methods', () => {
     // expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe('Data21');
     // expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe('Data33');
     // expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
-  })
+  });
 
   it('stats quantile for sorted array', () => {
-    const data = [3, 1, 2, 4, 0].sort();
-    expect(quantile(data, 0)).toBe(0);
-    expect(quantile(data, 1 / 4)).toBe(1);
-    expect(quantile(data, 1.5 / 4)).toBe(1.5);
-    expect(quantile(data, 2 / 4)).toBe(2);
-    expect(quantile(data, 2.5 / 4)).toBe(2.5);
-    expect(quantile(data, 3 / 4)).toBe(3);
-    expect(quantile(data, 3.2 / 4)).toBe(3.2);
-    expect(quantile(data, 4 / 4)).toBe(4);
+    const numbersData = [3, 1, 2, 4, 0].sort();
+    expect(quantile(numbersData, 0)).toBe(0);
+    expect(quantile(numbersData, 1 / 4)).toBe(1);
+    expect(quantile(numbersData, 1.5 / 4)).toBe(1.5);
+    expect(quantile(numbersData, 2 / 4)).toBe(2);
+    expect(quantile(numbersData, 2.5 / 4)).toBe(2.5);
+    expect(quantile(numbersData, 3 / 4)).toBe(3);
+    expect(quantile(numbersData, 3.2 / 4)).toBe(3.2);
+    expect(quantile(numbersData, 4 / 4)).toBe(4);
 
-    var even = [3, 6, 7, 8, 8, 10, 13, 15, 16, 20];
+    const even = [3, 6, 7, 8, 8, 10, 13, 15, 16, 20];
     expect(quantile(even, 0)).toBe(3);
     expect(quantile(even, 0.25)).toBe(7.25);
     expect(quantile(even, 0.5)).toBe(9);
     expect(quantile(even, 0.75)).toBe(14.5);
     expect(quantile(even, 1)).toBe(20);
 
-    var odd = [3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20];
+    const odd = [3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20];
     expect(quantile(odd, 0)).toBe(3);
     expect(quantile(odd, 0.25)).toBe(7.5);
     expect(quantile(odd, 0.5)).toBe(9);
@@ -386,5 +386,15 @@ describe('Test array methods', () => {
     expect(arr[2].name).toBe('Marry');
     arr = pipeFuncs.sort([5, 2, 9, 4]);
     expect(arr[2]).toBe(5);
-  })
-})
+
+    const arrWithUndefinedProps = [
+      { name: 'Tom', age: 7 },
+      { name: 'Bob', age: 10 },
+      { age: 5 },
+      { name: 'Jerry', age: 3 }];
+    arr = pipeFuncs.sort(arrWithUndefinedProps, 'name ASC') || [];
+    expect(arr[0].age).toBe(5);
+    arr = pipeFuncs.sort(arrWithUndefinedProps, 'name DESC') || [];
+    expect(arr[0].age).toBe(7);
+  });
+});

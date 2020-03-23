@@ -14,11 +14,11 @@ import { isArrayEmptyOrNull } from "./utils";
  * sum([{ val: 1 }, { val: 5 }], i => i.val); // 6
  */
 export function sum(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   const elementSelector = fieldSelector(field);
 
-  let sum: number = 0;
+  let sum = 0;
   for (const item of array) {
     const numberVal = parseNumber(item, elementSelector);
     if (numberVal) {
@@ -38,7 +38,7 @@ export function sum(array: any[], field?: Selector | string): number | null {
  * avg([1, 5, 3]); // 3
  */
 export function avg(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   const elementSelector = fieldSelector(field);
 
@@ -73,7 +73,7 @@ export function min(array: any[], field?: Selector | string): number | Date | nu
 export function max(array: any[], field?: Selector | string): number | Date | null {
   const elementSelector = fieldSelector(field);
   const numberArray = getNumberValuesArray(array, elementSelector);
-  if (isArrayEmptyOrNull(numberArray)) { return null };
+  if (isArrayEmptyOrNull(numberArray)) { return null }
   const max = Math.max(...numberArray);
   const item = elementSelector ? elementSelector(array[0]) : array[0];
   if (item instanceof Date) {
@@ -103,7 +103,7 @@ export function count(array: any[], predicate?: Predicate): number | null {
  * @param predicate Predicate function invoked per iteration.
  */
 export function first<T = any>(array: T[], predicate?: Predicate): T | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   if (!predicate) {
     return array[0];
@@ -122,7 +122,7 @@ export function first<T = any>(array: T[], predicate?: Predicate): T | null {
  * @param predicate Predicate function invoked per iteration.
  */
 export function last<T = any>(array: T[], predicate?: Predicate): T | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   let lastIndex = array.length - 1;
   if (!predicate) {
@@ -144,7 +144,7 @@ export function last<T = any>(array: T[], predicate?: Predicate): T | null {
  * @param elementSelector Function invoked per iteration.
  */
 export function countBy(array: any[], elementSelector: Selector): { [key: string]: number } {
-  if (!array || !Array.isArray(array)) { throw Error('No array provided') };
+  if (!array || !Array.isArray(array)) { throw Error('No array provided') }
 
   const results: { [key: string]: number } = {};
   const length = array.length;
@@ -165,7 +165,7 @@ export function countBy(array: any[], elementSelector: Selector): { [key: string
  * @param field Property name or Selector function invoked per iteration.
  */
 export function mean(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   let res = 0;
   for (let i = 0, c = 0, len = array.length; i < len; ++i) {
@@ -185,7 +185,7 @@ export function mean(array: any[], field?: Selector | string): number | null {
  * @param p quantile.
  */
 export function quantile(array: any[], p: number, field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   const len = (array.length - 1) * p + 1;
   const l = Math.floor(len);
@@ -193,7 +193,7 @@ export function quantile(array: any[], p: number, field?: Selector | string): nu
   const val = elementSelector ? elementSelector(array[l - 1]) : array[l - 1];
   const e = len - l;
   return e ? val + e * (array[l] - val) : val;
-};
+}
 
 /**
  * Get sample variance of an array.
@@ -201,7 +201,7 @@ export function quantile(array: any[], p: number, field?: Selector | string): nu
  * @param field Property name or Selector function invoked per iteration.
  */
 export function variance(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   const elementSelector = fieldSelector(field);
   if (!Array.isArray(array) || array.length < 2) {
@@ -218,7 +218,7 @@ export function variance(array: any[], field?: Selector | string): number | null
   }
   M2 = M2 / (c - 1);
   return M2;
-};
+}
 
 /**
  * Get the sample standard deviation of an array.
@@ -226,14 +226,14 @@ export function variance(array: any[], field?: Selector | string): number | null
  * @param field Property name or Selector function invoked per iteration.
  */
 export function stdev(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   const varr = variance(array, field);
 
   if (varr === null) { return null; }
 
   return Math.sqrt(varr);
-};
+}
 
 /**
  * Get median of an array.
@@ -241,11 +241,11 @@ export function stdev(array: any[], field?: Selector | string): number | null {
  * @param field Property name or Selector function invoked per iteration.
  */
 export function median(array: any[], field?: Selector | string): number | null {
-  if (isArrayEmptyOrNull(array)) { return null };
+  if (isArrayEmptyOrNull(array)) { return null }
 
   array.sort(fieldComparator(field));
   return quantile(getNumberValuesArray(array, field), 0.5);
-};
+}
 
 function fieldComparator(field?: string | Selector): (a: any, b: any) => number {
   return (a: any, b: any) => {

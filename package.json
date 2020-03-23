@@ -1,6 +1,6 @@
 {
   "name": "datapipe-js",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "dataPipe is a JavaScript library for data manipulations, data transformations and data wrangling library inspired by LINQ (C#) and Pandas (Python)",
   "main": "dist/data-pipe.min.js",
   "module": "dist/data-pipe.esm.js",
@@ -20,7 +20,9 @@
     "docs": "npx typedoc src --plugin none",
     "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
     "deploy": "npm run docs && npx gh-pages -d docs",
-    "dev": "npx rollup --config rollup.config.dev.js --watch"
+    "dev": "npx rollup --config rollup.config.dev.js --watch",
+    "lint": "eslint . --ext .ts",
+    "lint-fix": "eslint . --ext .ts --fix"
   },
   "repository": {
     "type": "git",
@@ -48,6 +50,9 @@
   ],
   "devDependencies": {
     "@types/jest": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^2.24.0",
+    "@typescript-eslint/parser": "^2.24.0",
+    "eslint": "^6.8.0",
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",
     "rollup": "^1.31.1",
@@ -57,8 +62,8 @@
     "rollup-plugin-typescript2": "^0.25.3",
     "rollup-plugin-uglify": "^6.0.4",
     "ts-jest": "^24.3.0",
-    "typedoc": "^0.15.8",
-    "typedoc-plugin-markdown": "^2.2.16",
-    "typescript": "^3.7.5"
+    "typedoc": "^0.17.3",
+    "typedoc-plugin-markdown": "^2.2.17",
+    "typescript": "^3.8.3"
   }
 }
