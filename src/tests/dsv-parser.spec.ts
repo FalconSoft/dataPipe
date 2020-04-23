@@ -18,6 +18,13 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F3).toBe('Test, comma');
   })
 
+  it('simple numders and strings with spaces', () => {
+    const csv = ["F1,F2 ,F3", `1,2,"Test, comma"`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe(2);
+  })
+
   it('Empty should be null', () => {
     const csv = ["F1,F2,F3", `1,,"Test, comma"`].join('\n')
     const result = parseCsv(csv);
@@ -40,27 +47,27 @@ describe('Dsv Parser specification', () => {
     multi-line
     string`;
     const csv = ["F1\tF2\tF3", `1\t"${multiLineString}"\t"Test, comma"`].join('\n')
-    const result = parseCsv(csv, <ParsingOptions>{ delimiter: '\t' });
+    const result = parseCsv(csv, { delimiter: '\t' } as ParsingOptions);
     expect(result.length).toBe(1);
     expect(result[0].F2).toBe(multiLineString);
   })
 
   it('DSV with comma numbers', () => {
     const csv = ["F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
-    const result = parseCsv(csv, <ParsingOptions>{ delimiter: '\t' });
+    const result = parseCsv(csv, { delimiter: '\t' } as ParsingOptions);
     expect(result.length).toBe(1);
     expect(result[0].F2).toBe(1000.32);
   })
 
   it('skip rows', () => {
     const csv = ["", "", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
-    const result = parseCsv(csv, <ParsingOptions>{ delimiter: '\t', skipRows: 2 });
+    const result = parseCsv(csv, { delimiter: '\t', skipRows: 2 } as ParsingOptions);
     expect(result.length).toBe(1);
     expect(result[0].F2).toBe(1000.32);
   })
   it('skip rows not empty rows', () => {
     const csv = ["", " * not Empty *", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
-    const result = parseCsv(csv, <ParsingOptions>{ delimiter: '\t', skipRows: 2 });
+    const result = parseCsv(csv, { delimiter: '\t', skipRows: 2 } as ParsingOptions);
     expect(result.length).toBe(1);
     expect(result[0].F2).toBe(1000.32);
   })
@@ -69,7 +76,7 @@ describe('Dsv Parser specification', () => {
     const csv = ["", " * not Empty *", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
     const options = new ParsingOptions();
     options.delimiter = '\t';
-    options.skipUntil = t => t && t.length > 1;
+    options.skipUntil = (t: string[]): boolean => t && t.length > 1;
 
     const result = parseCsv(csv, options);
     expect(result.length).toBe(1);
@@ -77,7 +84,7 @@ describe('Dsv Parser specification', () => {
   })
 
   it('empty values', () => {
-    const csv = ["", "", , "\t\t\t", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`, "\t\t"].join('\n')
+    const csv = ["", "", "\t\t\t", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`, "\t\t"].join('\n')
     const options = new ParsingOptions();
     options.delimiter = '\t';
 

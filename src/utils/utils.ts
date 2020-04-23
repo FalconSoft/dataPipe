@@ -89,7 +89,7 @@ export function parseDatetimeOrNull(value: string | Date): Date | null {
     return NaN;
   };
 
-  const correctYear = (yy: number) => {
+  const correctYear = (yy: number): number => {
     if (yy < 100) {
       return yy < 68 ? yy + 2000 : yy + 1900;
     } else {
@@ -163,7 +163,7 @@ export function deepClone(obj: any): any {
   }
 
   if (typeof obj === 'object') {
-    const clone = <any>{};
+    const clone = {} as any;
     for (const propName in obj) {
       const propValue = obj[propName];
 

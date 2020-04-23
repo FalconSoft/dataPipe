@@ -1,75 +1,5 @@
 import { parseNumber, parseDatetimeOrNull } from "../utils";
 
-/**
- * Checks if array is empty or null or array at all
- * @param array
- */
-export function isArrayEmptyOrNull(array: any[]): boolean {
-  return !array || !Array.isArray(array) || !array.length;
-}
-
-/**
- * Sorts array.
- * @param array The array to process.
- * @param fields sorts order.
- * @public
- * @example
- * sort(array, 'name ASC', 'age DESC');
- */
-export function sort(array: any[], ...fields: string[]) {
-
-  if (!array || !Array.isArray(array)) { throw Error('Array is not provided'); }
-
-  if(!fields?.length) {
-    // just a default sort
-    return array.sort();
-  }
-
-  const sortFields = fields.map(field => {
-    const asc = !field.endsWith(' DESC');
-    return {
-      asc,
-      field: field.replace(asc ? /\sASC$/ : /\sDESC$/, '')
-    };
-  });
-
-  array.sort(comparator(sortFields));
-  return array;
-}
-
-function compare(a: any, b: any, { field, asc }: any): number {
-  const valA = a[field];
-  const valB = b[field];
-  const order = asc ? 1 : -1;
-
-  if (valA !== undefined && valB === undefined) {
-    return order;
-  }
-
-  switch (typeof valA) {
-    case 'number': return order * compareNumbers(valA, valB);
-    case 'string': return order * compareStrings(valA, valB);
-    case 'object': return order * compareObjects(valA, valB);
-    case 'undefined': return valB === undefined ? 0 : (-1 * order);
-  }
-  return 0;
-}
-
-function comparator(sortFields: any[]) {
-  if (sortFields.length) {
-    return (a: any, b: any) => {
-      for (let i = 0, len = sortFields.length; i < len; i++) {
-        const res = compare(a, b, sortFields[i]);
-
-        if (res !== 0) {
-          return res;
-        }
-      }
-      return 0;
-    };
-  }
-}
-
 function compareStrings(a: string, b: any): number {
   return a.localeCompare(b);
 }
@@ -101,3 +31,76 @@ function compareObjects(a: any, b: any): number {
 
   return aDate.getTime() - bDate.getTime();
 }
+
+function compare(a: any, b: any, { field, asc }: any): number {
+  const valA = a[field];
+  const valB = b[field];
+  const order = asc ? 1 : -1;
+
+  if (valA !== undefined && valB === undefined) {
+    return order;
+  }
+
+  switch (typeof valA) {
+    case 'number': return order * compareNumbers(valA, valB);
+    case 'string': return order * compareStrings(valA, valB);
+    case 'object': return order * compareObjects(valA, valB);
+    case 'undefined': return valB === undefined ? 0 : (-1 * order);
+  }
+  return 0;
+}
+
+function comparator(sortFields: any[]): (a: any, b: any) => number {
+  if (sortFields.length) {
+    return (a: any, b: any): number => {
+      for (let i = 0, len = sortFields.length; i < len; i++) {
+        const res = compare(a, b, sortFields[i]);
+
+        if (res !== 0) {
+          return res;
+        }
+      }
+      return 0;
+    };
+  }
+
+  return (): number => 0;
+}
+
+/**
+ * Checks if array is empty or null or array at all
+ * @param array
+ */
+export function isArrayEmptyOrNull(array: any[]): boolean {
+  return !array || !Array.isArray(array) || !array.length;
+}
+
+/**
+ * Sorts array.
+ * @param array The array to process.
+ * @param fields sorts order.
+ * @public
+ * @example
+ * sort(array, 'name ASC', 'age DESC');
+ */
+export function sort(array: any[], ...fields: string[]): any[] {
+
+  if (!array || !Array.isArray(array)) { throw Error('Array is not provided'); }
+
+  if (!fields?.length) {
+    // just a default sort
+    return array.sort();
+  }
+
+  const sortFields = fields.map(field => {
+    const asc = !field.endsWith(' DESC');
+    return {
+      asc,
+      field: field.replace(asc ? /\sASC$/ : /\sDESC$/, '')
+    };
+  });
+
+  array.sort(comparator(sortFields));
+  return array;
+}
+

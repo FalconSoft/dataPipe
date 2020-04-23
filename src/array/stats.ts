@@ -2,6 +2,35 @@ import { Selector, Predicate } from "../types";
 import { parseNumber } from "../utils";
 import { isArrayEmptyOrNull } from "./utils";
 
+function fieldSelector(field?: string | Selector): Selector {
+  if (!field) {
+    return (item: any): any => item;
+  }
+  return typeof field === 'function' ? field as Selector : (item: any): any => item[String(field)];
+}
+
+function fieldComparator(field?: string | Selector): (a: any, b: any) => number {
+  return (a: any, b: any): number => {
+    const aVal = parseNumber(a, fieldSelector(field));
+    const bVal = parseNumber(b, fieldSelector(field));
+
+    if (bVal === undefined) {
+      return 1;
+    }
+
+    if (aVal === undefined) {
+      return -1;
+    }
+
+    return aVal - bVal >= 0 ? 1 : -1;
+  }
+}
+
+function getNumberValuesArray(array: any[], field?: string | Selector): number[] {
+  const elementSelector = fieldSelector(field);
+  return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
+}
+
 /**
  * Sum of items in array.
  * @param array The array to process.
@@ -245,33 +274,4 @@ export function median(array: any[], field?: Selector | string): number | null {
 
   array.sort(fieldComparator(field));
   return quantile(getNumberValuesArray(array, field), 0.5);
-}
-
-function fieldComparator(field?: string | Selector): (a: any, b: any) => number {
-  return (a: any, b: any) => {
-    const aVal = parseNumber(a, fieldSelector(field));
-    const bVal = parseNumber(b, fieldSelector(field));
-
-    if (bVal === undefined) {
-      return 1;
-    }
-
-    if (aVal === undefined) {
-      return -1;
-    }
-
-    return aVal - bVal >= 0 ? 1 : -1;
-  }
-}
-
-function fieldSelector(field?: string | Selector): Selector {
-  if (!field) {
-    return (item: any) => item;
-  }
-  return typeof field === 'function' ? field as Selector : (item: any) => item[String(field)];
-}
-
-function getNumberValuesArray(array: any[], field?: string | Selector): number[] {
-  const elementSelector = fieldSelector(field);
-  return array.map(item => parseNumber(item, elementSelector)).filter(v => v !== undefined) as number[];
 }

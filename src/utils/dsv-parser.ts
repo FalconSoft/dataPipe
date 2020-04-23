@@ -1,51 +1,6 @@
 import { parseNumberOrNull, parseDatetimeOrNull } from "./utils";
 import { ParsingOptions } from "../types";
 
-export function parseCsv(content: string, options?: ParsingOptions): any[] {
-    const result: any[] = [];
-    content = content || '';
-
-    if (!content.length) {
-        return result;
-    }
-
-    return getLineTokens(content, options || new ParsingOptions());
-}
-
-export function toCsv(array: any[], delimiter = ','): string {
-    array = array || [];
-
-    const result = "";
-    const headers: string[] = [];
-
-    // workout all headers
-    for (const item of array) {
-        for (const name in item) {
-            if (headers.indexOf(name) < 0) { headers.push(name); }
-        }
-    }
-
-    // create a csv string
-    const lines = array.map(item => {
-        const values: string[] = [];
-        for (const name of headers) {
-            let value: any = item[name];
-            if (value instanceof Date) {
-                value = parseDatetimeOrNull(value);
-            } else if (typeof value === "string" && value.indexOf(delimiter) >= 0) {
-                value = '"' + value + '"';
-            }
-
-            values.push(value || '')
-        }
-        return values.join(delimiter);
-
-    });
-    lines.unshift(headers.join(delimiter))
-
-    return lines.join('\n')
-}
-
 type ParsingContext = {
     content: string;
     currentIndex: number;
@@ -65,7 +20,7 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
             } else if (options.booleanFields && options.booleanFields.indexOf(fieldName) >= 0) {
                 value = !!value;
             } else {
-                const num = parseNumberOrNull(<string>value);
+                const num = parseNumberOrNull(value as string);
                 value = num || value;
             }
         }
@@ -74,11 +29,40 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
     return obj;
 }
 
+function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
+    const tokens: string[] = [];
+    let token = '';
+
+    do {
+        const currentChar = context.content[context.currentIndex];
+        if (currentChar === '\n') {
+            if (context.content[context.currentIndex + 1] === '\r') { context.currentIndex++; }
+            break;
+        }
+
+        if (token.length === 0 && currentChar === '"') {
+            while (context.content[++context.currentIndex] !== '"') {
+                token += context.content[context.currentIndex];
+            }
+
+        } else if (currentChar === delimiter) {
+            tokens.push(token);
+            token = '';
+        } else {
+            token += currentChar;
+        }
+    }
+    while (++context.currentIndex < context.content.length)
+
+    tokens.push(token);
+    return tokens;
+}
+
 function getLineTokens(content: string, options: ParsingOptions): string[][] {
-    const ctx = <ParsingContext>{
+    const ctx = {
         content: content,
         currentIndex: 0
-    };
+    } as ParsingContext;
     content = content || '';
     const delimiter = options.delimiter || ',';
 
@@ -111,7 +95,7 @@ function getLineTokens(content: string, options: ParsingOptions): string[][] {
 
         if (!fieldNames) {
             // fieldName is used as indicator on whether data rows handling started
-            fieldNames = tokens;
+            fieldNames = tokens.map(t => t.trim()); // field names can't have spaces
             lineNumber++;
             continue;
         }
@@ -135,32 +119,46 @@ function getLineTokens(content: string, options: ParsingOptions): string[][] {
     return result;
 }
 
-function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
-    const tokens: string[] = [];
-    let token = '';
+export function parseCsv(content: string, options?: ParsingOptions): any[] {
+    content = content || '';
 
-    do {
-        const currentChar = context.content[context.currentIndex];
-        if (currentChar === '\n') {
-            if (context.content[context.currentIndex + 1] === '\r') { context.currentIndex++; }
-            break;
-        }
+    if (!content.length) {
+        return [];
+    }
 
-        if (token.length === 0 && currentChar === '"') {
-            while (context.content[++context.currentIndex] !== '"') {
-                token += context.content[context.currentIndex];
-            }
+    return getLineTokens(content, options || new ParsingOptions());
+}
 
-        } else if (currentChar === delimiter) {
-            tokens.push(token);
-            token = '';
-        } else {
-            token += currentChar;
+export function toCsv(array: any[], delimiter = ','): string {
+    array = array || [];
+
+    const headers: string[] = [];
+
+    // workout all headers
+    for (const item of array) {
+        for (const name in item) {
+            if (headers.indexOf(name) < 0) { headers.push(name); }
         }
     }
-    while (++context.currentIndex < context.content.length)
 
-    tokens.push(token);
-    return tokens;
+    // create a csv string
+    const lines = array.map(item => {
+        const values: string[] = [];
+        for (const name of headers) {
+            let value: any = item[name];
+            if (value instanceof Date) {
+                value = parseDatetimeOrNull(value);
+            } else if (typeof value === "string" && value.indexOf(delimiter) >= 0) {
+                value = '"' + value + '"';
+            }
+
+            values.push(value || '')
+        }
+        return values.join(delimiter);
+
+    });
+    lines.unshift(headers.join(delimiter))
+
+    return lines.join('\n')
 }
 

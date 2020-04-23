@@ -70,7 +70,7 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
 
     const groups: { [key: string]: any[] } = Object.create(null);
     columnValues = columnValues || [];
-    aggFunction = aggFunction || ((a: any[]) => sum(a));
+    aggFunction = aggFunction || ((a: any[]): number | null => sum(a));
 
     const elementSelector = fieldSelector(rowFields);
 

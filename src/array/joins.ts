@@ -1,6 +1,69 @@
 import { Selector } from "../types";
 import { fieldSelector } from "../_internals";
 
+function verifyJoinArgs(
+    leftArray: any[],
+    rightArray: any[],
+    leftKeySelector: (item: any) => string,
+    rightKeySelector: (item: any) => string,
+    resultSelector: (leftItem: any, rightItem: any) => any
+): void {
+    if (!leftArray || !Array.isArray(leftArray)) {
+        throw Error('leftArray is not provided or not a valid')
+    }
+    if (!rightArray || !Array.isArray(rightArray)) {
+        throw Error('rightArray is not provided or not a valid')
+    }
+
+    if (typeof leftKeySelector !== 'function') {
+        throw Error('leftKeySelector is not provided or not a valid function')
+    }
+
+    if (typeof rightKeySelector !== 'function') {
+        throw Error('rightKeySelector is not provided or not a valid function')
+    }
+
+    if (typeof resultSelector !== 'function') {
+        throw Error('resultSelector is not provided or not a valid function')
+    }
+}
+
+function leftOrInnerJoin(
+    isInnerJoin: boolean,
+    leftArray: any[],
+    rightArray: any[],
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
+    resultSelector: (leftItem: any, rightItem: any) => any
+): any[] {
+    const leftKeySelector = fieldSelector(leftKey);
+    const rightKeySelector = fieldSelector(rightKey);
+
+    verifyJoinArgs(leftArray, rightArray, leftKeySelector, rightKeySelector, resultSelector);
+
+    // build a lookup map
+    const rightArrayMap = Object.create(null);
+    for (const item of rightArray) {
+        rightArrayMap[rightKeySelector(item)] = item;
+    }
+
+    const result: any[] = [];
+    for (const leftItem of leftArray) {
+        const leftKey = leftKeySelector(leftItem);
+        const rightItem = rightArrayMap[leftKey] || null;
+
+        if (isInnerJoin && !rightItem) { continue; }
+
+        const resultItem = resultSelector(leftItem, rightItem);
+
+        // if result is null then probably a left item was modified
+        result.push(resultItem || leftItem);
+    }
+
+    return result;
+}
+
+
 /**
  * leftJoin returns all elements from the left array (leftArray), and the matched elements from the right array (rightArray).
  * The result is NULL from the right side, if there is no match.
@@ -114,7 +177,7 @@ export function merge(
 
     const targetKeySelector = fieldSelector(targetKey);
     const sourceKeySelector = fieldSelector(sourceKey);
-    verifyJoinArgs(targetArray, sourceArray, targetKeySelector, sourceKeySelector, () => { });
+    verifyJoinArgs(targetArray, sourceArray, targetKeySelector, sourceKeySelector, () => false);
 
     // build a lookup maps for both arrays.
     // so, both of them have to be unique, otherwise it will flattern result
@@ -139,67 +202,4 @@ export function merge(
     }
 
     return targetArray;
-}
-
-
-function verifyJoinArgs(
-    leftArray: any[],
-    rightArray: any[],
-    leftKeySelector: (item: any) => string,
-    rightKeySelector: (item: any) => string,
-    resultSelector: (leftItem: any, rightItem: any) => any
-): void {
-    if (!leftArray || !Array.isArray(leftArray)) {
-        throw Error('leftArray is not provided or not a valid')
-    }
-    if (!rightArray || !Array.isArray(rightArray)) {
-        throw Error('rightArray is not provided or not a valid')
-    }
-
-    if (typeof leftKeySelector !== 'function') {
-        throw Error('leftKeySelector is not provided or not a valid function')
-    }
-
-    if (typeof rightKeySelector !== 'function') {
-        throw Error('rightKeySelector is not provided or not a valid function')
-    }
-
-    if (typeof resultSelector !== 'function') {
-        throw Error('resultSelector is not provided or not a valid function')
-    }
-}
-
-function leftOrInnerJoin(
-    isInnerJoin: boolean,
-    leftArray: any[],
-    rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-): any[] {
-    const leftKeySelector = fieldSelector(leftKey);
-    const rightKeySelector = fieldSelector(rightKey);
-
-    verifyJoinArgs(leftArray, rightArray, leftKeySelector, rightKeySelector, resultSelector);
-
-    // build a lookup map
-    const rightArrayMap = Object.create(null);
-    for (const item of rightArray) {
-        rightArrayMap[rightKeySelector(item)] = item;
-    }
-
-    const result: any[] = [];
-    for (const leftItem of leftArray) {
-        const leftKey = leftKeySelector(leftItem);
-        const rightItem = rightArrayMap[leftKey] || null;
-
-        if (isInnerJoin && !rightItem) { continue; }
-
-        const resultItem = resultSelector(leftItem, rightItem);
-
-        // if result is null then probably a left item was modified
-        result.push(resultItem || leftItem);
-    }
-
-    return result;
 }
