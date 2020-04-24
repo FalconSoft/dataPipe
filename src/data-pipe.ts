@@ -1,6 +1,6 @@
 import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
-import { Selector, Predicate, ParsingOptions } from './types';
-import { parseCsv, fromTable, toTable } from './utils';
+import { Selector, Predicate, ParsingOptions, FieldDescription } from './types';
+import { parseCsv, fromTable, toTable, getFieldDescriptions } from './utils';
 import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose } from './array';
 
 
@@ -173,7 +173,7 @@ export class DataPipe {
     this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues)
     return this;
   }
-  
+
   transpose(): DataPipe {
     this.data = transpose(this.data) || [];
     return this;
@@ -276,5 +276,9 @@ export class DataPipe {
    */
   median(field?: Selector | string): number | null {
     return median(this.data, field);
+  }
+
+  getFieldDescriptions(): FieldDescription[] {
+    return getFieldDescriptions(this.data)
   }
 }

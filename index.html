@@ -33,8 +33,8 @@ k5,24
         .toArray();
       console.log(res);
     }
-
-    console.log('db', dp);
+    const arr1 = [2, 2147483699, 5].map(r => ({ val1: r }))
+    console.log('db', dp.dataPipe(arr1).getFieldDescriptions());
 
     onButtonClick();
 

@@ -11,3 +11,22 @@ export class ParsingOptions {
     parseFields?: {};
     elementSelector?: (headers: string[], tokens: string[]) => any;
 }
+
+export enum DataTypes {
+    String = 'String',
+    LargeString = 'LargeString',
+    WholeNumber = 'WholeNumber',
+    BigIntNumber = 'BigIntNumber',
+    FloatNumber = 'FloatNumber',
+    DateTime = 'DateTime',
+    Boolean = 'Boolean'
+  }
+  
+  export interface FieldDescription {
+    fieldName: string;
+    isNullable: boolean;
+    maxSize?: number;
+    dataType?: DataTypes;
+    valuesMap?: any;
+  }
+  

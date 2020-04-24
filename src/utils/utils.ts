@@ -1,4 +1,4 @@
-import { Selector } from "../types";
+import { Selector, FieldDescription, DataTypes } from "../types";
 
 /**
  * Formats selected value to number.
@@ -185,3 +185,98 @@ export function deepClone(obj: any): any {
   return obj;
 }
 
+export function getFieldDescriptions(items: any[]): FieldDescription[] {
+
+  function workoutDataType(value: any, inType: DataTypes | undefined): DataTypes | undefined {
+
+    function getRealType(val: any): DataTypes {
+
+      function processNumber(num: number): DataTypes {
+        if (num % 1 === 0) {
+          return (num > 2147483647) ? DataTypes.BigIntNumber : DataTypes.WholeNumber;
+        } else {
+          return DataTypes.FloatNumber;
+        }
+      }
+
+      switch (typeof val) {
+        case 'boolean': return DataTypes.Boolean;
+        case 'number':
+          return processNumber(val)
+        case 'object':
+          if (val instanceof Date) return DataTypes.DateTime;
+          return DataTypes.String;
+        case 'string':
+          if (parseDatetimeOrNull(val)) { return DataTypes.DateTime; }
+
+          return (val.length > 4000) ? DataTypes.LargeString : DataTypes.String;
+
+        default: return DataTypes.LargeString
+      }
+    }
+
+    if (value == null || value == undefined) { return undefined; }
+
+    // no point to proceed, string is most common type
+    if (inType === DataTypes.LargeString) { return DataTypes.LargeString; }
+
+    const realType = getRealType(value);
+
+    if (inType === undefined) {
+      return realType;
+    } else {
+      // normal case. Means all values in column are the same
+      if (inType === realType) { return inType; }
+
+      // if any of items are string, then it must be string
+      if (realType === DataTypes.String) { return DataTypes.String; }
+      if (inType === DataTypes.String && realType !== DataTypes.LargeString) { return DataTypes.String; }
+
+      if (inType === DataTypes.FloatNumber) { return DataTypes.FloatNumber; }
+      if (realType === DataTypes.FloatNumber && inType === DataTypes.WholeNumber) {
+        return DataTypes.FloatNumber;
+      }
+
+      if (realType === DataTypes.BigIntNumber) { return DataTypes.BigIntNumber; }
+      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) { return DataTypes.BigIntNumber; }
+
+      return DataTypes.LargeString;
+    }
+
+    return undefined;
+  }
+
+  const resultMap: { [key: string]: FieldDescription } = Object.create(null);
+  for (const item of items) {
+
+    for (const [name, value] of Object.entries(item)) {
+      let fDesc = resultMap[name];
+
+      if (fDesc === undefined) {
+        fDesc = {
+          fieldName: name,
+          valuesMap: Object.create(null),
+          isNullable: false
+        } as FieldDescription;
+        resultMap[name] = fDesc;
+      }
+      if (value === null || value === undefined) {
+        fDesc.isNullable = true
+      } else {
+        fDesc.dataType = workoutDataType(value, fDesc.dataType)
+        if((fDesc.dataType == DataTypes.String || fDesc.dataType == DataTypes.LargeString) && String(value).length > (fDesc.maxSize || 0))
+        {
+          fDesc.maxSize = String(value).length;
+        }
+      }
+
+      if (fDesc.valuesMap[value as any] === undefined) {
+        fDesc.valuesMap[value as any] = 0;
+      }
+
+      fDesc.valuesMap[value as any]++;
+    }
+  }
+
+  return Object.values(resultMap);
+}
