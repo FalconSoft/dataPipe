@@ -238,7 +238,13 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
       }
 
       if (realType === DataTypes.BigIntNumber) { return DataTypes.BigIntNumber; }
-      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) { return DataTypes.BigIntNumber; }
+      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) { 
+        return DataTypes.BigIntNumber; 
+      }
+
+      if(realType !== inType && realType !== DataTypes.LargeString){
+        return DataTypes.String;
+      }
 
       return DataTypes.LargeString;
     }

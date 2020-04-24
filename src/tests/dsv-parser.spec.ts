@@ -18,6 +18,57 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F3).toBe('Test, comma');
   })
 
+  it('String with quotes 1', () => {
+    const csv = ["F1,F2", `1,"T ""k"" c"`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe('T "k" c');
+  })
+
+  it('String with quotes 2', () => {
+    const csv = ["F1,F2,F3", `1,"T ""k"" c",77`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe('T "k" c');
+    expect(result[0].F3).toBe(77);
+  })
+
+  it('String with quotes 3', () => {
+    const csv = ["F1,F2,F3", `1,"T """,77`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe('T "');
+    expect(result[0].F3).toBe(77);
+  })
+
+  it('String with quotes 4', () => {
+    const csv = ["F1,F2", `1,"T """`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe('T "');
+  })
+
+  it('String with quotes 5 empty " " ', () => {
+    const csv = ["F1,F2", `1," "`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe(' ');
+  })
+
+  it('String with quotes 6 empty " " ', () => {
+    const csv = ["F1,F2", `1," "`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe(' ');
+  })
+
+  it('String with quotes 7 empty "" ', () => {
+    const csv = ["F1,F2", `1,""`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F2).toBe('');
+  })
+
   it('simple numders and strings with spaces', () => {
     const csv = ["F1,F2 ,F3", `1,2,"Test, comma"`].join('\n')
     const result = parseCsv(csv);

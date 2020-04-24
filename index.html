@@ -12,32 +12,20 @@
   <button onclick="onButtonClick()">++ Click ++ </button onclick="myFunction()">
 
   <script>
-    let csv = `
-keyField,Value1
-k1,21
-k2,22
-k3,23
-k5,24
-`;
-    const arr = [
-      {keyField:'k1', value2: 31},
-      {keyField:'k2', value2: 32},
-      {keyField:'k5', value2: 35},
-      {keyField:'k8', value2: 38},
-    ];
-
     function onButtonClick() {
-      const res = dp.dataPipe()
-        .fromCsv(csv)
-        .fullJoin(arr, l => l.keyField, r => r.keyField, (l, r) => Object.assign(l || {},r || {}))
-        .toArray();
-      console.log(res);
+      const csv1 = ["F1,F2,F3", `1,"T ""k"" c",32`].join('\n');
+      console.log('db', dp.dataPipe().fromCsv(csv1).toArray());
     }
-    const arr1 = [2, 2147483699, 5].map(r => ({ val1: r }))
-    console.log('db', dp.dataPipe(arr1).getFieldDescriptions());
 
-    onButtonClick();
+    fetch("https://raw.githubusercontent.com/FalconSoft/sample-data/master/CSV/sample-testing-data-100.csv")
+      .then(r => {
+        r.text().then(text => {
+          const items = dp.dataPipe().fromCsv(text).toArray();
+          console.log('==>', items, dp.dataPipe(items).getFieldDescriptions());
+        });
+      })
 
+    // onButtonClick();
 
   </script>
 </body>

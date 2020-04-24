@@ -6,6 +6,8 @@ type ParsingContext = {
     currentIndex: number;
 };
 
+const EmptpySymbol = '_#EMPTY#_';
+
 function getObjectElement(fieldNames: string[], tokens: string[], options: ParsingOptions): any {
     const obj = Object.create(null);
     for (let i = 0; i < fieldNames.length; i++) {
@@ -24,7 +26,7 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
                 value = num || value;
             }
         }
-        obj[fieldName] = value
+        obj[fieldName] = value === EmptpySymbol ? '' : value;
     }
     return obj;
 }
@@ -32,6 +34,10 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
 function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
     const tokens: string[] = [];
     let token = '';
+
+    function elementAtOrNull(arr: string, index: number): string | null {
+        return (arr.length > index) ? arr[index] : null;
+    }
 
     do {
         const currentChar = context.content[context.currentIndex];
@@ -41,8 +47,25 @@ function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
         }
 
         if (token.length === 0 && currentChar === '"') {
-            while (context.content[++context.currentIndex] !== '"') {
-                token += context.content[context.currentIndex];
+
+            if (elementAtOrNull(context.content, context.currentIndex + 1) === '"'
+                && elementAtOrNull(context.content, context.currentIndex + 2) !== '"') {
+                // just empty string
+                token = EmptpySymbol;
+                context.currentIndex++;
+            }
+            else {
+                // enumerate till the end of quote
+                while (context.content[++context.currentIndex] !== '"') {
+                    token += context.content[context.currentIndex];
+
+                    // check if we need to escape ""
+                    if (elementAtOrNull(context.content, context.currentIndex + 1) === '"'
+                        && elementAtOrNull(context.content, context.currentIndex + 2) === '"') {
+                        token += '"';
+                        context.currentIndex += 2
+                    }
+                }
             }
 
         } else if (currentChar === delimiter) {

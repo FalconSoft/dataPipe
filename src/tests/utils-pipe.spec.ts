@@ -69,6 +69,9 @@ describe('Test dataUtils', () => {
     expect(fdFn([new Date(2001, 1, 1), new Date()]).dataType).toBe(DataTypes.DateTime);
 
     expect(fdFn(['2019-01-01','NOT A DATE', '2019-01-02']).dataType).toBe(DataTypes.String);
+    expect(fdFn(['2019-01-01', 76, '2019-01-02']).dataType).toBe(DataTypes.String);
+    expect(fdFn(['2019-01-01', 76, false, '2019-01-02']).dataType).toBe(DataTypes.String);
+    expect(fdFn(['2019-01-01', 76, false, null, '2019-01-02']).dataType).toBe(DataTypes.String);
     expect(fdFn([new Date(2001, 1, 1), 'NOT A DATE', new Date()]).dataType).toBe(DataTypes.String);
   });
 
