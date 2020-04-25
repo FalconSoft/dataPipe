@@ -21,6 +21,7 @@ describe('Test dataUtils', () => {
     expect(parseNumberOrNull('')).toBe(null);
     expect(parseNumberOrNull('11')).toBe(11);
     expect(parseNumberOrNull('11.1')).toBe(11.1);
+    expect(parseNumberOrNull('-11.1')).toBe(-11.1);
     expect(parseNumberOrNull(11.1)).toBe(11.1);
     expect(parseNumberOrNull(NaN)).toBe(NaN);
   })

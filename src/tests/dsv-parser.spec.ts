@@ -11,6 +11,38 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F2).toBe(2);
   })
 
+  it('simple numbers (double)', () => {
+    const csv = ["F1,F2", "1,2.5"].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F1).toBe(1);
+    expect(result[0].F2).toBe(2.5);
+  })
+
+  it('simple numbers (double) with thousand', () => {
+    const csv = ["F1,F2", `1,"2,000.5"`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F1).toBe(1);
+    expect(result[0].F2).toBe(2000.5);
+  })
+
+  // it('simple numbers (double) negative', () => {
+  //   const csv = ["F1,F2", `1,-2000.5`].join('\n')
+  //   const result = parseCsv(csv);
+  //   expect(result.length).toBe(1);
+  //   expect(result[0].F1).toBe(1);
+  //   expect(result[0].F2).toBe(-2000.5);
+  // })
+
+  // it('simple numbers (double) with thousand', () => {
+  //   const csv = ["F1,F2", `1,"-2,000.5"`].join('\n')
+  //   const result = parseCsv(csv);
+  //   expect(result.length).toBe(1);
+  //   expect(result[0].F1).toBe(1);
+  //   expect(result[0].F2).toBe(-2000.5);
+  // })
+
   it('simple numders and strings', () => {
     const csv = ["F1,F2,F3", `1,2,"Test, comma"`].join('\n')
     const result = parseCsv(csv);

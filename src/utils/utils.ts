@@ -39,8 +39,8 @@ export function parseNumberOrNull(value: string | number): number | null {
   for (let i = value.length - 1; i >= 0; i--) {
     const d = value.charCodeAt(i);
     if (d < 48 || d > 57) {
-      // '.' - 46 ',' - 44
-      if (d !== 46 && d !== 44)
+      // '.' - 46 ',' - 44 '-' - 45(but only first char)
+      if (d !== 46 && d !== 44 && (d !== 45 || i !== 0))
         return null;
     }
   }
@@ -238,11 +238,11 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
       }
 
       if (realType === DataTypes.BigIntNumber) { return DataTypes.BigIntNumber; }
-      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) { 
-        return DataTypes.BigIntNumber; 
+      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) {
+        return DataTypes.BigIntNumber;
       }
 
-      if(realType !== inType && realType !== DataTypes.LargeString){
+      if (realType !== inType && realType !== DataTypes.LargeString) {
         return DataTypes.String;
       }
 
@@ -270,8 +270,7 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
         fDesc.isNullable = true
       } else {
         fDesc.dataType = workoutDataType(value, fDesc.dataType)
-        if((fDesc.dataType == DataTypes.String || fDesc.dataType == DataTypes.LargeString) && String(value).length > (fDesc.maxSize || 0))
-        {
+        if ((fDesc.dataType == DataTypes.String || fDesc.dataType == DataTypes.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = String(value).length;
         }
       }
