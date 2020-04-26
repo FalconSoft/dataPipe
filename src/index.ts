@@ -1,5 +1,7 @@
 import { DataPipe } from "./data-pipe";
 
+export * from "./types"
+
 /**
  * Data Pipeline factory function what creates DataPipe
  * @param data Initial array

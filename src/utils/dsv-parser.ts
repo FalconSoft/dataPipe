@@ -1,18 +1,18 @@
 import { parseNumberOrNull, parseDatetimeOrNull } from "./utils";
-import { ParsingOptions } from "../types";
+import { ParsingOptions, ScalarType, ScalarObject } from "../types";
 
 type ParsingContext = {
     content: string;
     currentIndex: number;
 };
 
-const EmptpySymbol = '_#EMPTY#_';
+const EmptySymbol = '_#EMPTY#_';
 
-function getObjectElement(fieldNames: string[], tokens: string[], options: ParsingOptions): any {
+function getObjectElement(fieldNames: string[], tokens: string[], options: ParsingOptions): ScalarObject {
     const obj = Object.create(null);
     for (let i = 0; i < fieldNames.length; i++) {
         const fieldName = fieldNames[i];
-        let value: string | number | Date | boolean | null = tokens[i] || null;
+        let value: ScalarType = tokens[i] || null;
 
         if (value && value.length) {
             if (options.dateFields && options.dateFields.indexOf(fieldName) >= 0) {
@@ -26,7 +26,7 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
                 value = num || value;
             }
         }
-        obj[fieldName] = value === EmptpySymbol ? '' : value;
+        obj[fieldName] = value === EmptySymbol ? '' : value;
     }
     return obj;
 }
@@ -51,7 +51,7 @@ function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
             if (elementAtOrNull(context.content, context.currentIndex + 1) === '"'
                 && elementAtOrNull(context.content, context.currentIndex + 2) !== '"') {
                 // just empty string
-                token = EmptpySymbol;
+                token = EmptySymbol;
                 context.currentIndex++;
             }
             else {
@@ -81,7 +81,7 @@ function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
     return tokens;
 }
 
-function getLineTokens(content: string, options: ParsingOptions): string[][] {
+function getLineTokens(content: string, options: ParsingOptions): ScalarObject[] {
     const ctx = {
         content: content,
         currentIndex: 0
@@ -142,7 +142,7 @@ function getLineTokens(content: string, options: ParsingOptions): string[][] {
     return result;
 }
 
-export function parseCsv(content: string, options?: ParsingOptions): any[] {
+export function parseCsv(content: string, options?: ParsingOptions): ScalarObject[] {
     content = content || '';
 
     if (!content.length) {
@@ -152,7 +152,7 @@ export function parseCsv(content: string, options?: ParsingOptions): any[] {
     return getLineTokens(content, options || new ParsingOptions());
 }
 
-export function toCsv(array: any[], delimiter = ','): string {
+export function toCsv(array: ScalarObject[], delimiter = ','): string {
     array = array || [];
 
     const headers: string[] = [];
@@ -168,14 +168,14 @@ export function toCsv(array: any[], delimiter = ','): string {
     const lines = array.map(item => {
         const values: string[] = [];
         for (const name of headers) {
-            let value: any = item[name];
+            let value: ScalarType = item[name];
             if (value instanceof Date) {
                 value = parseDatetimeOrNull(value);
             } else if (typeof value === "string" && value.indexOf(delimiter) >= 0) {
                 value = '"' + value + '"';
             }
-
-            values.push(value || '')
+            value = (value !== null && value !== undefined) ? value : '';
+            values.push(String(value))
         }
         return values.join(delimiter);
 

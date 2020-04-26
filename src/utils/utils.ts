@@ -1,4 +1,4 @@
-import { Selector, FieldDescription, DataTypes } from "../types";
+import { Selector, FieldDescription, DataTypeName, ScalarType, PrimitiveType } from "../types";
 
 /**
  * Formats selected value to number.
@@ -6,7 +6,7 @@ import { Selector, FieldDescription, DataTypes } from "../types";
  * @param val Primitive or object.
  * @param elementSelector Function invoked per iteration.
  */
-export function parseNumber(val: any, elementSelector?: Selector): number | undefined {
+export function parseNumber(val: ScalarType, elementSelector?: Selector): number | undefined {
   if (elementSelector && typeof elementSelector === 'function') {
     val = elementSelector(val);
   }
@@ -185,40 +185,40 @@ export function deepClone(obj: any): any {
   return obj;
 }
 
-export function getFieldDescriptions(items: any[]): FieldDescription[] {
+export function getFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
 
-  function workoutDataType(value: any, inType: DataTypes | undefined): DataTypes | undefined {
+  function workoutDataType(value: ScalarType, inType: DataTypeName | undefined): DataTypeName | undefined {
 
-    function getRealType(val: any): DataTypes {
+    function getRealType(val: ScalarType): DataTypeName {
 
-      function processNumber(num: number): DataTypes {
+      function processNumber(num: number): DataTypeName {
         if (num % 1 === 0) {
-          return (num > 2147483647) ? DataTypes.BigIntNumber : DataTypes.WholeNumber;
+          return (num > 2147483647) ? DataTypeName.BigIntNumber : DataTypeName.WholeNumber;
         } else {
-          return DataTypes.FloatNumber;
+          return DataTypeName.FloatNumber;
         }
       }
 
       switch (typeof val) {
-        case 'boolean': return DataTypes.Boolean;
+        case 'boolean': return DataTypeName.Boolean;
         case 'number':
           return processNumber(val)
         case 'object':
-          if (val instanceof Date) return DataTypes.DateTime;
-          return DataTypes.String;
+          if (val instanceof Date) return DataTypeName.DateTime;
+          return DataTypeName.String;
         case 'string':
-          if (parseDatetimeOrNull(val)) { return DataTypes.DateTime; }
+          if (parseDatetimeOrNull(val)) { return DataTypeName.DateTime; }
 
-          return (val.length > 4000) ? DataTypes.LargeString : DataTypes.String;
+          return (val.length > 4000) ? DataTypeName.LargeString : DataTypeName.String;
 
-        default: return DataTypes.LargeString
+        default: return DataTypeName.LargeString
       }
     }
 
     if (value == null || value == undefined) { return undefined; }
 
     // no point to proceed, string is most common type
-    if (inType === DataTypes.LargeString) { return DataTypes.LargeString; }
+    if (inType === DataTypeName.LargeString) { return DataTypeName.LargeString; }
 
     const realType = getRealType(value);
 
@@ -229,30 +229,30 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
       if (inType === realType) { return inType; }
 
       // if any of items are string, then it must be string
-      if (realType === DataTypes.String) { return DataTypes.String; }
-      if (inType === DataTypes.String && realType !== DataTypes.LargeString) { return DataTypes.String; }
+      if (realType === DataTypeName.String) { return DataTypeName.String; }
+      if (inType === DataTypeName.String && realType !== DataTypeName.LargeString) { return DataTypeName.String; }
 
-      if (inType === DataTypes.FloatNumber) { return DataTypes.FloatNumber; }
-      if (realType === DataTypes.FloatNumber && inType === DataTypes.WholeNumber) {
-        return DataTypes.FloatNumber;
+      if (inType === DataTypeName.FloatNumber) { return DataTypeName.FloatNumber; }
+      if (realType === DataTypeName.FloatNumber && inType === DataTypeName.WholeNumber) {
+        return DataTypeName.FloatNumber;
       }
 
-      if (realType === DataTypes.BigIntNumber) { return DataTypes.BigIntNumber; }
-      if (inType === DataTypes.BigIntNumber && realType === DataTypes.WholeNumber) {
-        return DataTypes.BigIntNumber;
+      if (realType === DataTypeName.BigIntNumber) { return DataTypeName.BigIntNumber; }
+      if (inType === DataTypeName.BigIntNumber && realType === DataTypeName.WholeNumber) {
+        return DataTypeName.BigIntNumber;
       }
 
-      if (realType !== inType && realType !== DataTypes.LargeString) {
-        return DataTypes.String;
+      if (realType !== inType && realType !== DataTypeName.LargeString) {
+        return DataTypeName.String;
       }
 
-      return DataTypes.LargeString;
+      return DataTypeName.LargeString;
     }
 
     return undefined;
   }
 
-  const resultMap: { [key: string]: FieldDescription } = Object.create(null);
+  const resultMap: Record<string, FieldDescription> = Object.create(null);
   for (const item of items) {
 
     for (const [name, value] of Object.entries(item)) {
@@ -261,7 +261,7 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
       if (fDesc === undefined) {
         fDesc = {
           fieldName: name,
-          valuesMap: Object.create(null),
+          valuesMap: new Map<PrimitiveType, number>(),
           isNullable: false
         } as FieldDescription;
         resultMap[name] = fDesc;
@@ -269,17 +269,18 @@ export function getFieldDescriptions(items: any[]): FieldDescription[] {
       if (value === null || value === undefined) {
         fDesc.isNullable = true
       } else {
-        fDesc.dataType = workoutDataType(value, fDesc.dataType)
-        if ((fDesc.dataType == DataTypes.String || fDesc.dataType == DataTypes.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
+        fDesc.dataTypeName = workoutDataType(value, fDesc.dataTypeName)
+        if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = String(value).length;
         }
       }
 
-      if (fDesc.valuesMap[value as any] === undefined) {
-        fDesc.valuesMap[value as any] = 0;
+      const pValue: PrimitiveType = value instanceof Date ? dateToString(value) : value;
+      if (fDesc.valuesMap.get(pValue) === undefined) {
+        fDesc.valuesMap.set(pValue, 0);
       }
 
-      fDesc.valuesMap[value as any]++;
+      fDesc.valuesMap?.set(pValue, (fDesc.valuesMap.get(pValue) || 0) + 1);
     }
   }
 

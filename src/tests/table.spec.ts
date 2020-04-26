@@ -1,6 +1,7 @@
 
 import { data } from "./array.spec";
 import { fromTable, toTable } from "../utils";
+import { ScalarObject } from "../types";
 
 export const table = {
   fields: ['name', 'country'],
@@ -25,15 +26,11 @@ describe('Test table methods', () => {
   })
 
   it('toTable', () => {
-    const tableData = toTable(data);
+    const tableData = toTable(data as ScalarObject[]);
     expect(tableData).toHaveProperty('rows');
-    expect(tableData).toHaveProperty('fields');
+    expect(tableData).toHaveProperty('fieldNames');
     expect(tableData.rows.length).toBe(data.length);
-    expect(tableData.fields[0]).toBe('name');
-    expect(tableData.fields[1]).toBe('country');
-
-    const tableData2 = toTable(data, 'values', 'fieldNames');
-    expect(tableData2).toHaveProperty('values');
-    expect(tableData2).toHaveProperty('fieldNames');
+    expect(tableData.fieldNames[0]).toBe('name');
+    expect(tableData.fieldNames[1]).toBe('country');
   })
 });
