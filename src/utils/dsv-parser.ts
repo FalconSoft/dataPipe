@@ -1,5 +1,6 @@
 import { parseNumberOrNull, parseDatetimeOrNull } from "./utils";
-import { ParsingOptions, ScalarType, ScalarObject } from "../types";
+import { ParsingOptions, ScalarType, ScalarObject, TableDto, ScallarTable } from "../types";
+import { toTable } from "./table";
 
 type ParsingContext = {
     content: string;
@@ -23,7 +24,7 @@ function getObjectElement(fieldNames: string[], tokens: string[], options: Parsi
                 value = !!value;
             } else {
                 const num = parseNumberOrNull(value as string);
-                value = num || value;
+                value = (num === null || num === undefined) ? value : num;
             }
         }
         obj[fieldName] = value === EmptySymbol ? '' : value;
@@ -118,7 +119,19 @@ function getLineTokens(content: string, options: ParsingOptions): ScalarObject[]
 
         if (!fieldNames) {
             // fieldName is used as indicator on whether data rows handling started
-            fieldNames = tokens.map(t => t.trim()); // field names can't have spaces
+            fieldNames = [];
+
+            for (let i = 0; i < tokens.length; i++) {
+                // if empty then _
+                const token = tokens[i].trim().length ? tokens[i].trim() : '_';
+                if (fieldNames.indexOf(token) >= 0) {
+                    // need to make sure fieldNames are unique
+                    fieldNames.push(token + i)
+                } else {
+                    fieldNames.push(token)
+                }
+            }
+
             lineNumber++;
             continue;
         }
@@ -142,6 +155,80 @@ function getLineTokens(content: string, options: ParsingOptions): ScalarObject[]
     return result;
 }
 
+function parseLineTokens(content: string, options: ParsingOptions): ScallarTable {
+    const ctx = {
+        content: content,
+        currentIndex: 0
+    } as ParsingContext;
+    content = content || '';
+    const delimiter = options.delimiter || ',';
+
+    const result = {} as ScallarTable;
+    let lineNumber = 0;
+    let fieldNames: string[] | null = null;
+    let isEmpty = true;
+
+    do {
+        const tokens = nextLineTokens(ctx, delimiter);
+
+        isEmpty = tokens.filter(f => !f || !f.length).length === tokens.length;
+
+        if (isEmpty) {
+            lineNumber++;
+            continue;
+        }
+
+        // skip rows based skipRows value
+        if (lineNumber < options.skipRows) {
+            lineNumber++;
+            continue;
+        }
+
+        // skip rows based on skipUntil call back
+        if (!fieldNames && typeof options.skipUntil === "function" && !options.skipUntil(tokens)) {
+            lineNumber++;
+            continue;
+        }
+
+        if (!fieldNames) {
+            // fieldName is used as indicator on whether data rows handling started
+            fieldNames = [];
+
+            for (let i = 0; i < tokens.length; i++) {
+                // if empty then _
+                const token = tokens[i].trim().length ? tokens[i].trim() : '_';
+                if (fieldNames.indexOf(token) >= 0) {
+                    // need to make sure fieldNames are unique
+                    fieldNames.push(token + i)
+                } else {
+                    fieldNames.push(token)
+                }
+            }
+
+            result.fieldNames = fieldNames;
+
+            lineNumber++;
+            continue;
+        }
+
+        if (typeof options.takeWhile === "function" && fieldNames && !options.takeWhile(tokens)) {
+            break;
+        }
+
+        const row = getObjectElement(fieldNames, tokens, options)
+
+        if (row) {
+            // no need for null or empty objects
+            result.rows.push(tokens);
+        }
+        lineNumber++;
+    }
+    while (++ctx.currentIndex < ctx.content.length)
+
+    return result;
+}
+
+
 export function parseCsv(content: string, options?: ParsingOptions): ScalarObject[] {
     content = content || '';
 
@@ -150,6 +237,18 @@ export function parseCsv(content: string, options?: ParsingOptions): ScalarObjec
     }
 
     return getLineTokens(content, options || new ParsingOptions());
+}
+
+export function parseCsvToTable(content: string, options?: ParsingOptions): ScallarTable {
+    content = content || '';
+
+    if (!content.length) {
+        return {} as TableDto;
+    }
+
+    const items = getLineTokens(content, options || new ParsingOptions());
+    const table = toTable(items)
+    return table;
 }
 
 export function toCsv(array: ScalarObject[], delimiter = ','): string {
@@ -184,4 +283,3 @@ export function toCsv(array: ScalarObject[], delimiter = ','): string {
 
     return lines.join('\n')
 }
-

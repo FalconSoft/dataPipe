@@ -269,7 +269,11 @@ export function getFieldDescriptions(items: Record<string, ScalarType>[]): Field
       if (value === null || value === undefined) {
         fDesc.isNullable = true
       } else {
-        fDesc.dataTypeName = workoutDataType(value, fDesc.dataTypeName)
+        const newType = workoutDataType(value, fDesc.dataTypeName);
+        if(newType !== fDesc.dataTypeName) {
+          fDesc.dataTypeName = newType;
+        }
+        
         if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = String(value).length;
         }

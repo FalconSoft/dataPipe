@@ -32,16 +32,6 @@ export type ScalarObject = Record<string, ScalarType>;
 export type PrimitivesObject = Record<string, PrimitiveType>;
 
 /**
- * A simple data table structure what provides a most efficient way
- * to send data across the wire
- */
-export interface TableDto {
-  fieldDataTypes?: DataTypeName[];
-  fieldNames: string[];
-  rows: PrimitiveType[][];
-}
-
-/**
  * Commonly used and recognized types
  */
 export enum DataTypeName {
@@ -53,6 +43,21 @@ export enum DataTypeName {
   DateTime = 'DateTime',
   Boolean = 'Boolean'
 }
+
+export interface Table<T> {
+  fieldDataTypes?: DataTypeName[];
+  fieldNames: string[];
+  rows: T[][];
+}
+
+
+/**
+ * A simple data table structure what provides a most efficient way
+ * to send data across the wire
+ */
+export type TableDto = Table<PrimitiveType>;
+
+export type ScallarTable = Table<ScalarType>;
 
 export interface FieldDescription {
   fieldName: string;

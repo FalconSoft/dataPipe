@@ -1,3 +1,9 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "files.exclude": {
+        "array": true,
+        "docs": true,
+        "string": true,
+        "utils": true
+    }
 }

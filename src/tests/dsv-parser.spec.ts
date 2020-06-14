@@ -108,6 +108,15 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F2).toBe(2);
   })
 
+  it('simple numders and zeros', () => {
+    const csv = ["F1,F2,F3", `0,2,0`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F1).toBe(0);
+    expect(result[0].F2).toBe(2);
+    expect(result[0].F3).toBe(0);
+  })
+
   it('Empty should be null', () => {
     const csv = ["F1,F2,F3", `1,,"Test, comma"`].join('\n')
     const result = parseCsv(csv);

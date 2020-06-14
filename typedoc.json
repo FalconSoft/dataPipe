@@ -1,0 +1,4 @@
+{
+    "name": "datapipe js doc",
+    "inputFiles": ["./src/data-pipe.ts"]
+  }
