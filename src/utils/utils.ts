@@ -1,4 +1,4 @@
-import { Selector, FieldDescription, DataTypeName, ScalarType, PrimitiveType } from "../types";
+import { Selector, FieldDescription, DataTypeName, ScalarType } from "../types";
 
 /**
  * Formats selected value to number.
@@ -185,72 +185,76 @@ export function deepClone(obj: any): any {
   return obj;
 }
 
-export function getFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
+export function workoutDataType(value: ScalarType, inType: DataTypeName | undefined): DataTypeName | undefined {
 
-  function workoutDataType(value: ScalarType, inType: DataTypeName | undefined): DataTypeName | undefined {
+  function getRealType(val: ScalarType): DataTypeName {
 
-    function getRealType(val: ScalarType): DataTypeName {
-
-      function processNumber(num: number): DataTypeName {
-        if (num % 1 === 0) {
-          return (num > 2147483647) ? DataTypeName.BigIntNumber : DataTypeName.WholeNumber;
-        } else {
-          return DataTypeName.FloatNumber;
-        }
-      }
-
-      switch (typeof val) {
-        case 'boolean': return DataTypeName.Boolean;
-        case 'number':
-          return processNumber(val)
-        case 'object':
-          if (val instanceof Date) return DataTypeName.DateTime;
-          return DataTypeName.String;
-        case 'string':
-          if (parseDatetimeOrNull(val)) { return DataTypeName.DateTime; }
-
-          return (val.length > 4000) ? DataTypeName.LargeString : DataTypeName.String;
-
-        default: return DataTypeName.LargeString
-      }
-    }
-
-    if (value == null || value == undefined) { return undefined; }
-
-    // no point to proceed, string is most common type
-    if (inType === DataTypeName.LargeString) { return DataTypeName.LargeString; }
-
-    const realType = getRealType(value);
-
-    if (inType === undefined) {
-      return realType;
-    } else {
-      // normal case. Means all values in column are the same
-      if (inType === realType) { return inType; }
-
-      // if any of items are string, then it must be string
-      if (realType === DataTypeName.String) { return DataTypeName.String; }
-      if (inType === DataTypeName.String && realType !== DataTypeName.LargeString) { return DataTypeName.String; }
-
-      if (inType === DataTypeName.FloatNumber) { return DataTypeName.FloatNumber; }
-      if (realType === DataTypeName.FloatNumber && inType === DataTypeName.WholeNumber) {
+    function processNumber(num: number): DataTypeName {
+      if (num % 1 === 0) {
+        return (num > 2147483647) ? DataTypeName.BigIntNumber : DataTypeName.WholeNumber;
+      } else {
         return DataTypeName.FloatNumber;
       }
-
-      if (realType === DataTypeName.BigIntNumber) { return DataTypeName.BigIntNumber; }
-      if (inType === DataTypeName.BigIntNumber && realType === DataTypeName.WholeNumber) {
-        return DataTypeName.BigIntNumber;
-      }
-
-      if (realType !== inType && realType !== DataTypeName.LargeString) {
-        return DataTypeName.String;
-      }
-
-      return DataTypeName.LargeString;
     }
 
-    return undefined;
+    let num = null;
+
+    switch (typeof val) {
+      case 'boolean': return DataTypeName.Boolean;
+      case 'number':
+        return processNumber(val)
+      case 'object':
+        if (val instanceof Date) return DataTypeName.DateTime;
+        return DataTypeName.String;
+      case 'string':
+        if (parseDatetimeOrNull(val)) { return DataTypeName.DateTime; }
+        num = parseNumberOrNull(val);
+        if (num !== null) { return processNumber(num); }
+
+        return (val.length > 4000) ? DataTypeName.LargeString : DataTypeName.String;
+
+      default: return DataTypeName.LargeString
+    }
   }
+
+  if (value == null || value == undefined) { return undefined; }
+
+  // no point to proceed, string is most common type
+  if (inType === DataTypeName.LargeString) { return DataTypeName.LargeString; }
+
+  const realType = getRealType(value);
+
+  if (inType === undefined) {
+    return realType;
+  } else {
+    // normal case. Means all values in column are the same
+    if (inType === realType) { return inType; }
+
+    // if any of items are string, then it must be string
+    if (realType === DataTypeName.String) { return DataTypeName.String; }
+    if (inType === DataTypeName.String && realType !== DataTypeName.LargeString) { return DataTypeName.String; }
+
+    if (inType === DataTypeName.FloatNumber) { return DataTypeName.FloatNumber; }
+    if (realType === DataTypeName.FloatNumber && inType === DataTypeName.WholeNumber) {
+      return DataTypeName.FloatNumber;
+    }
+
+    if (realType === DataTypeName.BigIntNumber) { return DataTypeName.BigIntNumber; }
+    if (inType === DataTypeName.BigIntNumber && realType === DataTypeName.WholeNumber) {
+      return DataTypeName.BigIntNumber;
+    }
+
+    if (realType !== inType && realType !== DataTypeName.LargeString) {
+      return DataTypeName.String;
+    }
+
+    return DataTypeName.LargeString;
+  }
+
+  return undefined;
+}
+
+export function getFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
 
   const resultMap: Record<string, FieldDescription> = Object.create(null);
   for (const item of items) {
@@ -261,7 +265,6 @@ export function getFieldDescriptions(items: Record<string, ScalarType>[]): Field
       if (fDesc === undefined) {
         fDesc = {
           fieldName: name,
-          valuesMap: new Map<PrimitiveType, number>(),
           isNullable: false
         } as FieldDescription;
         resultMap[name] = fDesc;
@@ -270,21 +273,21 @@ export function getFieldDescriptions(items: Record<string, ScalarType>[]): Field
         fDesc.isNullable = true
       } else {
         const newType = workoutDataType(value, fDesc.dataTypeName);
-        if(newType !== fDesc.dataTypeName) {
+        if (newType !== fDesc.dataTypeName) {
           fDesc.dataTypeName = newType;
         }
-        
+
         if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = String(value).length;
         }
       }
 
-      const pValue: PrimitiveType = value instanceof Date ? dateToString(value) : value;
-      if (fDesc.valuesMap.get(pValue) === undefined) {
-        fDesc.valuesMap.set(pValue, 0);
-      }
+      // const pValue: PrimitiveType = value instanceof Date ? dateToString(value) : value;
+      // if (fDesc.valuesMap.get(pValue) === undefined) {
+      //   fDesc.valuesMap.set(pValue, 0);
+      // }
 
-      fDesc.valuesMap?.set(pValue, (fDesc.valuesMap.get(pValue) || 0) + 1);
+      // fDesc.valuesMap?.set(pValue, (fDesc.valuesMap.get(pValue) || 0) + 1);
     }
   }
 

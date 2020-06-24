@@ -40,7 +40,7 @@ describe('Test dataUtils', () => {
     const ff = getFieldDescriptions(arr);
     expect(ff.length).toBe(1);
     expect(ff[0].fieldName).toBe('val1');
-    expect(ff[0].dataTypeName).toBe(DataTypeName.String);
+    expect(ff[0].dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(ff[0].isNullable).toBe(false);
   });
 
@@ -56,7 +56,7 @@ describe('Test dataUtils', () => {
     expect(fdFn([2, 4.3, null, 5]).dataTypeName).toBe(DataTypeName.FloatNumber);
     expect(fdFn([2, 2147483699, 5]).dataTypeName).toBe(DataTypeName.BigIntNumber);
     expect(fdFn([2, 2147483699, null, 5]).dataTypeName).toBe(DataTypeName.BigIntNumber);
-    expect(fdFn([2, '4', 5]).dataTypeName).toBe(DataTypeName.String);
+    expect(fdFn([2, '4', 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
   });
 
   it('getFieldDescriptions DateTime check', () => {

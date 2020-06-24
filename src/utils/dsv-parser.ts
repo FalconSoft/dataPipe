@@ -1,6 +1,5 @@
-import { parseNumberOrNull, parseDatetimeOrNull } from "./utils";
-import { ParsingOptions, ScalarType, ScalarObject, TableDto, ScallarTable } from "../types";
-import { toTable } from "./table";
+import { parseNumberOrNull, parseDatetimeOrNull, workoutDataType, parseBooleanOrNull, dateToString } from "./utils";
+import { ParsingOptions, ScalarType, ScalarObject, StringsDataTable, FieldDescription, DataTypeName } from "../types";
 
 type ParsingContext = {
     content: string;
@@ -9,24 +8,28 @@ type ParsingContext = {
 
 const EmptySymbol = '_#EMPTY#_';
 
-function getObjectElement(fieldNames: string[], tokens: string[], options: ParsingOptions): ScalarObject {
+function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], options: ParsingOptions): ScalarObject {
     const obj = Object.create(null);
-    for (let i = 0; i < fieldNames.length; i++) {
-        const fieldName = fieldNames[i];
+    for (let i = 0; i < fieldDescs.length; i++) {
+        const fieldDesc = fieldDescs[i];
+        const fieldName = fieldDesc.fieldName;
         let value: ScalarType = tokens[i] || null;
 
-        if (value && value.length) {
-            if (options.dateFields && options.dateFields.indexOf(fieldName) >= 0) {
-                value = parseDatetimeOrNull(value);
-            } else if (options.numberFields && options.numberFields.indexOf(fieldName) >= 0) {
-                value = parseNumberOrNull(value);
-            } else if (options.booleanFields && options.booleanFields.indexOf(fieldName) >= 0) {
-                value = !!value;
-            } else {
-                const num = parseNumberOrNull(value as string);
-                value = (num === null || num === undefined) ? value : num;
-            }
+        if (options.textFields && options.textFields.indexOf(fieldName) >= 0) {
+            value = tokens[i];
+        } else if (fieldDesc.dataTypeName === DataTypeName.DateTime
+            || (options.dateFields && options.dateFields.indexOf(fieldName) >= 0)) {
+            value = parseDatetimeOrNull(value as string);
+        } else if (fieldDesc.dataTypeName === DataTypeName.WholeNumber
+            || fieldDesc.dataTypeName === DataTypeName.FloatNumber
+            || fieldDesc.dataTypeName === DataTypeName.BigIntNumber
+            || (options.numberFields && options.numberFields.indexOf(fieldName) >= 0)) {
+            value = parseNumberOrNull(value as string);
+        } else if (fieldDesc.dataTypeName === DataTypeName.Boolean
+            || (options.booleanFields && options.booleanFields.indexOf(fieldName) >= 0)) {
+            value = parseBooleanOrNull(value as string);
         }
+
         obj[fieldName] = value === EmptySymbol ? '' : value;
     }
     return obj;
@@ -82,7 +85,7 @@ function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
     return tokens;
 }
 
-function getLineTokens(content: string, options: ParsingOptions): ScalarObject[] {
+function parseLineTokens(content: string, options: ParsingOptions): StringsDataTable {
     const ctx = {
         content: content,
         currentIndex: 0
@@ -90,17 +93,19 @@ function getLineTokens(content: string, options: ParsingOptions): ScalarObject[]
     content = content || '';
     const delimiter = options.delimiter || ',';
 
-    const result = [];
+    const result = {
+        fieldDescriptions: [] as FieldDescription[],
+        rows: [] as ScalarType[][]
+    } as StringsDataTable;
     let lineNumber = 0;
     let fieldNames: string[] | null = null;
-    let isEmpty = true;
+    const uniqueValues: string[][] = [];
 
     do {
-        const tokens = nextLineTokens(ctx, delimiter);
+        const rowTokens = nextLineTokens(ctx, delimiter);
 
-        isEmpty = tokens.filter(f => !f || !f.length).length === tokens.length;
-
-        if (isEmpty) {
+        // skip if all tokens are empty
+        if (rowTokens.filter(f => !f || !f.length).length === rowTokens.length) {
             lineNumber++;
             continue;
         }
@@ -112,7 +117,7 @@ function getLineTokens(content: string, options: ParsingOptions): ScalarObject[]
         }
 
         // skip rows based on skipUntil call back
-        if (!fieldNames && typeof options.skipUntil === "function" && !options.skipUntil(tokens)) {
+        if (!fieldNames && typeof options.skipUntil === "function" && !options.skipUntil(rowTokens)) {
             lineNumber++;
             continue;
         }
@@ -120,135 +125,105 @@ function getLineTokens(content: string, options: ParsingOptions): ScalarObject[]
         if (!fieldNames) {
             // fieldName is used as indicator on whether data rows handling started
             fieldNames = [];
+            const fieldDescriptions = [];
 
-            for (let i = 0; i < tokens.length; i++) {
+            for (let i = 0; i < rowTokens.length; i++) {
                 // if empty then _
-                const token = tokens[i].trim().length ? tokens[i].trim() : '_';
-                if (fieldNames.indexOf(token) >= 0) {
-                    // need to make sure fieldNames are unique
-                    fieldNames.push(token + i)
-                } else {
-                    fieldNames.push(token)
-                }
+                const token = rowTokens[i].trim().length ? rowTokens[i].trim() : '_';
+
+                // just to ensure no dublicated field names
+                fieldNames.push(fieldNames.indexOf(token) >= 0 ? token + i : token)
+
+                fieldDescriptions.push({
+                    fieldName: fieldNames[fieldNames.length - 1],
+                    isNullable: false,
+                    isUnique: true,
+                    index: i
+                } as FieldDescription)
+
+                uniqueValues.push([]);
             }
 
-            lineNumber++;
-            continue;
-        }
-
-        if (typeof options.takeWhile === "function" && fieldNames && !options.takeWhile(tokens)) {
-            break;
-        }
-
-        const obj = (typeof options.elementSelector === "function") ?
-            options.elementSelector(fieldNames, tokens)
-            : getObjectElement(fieldNames, tokens, options)
-
-        if (obj) {
-            // no need for null or empty objects
-            result.push(obj);
-        }
-        lineNumber++;
-    }
-    while (++ctx.currentIndex < ctx.content.length)
-
-    return result;
-}
-
-function parseLineTokens(content: string, options: ParsingOptions): ScallarTable {
-    const ctx = {
-        content: content,
-        currentIndex: 0
-    } as ParsingContext;
-    content = content || '';
-    const delimiter = options.delimiter || ',';
-
-    const result = {} as ScallarTable;
-    let lineNumber = 0;
-    let fieldNames: string[] | null = null;
-    let isEmpty = true;
-
-    do {
-        const tokens = nextLineTokens(ctx, delimiter);
-
-        isEmpty = tokens.filter(f => !f || !f.length).length === tokens.length;
-
-        if (isEmpty) {
-            lineNumber++;
-            continue;
-        }
-
-        // skip rows based skipRows value
-        if (lineNumber < options.skipRows) {
-            lineNumber++;
-            continue;
-        }
-
-        // skip rows based on skipUntil call back
-        if (!fieldNames && typeof options.skipUntil === "function" && !options.skipUntil(tokens)) {
-            lineNumber++;
-            continue;
-        }
-
-        if (!fieldNames) {
-            // fieldName is used as indicator on whether data rows handling started
-            fieldNames = [];
-
-            for (let i = 0; i < tokens.length; i++) {
-                // if empty then _
-                const token = tokens[i].trim().length ? tokens[i].trim() : '_';
-                if (fieldNames.indexOf(token) >= 0) {
-                    // need to make sure fieldNames are unique
-                    fieldNames.push(token + i)
-                } else {
-                    fieldNames.push(token)
-                }
-            }
-
+            result.fieldDescriptions = fieldDescriptions;
             result.fieldNames = fieldNames;
 
             lineNumber++;
             continue;
         }
 
-        if (typeof options.takeWhile === "function" && fieldNames && !options.takeWhile(tokens)) {
+        if (typeof options.takeWhile === "function" && fieldNames && !options.takeWhile(rowTokens)) {
             break;
         }
 
-        const row = getObjectElement(fieldNames, tokens, options)
+        // analyze each cell in a row
+        for (let i = 0; i < rowTokens.length; i++) {
+            const fDesc = result.fieldDescriptions[i];
+            const value = rowTokens[i];
 
-        if (row) {
-            // no need for null or empty objects
-            result.rows.push(tokens);
+            if (value === null || value === undefined || value.length === 0) {
+                fDesc.isNullable = true
+            } else {
+                const newType = workoutDataType(value, fDesc.dataTypeName);
+                if (newType !== fDesc.dataTypeName) {
+                    fDesc.dataTypeName = newType;
+                }
+
+                if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString)
+                    && String(value).length > (fDesc.maxSize || 0)) {
+                    fDesc.maxSize = String(value).length;
+                }
+            }
+
+            if (fDesc.isUnique && uniqueValues[i].indexOf(value) >= 0) {
+                fDesc.isUnique = false;
+            } else {
+                uniqueValues[i].push(value);
+            }
         }
+
+        // no need for null or empty objects
+        result.rows.push(rowTokens);
         lineNumber++;
     }
     while (++ctx.currentIndex < ctx.content.length)
 
+    result.fieldDataTypes = result.fieldDescriptions.map(f => f.dataTypeName as DataTypeName);
     return result;
 }
 
-
 export function parseCsv(content: string, options?: ParsingOptions): ScalarObject[] {
     content = content || '';
-
+    options = options || {} as ParsingOptions;
     if (!content.length) {
         return [];
     }
 
-    return getLineTokens(content, options || new ParsingOptions());
+    const table = parseLineTokens(content, options || new ParsingOptions());
+
+    const result: ScalarObject[] = [];
+    for (let i = 0; i < table.rows.length; i++) {
+        const obj = (typeof options.elementSelector === "function") ?
+            options.elementSelector(table.fieldDescriptions, table.rows[i] as string[])
+            : getObjectElement(table.fieldDescriptions, table.rows[i] as string[], options)
+
+        if (obj) {
+            // no need for null or empty objects
+            result.push(obj);
+        }
+
+    }
+
+    return result;
 }
 
-export function parseCsvToTable(content: string, options?: ParsingOptions): ScallarTable {
+export function parseCsvToTable(content: string, options?: ParsingOptions): StringsDataTable {
     content = content || '';
 
     if (!content.length) {
-        return {} as TableDto;
+        return {} as StringsDataTable;
     }
 
-    const items = getLineTokens(content, options || new ParsingOptions());
-    const table = toTable(items)
-    return table;
+    return parseLineTokens(content, options || new ParsingOptions());
 }
 
 export function toCsv(array: ScalarObject[], delimiter = ','): string {
@@ -269,7 +244,7 @@ export function toCsv(array: ScalarObject[], delimiter = ','): string {
         for (const name of headers) {
             let value: ScalarType = item[name];
             if (value instanceof Date) {
-                value = parseDatetimeOrNull(value);
+                value = dateToString(value);
             } else if (typeof value === "string" && value.indexOf(delimiter) >= 0) {
                 value = '"' + value + '"';
             }

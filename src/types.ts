@@ -3,13 +3,14 @@ export type Selector<T = any, V = any> = (p: T) => V;
 export class ParsingOptions {
   delimiter = ',';
   skipRows = 0;
+  textFields: string[] = [];
   dateFields: string[] = [];
   numberFields: string[] = [];
   booleanFields: string[] = [];
   skipUntil?: (tokens: string[]) => boolean;
   takeWhile?: (tokens: string[]) => boolean;
   parseFields?: {};
-  elementSelector?: (headers: string[], tokens: string[]) => any;
+  elementSelector?: (fieldDescriptions: FieldDescription[], tokens: string[]) => any;
 }
 
 export type PrimitiveType = string | number | bigint | boolean | null;
@@ -59,10 +60,15 @@ export type TableDto = Table<PrimitiveType>;
 
 export type ScallarTable = Table<ScalarType>;
 
+export interface StringsDataTable extends Table<string> {
+  fieldDescriptions: FieldDescription[];
+}
+
 export interface FieldDescription {
+  index: number;
   fieldName: string;
   isNullable: boolean;
+  isUnique: boolean;
   maxSize?: number;
   dataTypeName?: DataTypeName;
-  valuesMap: Map<PrimitiveType, number>;
 }

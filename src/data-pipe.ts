@@ -1,5 +1,5 @@
 import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
-import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName } from './types';
+import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName, StringsDataTable } from './types';
 import { parseCsv, fromTable, toTable, getFieldDescriptions } from './utils';
 import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose } from './array';
 

@@ -196,6 +196,18 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F1 instanceof Date).toBe(true);
   });
 
+  it('Still string. Because second row is not a number or date', () => {
+    const csv = ["F1\tF2\tF3", `2020-02-11\t1,000.32\t"Test, comma"`, "nn\tnn\tnn"].join('\n')
+    const options = new ParsingOptions();
+    options.delimiter = '\t';
+
+    const result = parseCsv(csv, options);
+    expect(result.length).toBe(2);
+    expect(typeof result[0].F1 === "string").toBe(true);
+    expect(typeof result[0].F2 === "string").toBe(true);
+    expect(result[0].F2).toBe('1,000.32');
+  });
+
   it('ToCsv', () => {
     const csv = ["F1,F2,F3", `2020-02-11,1,tt`].join('\n')
     const result = toCsv(parseCsv(csv));
