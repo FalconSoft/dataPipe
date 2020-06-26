@@ -88,6 +88,5 @@ describe('Test dataUtils', () => {
     expect(fdFn([87, longestText, '2019-01-01']).dataTypeName).toBe(DataTypeName.String);
   });
 
-
 })
 

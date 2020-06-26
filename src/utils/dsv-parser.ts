@@ -13,7 +13,7 @@ function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], opti
     for (let i = 0; i < fieldDescs.length; i++) {
         const fieldDesc = fieldDescs[i];
         const fieldName = fieldDesc.fieldName;
-        let value: ScalarType = tokens[i] || null;
+        let value: ScalarType = tokens[i];
 
         if (options.textFields && options.textFields.indexOf(fieldName) >= 0) {
             value = tokens[i];
@@ -154,38 +154,53 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
         if (typeof options.takeWhile === "function" && fieldNames && !options.takeWhile(rowTokens)) {
             break;
         }
+        const rowValues: string[] = [];
 
         // analyze each cell in a row
         for (let i = 0; i < rowTokens.length; i++) {
             const fDesc = result.fieldDescriptions[i];
-            const value = rowTokens[i];
+            let value: string | null = rowTokens[i];
 
             if (value === null || value === undefined || value.length === 0) {
                 fDesc.isNullable = true
-            } else {
+            } else if (value !== EmptySymbol) {
                 const newType = workoutDataType(value, fDesc.dataTypeName);
                 if (newType !== fDesc.dataTypeName) {
                     fDesc.dataTypeName = newType;
                 }
 
-                if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString)
-                    && String(value).length > (fDesc.maxSize || 0)) {
+                if (
+                    (fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString)
+                    && String(value).length > (fDesc.maxSize || 0)
+                ) {
                     fDesc.maxSize = String(value).length;
                 }
             }
 
-            if (fDesc.isUnique && uniqueValues[i].indexOf(value) >= 0) {
-                fDesc.isUnique = false;
-            } else {
-                uniqueValues[i].push(value);
+            if (fDesc.isUnique) {
+                if (uniqueValues[i].indexOf(value) >= 0) {
+                    fDesc.isUnique = false;
+                } else {
+                    uniqueValues[i].push(value);
+                }
             }
+
+            if (value === EmptySymbol) {
+                value = (fDesc.dataTypeName === DataTypeName.String || fDesc.dataTypeName === DataTypeName.LargeString) ?
+                    '' : null
+            } else if (!value.length){
+                value = null;
+            }
+            rowValues.push(value as string);
         }
 
         // no need for null or empty objects
-        result.rows.push(rowTokens);
+        result.rows.push(rowValues);
         lineNumber++;
     }
     while (++ctx.currentIndex < ctx.content.length)
+
+    // console.log('** uniqueValues =>', uniqueValues);
 
     result.fieldDataTypes = result.fieldDescriptions.map(f => f.dataTypeName as DataTypeName);
     return result;

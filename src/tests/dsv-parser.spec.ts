@@ -1,6 +1,5 @@
-
-import { parseCsv, toCsv } from '../utils';
-import { ParsingOptions } from '../types';
+import { parseCsv, toCsv, parseCsvToTable } from '../utils';
+import { ParsingOptions, DataTypeName } from '../types';
 
 describe('Dsv Parser specification', () => {
   it('simple numbers', () => {
@@ -27,21 +26,21 @@ describe('Dsv Parser specification', () => {
     expect(result[0].F2).toBe(2000.5);
   })
 
-  // it('simple numbers (double) negative', () => {
-  //   const csv = ["F1,F2", `1,-2000.5`].join('\n')
-  //   const result = parseCsv(csv);
-  //   expect(result.length).toBe(1);
-  //   expect(result[0].F1).toBe(1);
-  //   expect(result[0].F2).toBe(-2000.5);
-  // })
+  it('simple numbers (double) negative', () => {
+    const csv = ["F1,F2", `1,-2000.5`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F1).toBe(1);
+    expect(result[0].F2).toBe(-2000.5);
+  })
 
-  // it('simple numbers (double) with thousand', () => {
-  //   const csv = ["F1,F2", `1,"-2,000.5"`].join('\n')
-  //   const result = parseCsv(csv);
-  //   expect(result.length).toBe(1);
-  //   expect(result[0].F1).toBe(1);
-  //   expect(result[0].F2).toBe(-2000.5);
-  // })
+  it('simple numbers (double) with thousand', () => {
+    const csv = ["F1,F2", `1,"-2,000.5"`].join('\n')
+    const result = parseCsv(csv);
+    expect(result.length).toBe(1);
+    expect(result[0].F1).toBe(1);
+    expect(result[0].F2).toBe(-2000.5);
+  })
 
   it('simple numders and strings', () => {
     const csv = ["F1,F2,F3", `1,2,"Test, comma"`].join('\n')
@@ -95,10 +94,9 @@ describe('Dsv Parser specification', () => {
   })
 
   it('String with quotes 7 empty "" ', () => {
-    const csv = ["F1,F2", `1,""`].join('\n')
+    const csv = ["F1,F2", `1,"dd"`, `1,""`].join('\n')
     const result = parseCsv(csv);
-    expect(result.length).toBe(1);
-    expect(result[0].F2).toBe('');
+    expect(result[1].F2).toBe('');
   })
 
   it('simple numders and strings with spaces', () => {
@@ -157,6 +155,7 @@ describe('Dsv Parser specification', () => {
     expect(result.length).toBe(1);
     expect(result[0].F2).toBe(1000.32);
   })
+
   it('skip rows not empty rows', () => {
     const csv = ["", " * not Empty *", "F1\tF2\tF3", `1\t1,000.32\t"Test, comma"`].join('\n')
     const result = parseCsv(csv, { delimiter: '\t', skipRows: 2 } as ParsingOptions);
@@ -214,4 +213,93 @@ describe('Dsv Parser specification', () => {
     expect(result).toBe(csv);
   });
 
-})
+});
+
+describe ('Parse Csv To Table', () => {
+
+  it('simple numbers', () => {
+    const csv = ["F1,F2", "1,2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(1);
+    expect(result.fieldDescriptions.length).toBe(2);
+    expect(result.fieldDescriptions[0].fieldName).toBe("F1");
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.WholeNumber);
+    expect(result.fieldDescriptions[0].isUnique).toBe(true);
+    expect(result.fieldDescriptions[0].isNullable).toBe(false);
+    // everything returns as a string
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('1');
+  });
+
+  it('double and non unique', () => {
+    const csv = ["F1,F2", "1,2", "1.3,2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions.length).toBe(2);
+    expect(result.fieldDescriptions[0].fieldName).toBe("F1");
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.FloatNumber);
+    expect(result.fieldDescriptions[0].isUnique).toBe(true);
+    expect(result.fieldDescriptions[1].isUnique).toBe(false);
+    expect(result.fieldDescriptions[0].isNullable).toBe(false);
+    // everything returns as a string
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('1');
+  });
+
+  it('boolean test', () => {
+    const csv = ["F1,F2", "true,2", "TRUE,2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions.length).toBe(2);
+    expect(result.fieldDescriptions[0].fieldName).toBe("F1");
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.Boolean);
+    expect(result.fieldDescriptions[0].isUnique).toBe(true);
+    expect(result.fieldDescriptions[1].isUnique).toBe(false);
+    expect(result.fieldDescriptions[0].isNullable).toBe(false);
+    // everything returns as a string
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('true');
+    expect(result.rows[1][result.fieldDescriptions[0].index]).toBe('TRUE');
+  });
+
+  it('nullable boolean test', () => {
+    const csv = ["F1,F2", "true,2", ",2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions[0].isNullable).toBe(true);
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('true');
+    expect(result.rows[1][result.fieldDescriptions[0].index]).toBe(null);
+  });
+
+  it('nullable date test', () => {
+    const csv = ["F1,F2", "2020-02-02,2", ",2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions[0].isNullable).toBe(true);
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.DateTime);
+
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('2020-02-02');
+    expect(result.rows[1][result.fieldDescriptions[0].index]).toBe(null);
+  });
+
+  it('nullable date test 2', () => {
+    const csv = ["F1,F2", ",2", "2020-02-02,2"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions[0].isNullable).toBe(true);
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.DateTime);
+
+    expect(result.rows[1][result.fieldDescriptions[0].index]).toBe('2020-02-02');
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe(null);
+  });  
+
+  it('nullable float test', () => {
+    const csv = ["F1,F2", ",2", ",-2020.98"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.rows.length).toBe(2);
+    expect(result.fieldDescriptions[0].isNullable).toBe(true);
+    expect(result.fieldDescriptions[0].dataTypeName || null).toBe(null);
+    expect(result.fieldDescriptions[1].dataTypeName).toBe(DataTypeName.FloatNumber);
+
+    expect(result.rows[1][result.fieldDescriptions[1].index]).toBe('-2020.98');
+    expect(result.rows[0][result.fieldDescriptions[0].index]).toBe(null);
+  });  
+
+});

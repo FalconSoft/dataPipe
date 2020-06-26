@@ -35,6 +35,8 @@ export function parseNumberOrNull(value: string | number): number | null {
     return null;
   }
 
+  value = value.trim();
+
   // Just to make sure string contains digits only and '.', ','. Otherwise, parseFloat can incorrectly parse into number
   for (let i = value.length - 1; i >= 0; i--) {
     const d = value.charCodeAt(i);
@@ -129,7 +131,7 @@ export function parseBooleanOrNull(val: boolean | string): boolean | null {
 
   const trulyVals = ['1', 'yes', 'true', 'on'];
   const falsyVals = ['0', 'no', 'false', 'off'];
-  const checkVal = val.toString().toLowerCase();
+  const checkVal = val.toString().toLowerCase().trim();
 
   if (trulyVals.includes(checkVal)) {
     return true;
@@ -198,6 +200,7 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
     }
 
     let num = null;
+    let bl = null;
 
     switch (typeof val) {
       case 'boolean': return DataTypeName.Boolean;
@@ -210,6 +213,9 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
         if (parseDatetimeOrNull(val)) { return DataTypeName.DateTime; }
         num = parseNumberOrNull(val);
         if (num !== null) { return processNumber(num); }
+
+        bl = parseBooleanOrNull(val);
+        if (bl !== null) { return DataTypeName.Boolean; }
 
         return (val.length > 4000) ? DataTypeName.LargeString : DataTypeName.String;
 
