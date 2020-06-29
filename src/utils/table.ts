@@ -4,7 +4,7 @@ import { parseDatetimeOrNull, dateToString } from "./utils";
 /**
  * Get JSON type array for tabel type array.
  * @param rowsOrTable Table data or Array of values .
- * @param fieldNames Column names. If not provided then, it will be auto generated 
+ * @param fieldNames Column names. If not provided then, it will be auto generated
  * @param fieldDataTypes Column names
  */
 export function fromTable(rowsOrTable: PrimitiveType[][] | TableDto, fieldNames?: string[],
@@ -54,9 +54,20 @@ export function toTable(values: ScalarObject[]): TableDto {
     return tableDto;
   }
 
-  tableDto.fieldNames = Object.keys(values[0]);
+  const fN = new Set<string>();
+  values.forEach(v => {
+    Object.keys(v).forEach(k => fN.add(k));
+  });
+
+  tableDto.fieldNames = Array.from(fN.values());
   tableDto.rows = values
-    .map(rowValues => Object.values(rowValues)
-      .map(v => v instanceof Date ? dateToString(v) : v));
+    .map(rowValues => {
+      return tableDto.fieldNames.reduce((r, field) => {
+        const v = rowValues[field];
+        const val = v instanceof Date ? dateToString(v) : v;
+        r.push(val as PrimitiveType);
+        return r;
+      }, [] as PrimitiveType[]);
+    });
   return tableDto;
 }
