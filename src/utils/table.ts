@@ -1,5 +1,5 @@
 import { ScalarObject, PrimitiveType, TableDto, DataTypeName } from "../types";
-import { parseDatetimeOrNull, dateToString } from "./utils";
+import { parseDatetimeOrNull, dateToString } from "./helpers";
 
 /**
  * Get JSON type array for tabel type array.

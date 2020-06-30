@@ -9,8 +9,7 @@ dataPipe is data transformation and analytical library inspired by LINQ (C#) and
 A quick way to use it in html
 
 ```
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/datapipe-js/dist/data-pipe.min.js">
-</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/datapipe-js/dist/data-pipe.min.js"></script>
 ```
 
 or npm
@@ -22,6 +21,11 @@ npm install datapipe-js
 ## A quick example
 JavaScript / TypeScript
 ```js
+import { dataPipe } from 'datapipe-js';
+import * as dpString from 'datapipe-js/string';
+import * as dpUtils from 'datapipe-js/utils';
+import * as dpArray from 'datapipe-js/array';
+
 const data = [
   { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"},
   { name: "Adam", country: "UK"}, { name: "Scott", country: "UK"}, { name: "Diana",country: "UK"},
@@ -44,8 +48,10 @@ const summaryForUS = dataPipe(data)
   console.log(summaryForUS);
 ```
 
-JSPython
+[JSPython](https://jspython.dev) inside [Worksheet Systems](https://worksheet.systems) Application.
 ```py
+from datapipe-js import dataPipe
+from datapipe-js-array import first, sum
 
 data = [
   { name: "John",  country: "US"}, { name: "Joe", country: "US"}, { name: "Bill",  country: "US"}, { name: "Adam", country: "UK"}, 

@@ -1,4 +1,4 @@
-import { parseNumberOrNull, parseDatetimeOrNull, workoutDataType, parseBooleanOrNull, dateToString } from "./utils";
+import { parseNumberOrNull, parseDatetimeOrNull, workoutDataType, parseBooleanOrNull, dateToString } from "./helpers";
 import { ParsingOptions, ScalarType, ScalarObject, StringsDataTable, FieldDescription, DataTypeName } from "../types";
 
 type ParsingContext = {

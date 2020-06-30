@@ -1,4 +1,4 @@
-import { Selector } from "../types";
+import { Selector, Predicate } from "../types";
 import { fieldSelector } from "../_internals";
 import { sum } from "./stats";
 
@@ -66,7 +66,7 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
     if (!Array.isArray(array)) { throw Error('An array is not provided') }
 
     if (!array.length) { return array; }
-    
+
 
     const groups: { [key: string]: any[] } = Object.create(null);
     columnValues = columnValues || [];
@@ -115,23 +115,47 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
 
 /**
  * Transpose rows to columns in an array
- * @param data 
+ * @param data
  */
 export function transpose(data: any[]): any[] {
     if (!Array.isArray(data)) { throw Error('An array is not provided') }
 
     if (!data.length) { return data; }
-  
+
     return Object.keys(data[0]).map(key => {
       const res: { [key: string]: any } = {};
       data.forEach((item, i) => {
         if (i === 0) {
           res.fieldName = key;
         }
-  
+
         res['row' + i] = item[key];
       });
       return res;
     });
-  }
-  
+}
+
+/**
+ * Creates new array based on selector.
+ * @param array The array to process.
+ * @param elementSelector Function invoked per iteration.
+ */
+export function select(data: any[], selector: string | string[] | Selector): any[] {
+  if (!Array.isArray(data)) { throw Error('An array is not provided') }
+
+  if (!data.length) { return data; }
+  const elementSelector = fieldSelector(selector);
+  return data.map(elementSelector);
+}
+
+/**
+ * Filters array based on predicate function.
+ * @param array The array to process.
+ * @param elementSelector Function invoked per iteration.
+ */
+export function where(data: any[], predicate: Predicate): any[] {
+  if (!Array.isArray(data)) { throw Error('An array is not provided') }
+
+  return data.filter(predicate);
+}
+

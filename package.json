@@ -1,21 +1,39 @@
 {
   "name": "datapipe-js",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "dataPipe is a JavaScript library for data manipulations, data transformations and data wrangling library inspired by LINQ (C#) and Pandas (Python)",
-  "main": "dist/data-pipe.min.js",
-  "module": "dist/data-pipe.esm.js",
+  "main": "dist/cjs/data-pipe.js",
+  "module": "dist/esm/data-pipe.mjs",
   "typings": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/data-pipe.mjs",
+      "require": "./dist/cjs/data-pipe.js"
+    },
+    "./array": {
+      "import": "./dist/esm/array/index.mjs",
+      "require": "./dist/cjs/array/index.js"
+    },
+    "./string": {
+      "import": "./dist/esm/string/index.mjs",
+      "require": "./dist/cjs/string/index.js"
+    },
+    "./utils": {
+      "import": "./dist/esm/utils/index.mjs",
+      "require": "./dist/cjs/utils/index.js"
+    }
+  },
   "files": [
-    "dist",
+    "utils",
     "array",
     "string",
-    "utils"
+    "dist"
   ],
   "scripts": {
     "test": "jest",
     "test:dev": "jest --watch",
     "test:dev:debug": "node --inspect-brk node_modules/.bin/jest --runInBand --watch",
-    "build": "npx rollup -c && npm run docs && node copy-types",
+    "build": "npx rollup -c && npm run docs",
     "build:publish": "npm run build && npm publish",
     "docs": "npx typedoc src --plugin none",
     "docs:md": "npx typedoc src --out md-docs --plugin typedoc-plugin-markdown",
