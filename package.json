@@ -71,6 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
     "eslint": "^6.8.0",
+    "husky": "^4.2.5",
     "jest": "^24.9.0",
     "jest-fetch-mock": "^2.1.2",
     "rollup": "^1.31.1",
@@ -83,5 +84,11 @@
     "typedoc": "^0.17.3",
     "typedoc-plugin-markdown": "^2.2.17",
     "typescript": "^3.8.3"
-  }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run test"
+    }
+  },
+  "dependencies": {}
 }
