@@ -1,4 +1,6 @@
-import { parseNumber, parseDatetimeOrNull } from "../utils";
+import { parseNumber, parseDatetimeOrNull, dateToString } from "../utils";
+import { Selector } from "..";
+import { fieldSelector } from "../_internals";
 
 function compareStrings(a: string, b: any): number {
   return a.localeCompare(b);
@@ -102,5 +104,19 @@ export function sort(array: any[], ...fields: string[]): any[] {
 
   array.sort(comparator(sortFields));
   return array;
+}
+
+export function toObject(array: any[], keyField: string | string[] | Selector<any, string>): Record<string, any> {
+  const result = {} as Record<string, any>;
+
+  for (const item of array) {
+    let key = fieldSelector(keyField)(item);
+    if (key as any instanceof Date) {
+      key = dateToString(key as any)
+    }
+    result[key] = item
+  }
+
+  return result;
 }
 

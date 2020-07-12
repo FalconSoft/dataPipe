@@ -1,7 +1,7 @@
 import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
 import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName } from './types';
-import { parseCsv, fromTable, toTable, getFieldDescriptions } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose } from './array';
+import { parseCsv, fromTable, toTable, getFieldDescriptions, toCsv } from './utils';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose, toObject } from './array';
 
 
 export class DataPipe {
@@ -16,6 +16,33 @@ export class DataPipe {
    */
   toArray(): any[] {
     return this.data;
+  }
+
+  /**
+   * Outputs Pipe value as CSV content
+   * @param delimiter 
+   */
+  toCsv(delimiter = ','): string {
+    return toCsv(this.data, delimiter)
+  }
+
+  /**
+   * Outputs pipe value as JavaScript object.
+   * @param keyField a key selector represented as a string (field name) or array of stringa (fieldNames) or custom selectors
+   */
+  toObject(keyField: string | string[] | Selector<any, string>): Record<string, any> {
+    return toObject(this.data, keyField);
+  }
+
+  /**
+   * This method allows you to examine a a state of the data during pipe execution.
+   * @param dataFunc 
+   */
+  tap(dataFunc: (d: any[]) => void): DataPipe {
+    if (typeof dataFunc === 'function') {
+      dataFunc(this.data);
+    }
+    return this;
   }
 
   /**

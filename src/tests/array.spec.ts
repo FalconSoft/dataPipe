@@ -1,5 +1,5 @@
 import * as pipeFuncs from '../array'
-import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first, fullJoin, innerJoin } from '../array';
+import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first, fullJoin, innerJoin, toObject } from '../array';
 
 export const data = [
   { name: "John", country: "US", age: 32 },
@@ -146,17 +146,17 @@ describe('Test array methods', () => {
 
   it('leftJoin 2', () => {
     const arr1 = [
-      {keyField:'k1', value1: 21},
-      {keyField:'k2', value1: 22},
-      {keyField:'k3', value1: 23},
-      {keyField:'k4', value1: 24}
+      { keyField: 'k1', value1: 21 },
+      { keyField: 'k2', value1: 22 },
+      { keyField: 'k3', value1: 23 },
+      { keyField: 'k4', value1: 24 }
     ];
 
     const arr2 = [
-      {keyField:'k1', value2: 31},
-      {keyField:'k2', value2: 32},
-      {keyField:'k5', value2: 35},
-      {keyField:'k8', value2: 38}
+      { keyField: 'k1', value2: 31 },
+      { keyField: 'k2', value2: 32 },
+      { keyField: 'k5', value2: 35 },
+      { keyField: 'k8', value2: 38 }
     ];
 
     const joinedArray = leftJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
@@ -168,17 +168,17 @@ describe('Test array methods', () => {
 
   it('innerJoin', () => {
     const arr1 = [
-      {keyField:'k1', value1: 21},
-      {keyField:'k2', value1: 22},
-      {keyField:'k3', value1: 23},
-      {keyField:'k4', value1: 24}
+      { keyField: 'k1', value1: 21 },
+      { keyField: 'k2', value1: 22 },
+      { keyField: 'k3', value1: 23 },
+      { keyField: 'k4', value1: 24 }
     ];
 
     const arr2 = [
-      {keyField:'k1', value2: 31},
-      {keyField:'k2', value2: 32},
-      {keyField:'k5', value2: 35},
-      {keyField:'k8', value2: 38}
+      { keyField: 'k1', value2: 31 },
+      { keyField: 'k2', value2: 32 },
+      { keyField: 'k5', value2: 35 },
+      { keyField: 'k8', value2: 38 }
     ];
 
     const joinedArray = innerJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
@@ -190,17 +190,17 @@ describe('Test array methods', () => {
 
   it('fullJoin', () => {
     const arr1 = [
-      {keyField:'k1', value1: 21},
-      {keyField:'k2', value1: 22},
-      {keyField:'k3', value1: 23},
-      {keyField:'k4', value1: 24}
+      { keyField: 'k1', value1: 21 },
+      { keyField: 'k2', value1: 22 },
+      { keyField: 'k3', value1: 23 },
+      { keyField: 'k4', value1: 24 }
     ];
 
     const arr2 = [
-      {keyField:'k1', value2: 31},
-      {keyField:'k2', value2: 32},
-      {keyField:'k5', value2: 35},
-      {keyField:'k8', value2: 38}
+      { keyField: 'k1', value2: 31 },
+      { keyField: 'k2', value2: 32 },
+      { keyField: 'k5', value2: 35 },
+      { keyField: 'k8', value2: 38 }
     ];
 
     const joinedArray = fullJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
@@ -397,4 +397,40 @@ describe('Test array methods', () => {
     arr = pipeFuncs.sort(arrWithUndefinedProps, 'name DESC') || [];
     expect(arr[0].age).toBe(7);
   });
+
+  it('toObject test', () => {
+    const array = [
+      { name: 'Tom', age: 7 },
+      { name: 'Bob', age: 10 },
+      { age: 5 },
+      { name: 'Jerry', age: 3 }
+    ];
+
+    const obj1 = toObject(array, "name")
+    expect(Object.keys(obj1).length).toBe(array.length)
+    expect(obj1['Bob'].age).toBe(10)
+    expect(obj1['undefined'].age).toBe(5)
+
+    const obj2 = toObject(array, i => i.name)
+    expect(Object.keys(obj2).length).toBe(array.length)
+
+    // make sure both are thesame
+    expect(JSON.stringify(obj1)).toBe(JSON.stringify(obj2))
+  });
+
+  it('toObject NOT string', () => {
+    const array = [
+      { name: 'Tom', age: 7, date: new Date(2020, 0, 8) },
+      { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
+      { age: 5, date: new Date(2020, 0, 3) },
+      { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
+    ];
+
+    expect(toObject(array, i => i.age)['7'].name).toBe('Tom')
+    expect(toObject(array, 'age')['7'].name).toBe('Tom')
+
+    expect(toObject(array, i => i.date)['2020-01-02'].name).toBe('Bob')
+    expect(toObject(array, 'date')['2020-01-02'].name).toBe('Bob')
+  });
+
 });

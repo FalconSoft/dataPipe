@@ -52,7 +52,7 @@ export function sum(array: any[], field?: Selector | string): number | null {
     const numberVal = parseNumber(item, elementSelector);
     if (numberVal) {
       sum += numberVal;
-    }
+    } 
   }
 
   return sum;
