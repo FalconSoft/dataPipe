@@ -78,7 +78,7 @@ export function isArrayEmptyOrNull(array: any[]): boolean {
 }
 
 /**
- * Sorts array.
+ * A simple sort array function with a convenient interface
  * @param array The array to process.
  * @param fields sorts order.
  * @public
@@ -105,7 +105,11 @@ export function sort(array: any[], ...fields: string[]): any[] {
   array.sort(comparator(sortFields));
   return array;
 }
-
+/**
+ * Converts array of items to the object map. Where key selector can be defined.
+ * @param array to be converted
+ * @param keyField a selector or field name for a property name
+ */
 export function toObject(array: any[], keyField: string | string[] | Selector<any, string>): Record<string, any> {
   const result = {} as Record<string, any>;
 

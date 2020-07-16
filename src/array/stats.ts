@@ -172,10 +172,10 @@ export function last<T = any>(array: T[], predicate?: Predicate): T | null {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function countBy(array: any[], elementSelector: Selector): { [key: string]: number } {
+export function countBy(array: any[], elementSelector: Selector): Record<string, number> {
   if (!array || !Array.isArray(array)) { throw Error('No array provided') }
 
-  const results: { [key: string]: number } = {};
+  const results: Record<string, number> = {};
   const length = array.length;
 
   for (let i = 0; i < length; i++) {

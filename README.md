@@ -17,7 +17,11 @@ npm install datapipe-js
 ```
 
 ## A quick example
+
 JavaScript / TypeScript
+
+[StackBlitz example](https://stackblitz.com/edit/datapipe-js-examples?file=index.js)
+
 ```js
 const { dataPipe, avg, first } = require('datapipe-js');
 const fetch = require('node-fetch');
@@ -32,7 +36,7 @@ async function main() {
         .groupBy(r => r.Country)
         .select(g => ({
             country: first(g).Country,
-            sales: dataPipe(g).sum(i => i.Sales).toArray(),
+            sales: dataPipe(g).sum(i => i.Sales),
             averageSales: avg(g, i => i.Sales),
             count: g.length
         })

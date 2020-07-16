@@ -8,9 +8,28 @@ export class DataPipe {
   private data: any[];
 
   constructor(data: any[] = []) {
-    this.data = data;
+    this.data = data || [];
   }
 
+  // input methods
+  fromCsv(content: string, options?: ParsingOptions): DataPipe {
+    this.data = parseCsv(content, options);
+    return this;
+  }
+
+  /**
+   * Loads dataPipe with Table information
+   * @param rowsOrTable a datarows with 2 dimentional arrays or entire table. If you provide rows, then you have to specify fieldNames
+   * @param fieldNames fieldNames what correspond to the rows
+   * @param fieldDataTypes  fieldNames what correspond to the rows
+   */
+  fromTable(rowsOrTable: PrimitiveType[][] | TableDto, fieldNames?: string[],
+    fieldDataTypes?: DataTypeName[]): DataPipe {
+    this.data = fromTable(rowsOrTable, fieldNames, fieldDataTypes);
+    return this;
+  }
+
+  // Output methods
   /**
    * Get pipes currrent array data.
    */
@@ -35,7 +54,16 @@ export class DataPipe {
   }
 
   /**
-   * This method allows you to examine a a state of the data during pipe execution.
+   * Gets table data from JSON type array.
+   */
+  toTable(): TableDto {
+    return toTable(this.data);
+  }
+  // end of output functions
+
+
+  /**
+   * This method allows you to examine a state of the data during pipe execution.
    * @param dataFunc 
    */
   tap(dataFunc: (d: any[]) => void): DataPipe {
@@ -44,6 +72,8 @@ export class DataPipe {
     }
     return this;
   }
+
+  // Aggregation Functions
 
   /**
    * Sum of items in array.
@@ -56,20 +86,6 @@ export class DataPipe {
   sum(elementSelector?: Selector): number | null {
     return sum(this.data, elementSelector);
   }
-
-  /**
-   * Select data from array item.
-   * @param elementSelector Function invoked per iteration.
-   * @example
-   *
-   * dataPipe([{ val: 1 }, { val: 5 }]).select(i => i.val).toArray(); // [1, 5]
-   */
-  select(elementSelector: Selector): DataPipe {
-    this.data = this.data.map(elementSelector);
-    return this;
-  }
-
-  map = this.select.bind(this);
 
   /**
    * Average of array items.
@@ -125,145 +141,6 @@ export class DataPipe {
   }
 
   /**
-   * Groups array items based on elementSelector function
-   * @param elementSelector Function invoked per iteration.
-   */
-  groupBy(elementSelector: Selector): DataPipe {
-    this.data = groupBy(this.data, elementSelector);
-    return this;
-  }
-
-  /**
-   * Flattens array.
-   * @example
-   * dataPipe([1, 4, [2, [5, 5, [9, 7]], 11], 0]).flatten(); // length 9
-   */
-  flatten(): any[] {
-    return flatten(this.data);
-  }
-
-  /**
-   * Gets counts map of values returned by `elementSelector`.
-   * @param elementSelector Function invoked per iteration.
-   */
-  countBy(elementSelector: Selector): { [key: string]: number } | null {
-    return countBy(this.data, elementSelector);
-  }
-
-  /**
-   * Joins two arrays together by selecting elements that have matching values in both arrays
-   * @param rightArray array of elements to join
-   * @param leftKey left Key
-   * @param rightKey
-   * @param resultSelector
-   */
-  innerJoin(rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-    this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
-  }
-
-  leftJoin(rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-
-    this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
-  }
-
-  fullJoin(rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-    this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
-  }
-
-  merge(
-    sourceArray: any[],
-    targetKey: string | string[] | Selector<any, string>,
-    sourceKey: string | string[] | Selector<any, string>
-  ): DataPipe {
-    this.data = merge(this.data, sourceArray, targetKey, sourceKey);
-    return this;
-  }
-
-  pivot(rowFields: string | string[], columnField: string, dataField: string,
-    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): DataPipe {
-
-    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues)
-    return this;
-  }
-
-  transpose(): DataPipe {
-    this.data = transpose(this.data) || [];
-    return this;
-  }
-
-  /**
-   * Filters array of items.
-   * @param predicate Predicate function invoked per iteration.
-   */
-  where(predicate: Predicate): DataPipe {
-    this.data = this.data.filter(predicate);
-    return this;
-  }
-
-  filter = this.where.bind(this);
-
-  fromCsv(content: string, options?: ParsingOptions): DataPipe {
-    this.data = parseCsv(content, options);
-    return this;
-  }
-
-  /**
-   * Get JSON type array for tabel type array.
-   * @param rows Table data. Array of values array.
-   * @param fieldNames Column names or autogenerated
-   */
-  fromTable(rowsOrTable: PrimitiveType[][] | TableDto, fieldNames?: string[],
-    fieldDataTypes?: DataTypeName[]): DataPipe {
-    this.data = fromTable(rowsOrTable, fieldNames, fieldDataTypes);
-    return this;
-  }
-
-  /**
-   * Gets table data from JSON type array.
-   */
-  toTable(): TableDto {
-    return toTable(this.data);
-  }
-
-  /**
-   * Get unique values
-   * @param elementSelector Function invoked per iteration.
-   */
-  unique(elementSelector?: Selector): DataPipe {
-    if (elementSelector) {
-      this.select(elementSelector);
-    }
-    this.data = Array.from(new Set(this.data));
-    return this;
-  }
-
-  /**
-   * Sort array.
-   * @param fields sorts order.
-   * @example
-   * dp.sort('name ASC', 'age DESC');
-   */
-  sort(...fields: string[]): DataPipe {
-    sort(this.data, ...fields);
-    return this
-  }
-
-  /**
    * Get mean.
    * @param field Property name or Selector function invoked per iteration.
    */
@@ -303,6 +180,123 @@ export class DataPipe {
   median(field?: Selector | string): number | null {
     return median(this.data, field);
   }
+
+
+  // Data Transformation functions
+  /**
+   * Groups array items based on elementSelector function
+   * @param elementSelector Function invoked per iteration.
+   */
+  groupBy(elementSelector: Selector): DataPipe {
+    this.data = groupBy(this.data, elementSelector);
+    return this;
+  }
+
+  /**
+   * Joins two arrays together by selecting elements that have matching values in both arrays
+   * @param rightArray array of elements to join
+   * @param leftKey left Key
+   * @param rightKey
+   * @param resultSelector
+   */
+  innerJoin(rightArray: any[],
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+    this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
+    return this;
+  }
+
+  leftJoin(rightArray: any[],
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+
+    this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
+    return this;
+  }
+
+  fullJoin(rightArray: any[],
+    leftKey: string | string[] | Selector<any, string>,
+    rightKey: string | string[] | Selector<any, string>,
+    resultSelector: (leftItem: any, rightItem: any) => any
+  ): DataPipe {
+    this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
+    return this;
+  }
+
+  /**
+   * Select data from array item.
+   * @param elementSelector Function invoked per iteration.
+   * @example
+   *
+   * dataPipe([{ val: 1 }, { val: 5 }]).select(i => i.val).toArray(); // [1, 5]
+   */
+  select(elementSelector: Selector): DataPipe {
+    this.data = this.data.map(elementSelector);
+    return this;
+  }
+
+  map = this.select.bind(this);
+
+  merge(
+    sourceArray: any[],
+    targetKey: string | string[] | Selector<any, string>,
+    sourceKey: string | string[] | Selector<any, string>
+  ): DataPipe {
+    this.data = merge(this.data, sourceArray, targetKey, sourceKey);
+    return this;
+  }
+
+  pivot(rowFields: string | string[], columnField: string, dataField: string,
+    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): DataPipe {
+
+    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues)
+    return this;
+  }
+
+  transpose(): DataPipe {
+    this.data = transpose(this.data) || [];
+    return this;
+  }
+
+  /**
+   * Filters array of items.
+   * @param predicate Predicate function invoked per iteration.
+   */
+  where(predicate: Predicate): DataPipe {
+    this.data = this.data.filter(predicate);
+    return this;
+  }
+
+  filter = this.where.bind(this);
+
+  /**
+   * Get unique values
+   * @param elementSelector Function invoked per iteration.
+   */
+  unique(elementSelector?: Selector): DataPipe {
+    if (elementSelector) {
+      this.select(elementSelector);
+    }
+    this.data = Array.from(new Set(this.data));
+    return this;
+  }
+
+  /**
+   * Sort array.
+   * @param fields sorts order.
+   * @example
+   * dp.sort('name ASC', 'age DESC');
+   */
+  sort(...fields: string[]): DataPipe {
+    sort(this.data, ...fields);
+    return this
+  }
+
+  // end of transformation functions
 
   getFieldDescriptions(): FieldDescription[] {
     return getFieldDescriptions(this.data)
