@@ -100,26 +100,26 @@ export function parseDatetimeOrNull(value: string | Date): Date | null {
   };
 
   const validDateOrNull =
-    (yyyy: number, month: number, day: number, hours: number, mins: number, ss: number): Date | null => {
+    (yyyy: number, month: number, day: number, hours: number, mins: number, ss: number, ms: number): Date | null => {
       if (month > 11 || day > 31 || hours >= 60 || mins >= 60 || ss >= 60) { return null; }
 
-      const dd = new Date(yyyy, month, day, hours, mins, ss, 0);
+      const dd = new Date(yyyy, month, day, hours, mins, ss, ms);
       return !isNaN(dd.valueOf()) ? dd : null;
     };
 
-  const strTokens = strValue.replace('T', ' ').toLowerCase().split(/[: /-]/);
+  const strTokens = strValue.replace('T', ' ').replace('.', ' ').toLowerCase().split(/[: /-]/);
   const dt = strTokens.map(parseFloat);
 
   // try ISO first
-  let d = validDateOrNull(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0);
+  let d = validDateOrNull(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   if (d) { return d; }
 
   // then UK
-  d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[1]), dt[0], dt[3] || 0, dt[4] || 0, dt[5] || 0);
+  d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[1]), dt[0], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   if (d) { return d; }
 
   // then US
-  d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), correctYear(dt[1]), dt[3] || 0, dt[4] || 0, dt[5] || 0);
+  d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), correctYear(dt[1]), dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   if (d) { return d; }
 
   return null;

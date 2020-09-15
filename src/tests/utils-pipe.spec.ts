@@ -1,4 +1,4 @@
-import { parseDatetimeOrNull, parseNumberOrNull, getFieldDescriptions } from "../utils";
+import { parseDatetimeOrNull, parseNumberOrNull, getFieldDescriptions, dateToString } from "../utils";
 import { FieldDescription, DataTypeName } from "../types";
 
 
@@ -15,7 +15,15 @@ describe('Test dataUtils', () => {
     if (date) {
       expect(date.getMonth()).toBe(9);
     }
-  })
+  });
+
+  it('parseDateTime with miliseconds', () => {
+    const dt = parseDatetimeOrNull('2020-06-08T13:49:15.16');
+    expect(dt).toBeInstanceOf(Date);
+    expect(dateToString(dt as Date)).toBe('2020-06-08T13:49:15.016Z');
+    const strDate = '2020-02-21T13:49:15.967Z';
+    expect(dateToString(parseDatetimeOrNull(strDate) as Date)).toBe(strDate);
+  });
 
   it('parseNumber', () => {
     expect(parseNumberOrNull('')).toBe(null);
@@ -69,7 +77,7 @@ describe('Test dataUtils', () => {
     expect(fdFn(['2019-01-01', null, '2019-01-02']).isNullable).toBe(true);
     expect(fdFn([new Date(2001, 1, 1), new Date()]).dataTypeName).toBe(DataTypeName.DateTime);
 
-    expect(fdFn(['2019-01-01','NOT A DATE', '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
+    expect(fdFn(['2019-01-01', 'NOT A DATE', '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, false, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, false, null, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
