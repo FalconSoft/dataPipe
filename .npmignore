@@ -5,3 +5,19 @@ rollup.config.js
 jest.config.js
 *.tgz
 tsconfig.json
+./copy-types.js
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+
+/docs
+/md-docs

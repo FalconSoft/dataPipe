@@ -1,8 +1,10 @@
 import typescript from 'rollup-plugin-typescript2';
 import { uglify } from 'rollup-plugin-uglify';
+import del from 'rollup-plugin-delete'
 
 const pkg = require('./package.json');
 const input = 'src/index.ts';
+const subModules = ['array', 'string', 'utils'];
 
 export default [{
   input: 'src/commonjs.ts',
@@ -11,6 +13,11 @@ export default [{
   ],
   treeshake: true,
   plugins: [
+    del({
+      targets: ['./dist', ...subModules.map(m => `./${m}`)],
+      hook: 'buildStart',
+      runOnce: true
+    }),
     typescript({
       clean: true
     }),
@@ -34,19 +41,18 @@ export default [{
       clean: true
     })
   ]
-}, ...['array', 'string', 'utils'].map(subFolder => ({
+}, ...subModules.map(subFolder => ({
   input: `src/${subFolder}/index.ts`,
-  output: { file: `dist/esm/${subFolder}/index.mjs`, format: 'esm', sourcemap: true, compact: true },
+  output: { file: `${subFolder}/index.mjs`, format: 'esm', sourcemap: true, compact: true },
   treeshake: true,
   plugins: [
     typescript({
       clean: true
     })
   ],
-})),
-...['array', 'string', 'utils'].map(subFolder => ({
+})), ...subModules.map(subFolder => ({
   input: `src/${subFolder}/index.ts`,
-  output: { file: `dist/cjs/${subFolder}/index.js`, format: 'cjs', sourcemap: true, compact: true },
+  output: { file: `${subFolder}/index.js`, format: 'cjs', sourcemap: true, compact: true },
   treeshake: true,
   plugins: [
     typescript({
