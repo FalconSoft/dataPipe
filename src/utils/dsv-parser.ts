@@ -157,7 +157,7 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
         const rowValues: string[] = [];
 
         // analyze each cell in a row
-        for (let i = 0; i < rowTokens.length; i++) {
+        for (let i = 0; i < Math.min(rowTokens.length, result.fieldDescriptions.length); i++) {
             const fDesc = result.fieldDescriptions[i];
             let value: string | null = rowTokens[i];
 
