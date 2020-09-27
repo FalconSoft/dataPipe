@@ -55,11 +55,14 @@ export function parseNumberOrNull(value: string | number): number | null {
  * More wider datetime parser
  * @param value
  */
-export function parseDatetimeOrNull(value: string | Date): Date | null {
+export function parseDatetimeOrNull(value: string | Date, format: string | null = null): Date | null {
+  format = (format || '').toLowerCase();
   if (!value) { return null; }
   if (value instanceof Date && !isNaN(value.valueOf())) { return value; }
   // only string values can be converted to Date
   if (typeof value !== 'string') { return null; }
+
+
 
   const strValue = String(value);
   if (!strValue.length) { return null; }
@@ -110,17 +113,37 @@ export function parseDatetimeOrNull(value: string | Date): Date | null {
   const strTokens = strValue.replace('T', ' ').replace('.', ' ').toLowerCase().split(/[: /-]/);
   const dt = strTokens.map(parseFloat);
 
+  let d: Date | null = null;
+
+  if (format.startsWith('mm/dd/yy') || format.startsWith('mmm/dd/yy')
+    || format.startsWith('mm-dd-yy') || format.startsWith('mmm-dd-yy')) {
+    // handle US format
+    return validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), dt[1], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
+  } else if (format.startsWith('yyyymm')) {
+    return validDateOrNull(
+      parseInt(value.substring(0, 4)),
+      parseInt(value.substring(4, 6)) - 1,
+      (value.length > 6) ? parseInt(value.substring(6, 8)) : 1, 0, 0, 0, 0)
+  } else if (format.startsWith('dd/mm/yy') || format.startsWith('dd/mmm/yy')
+    || format.startsWith('dd-mm-yy') || format.startsWith('dd-mmm-yy')) {
+    return validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[1]), dt[0], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
+  } else if (format.startsWith('yyyy-mm')) {
+    return validDateOrNull(dt[0], parseMonth(strTokens[1]), dt[2] || 1, dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
+  } else if(format.length){
+    throw new Error(`Unrecognized format '${format}'`);
+  }
+
+
   // try ISO first
-  let d = validDateOrNull(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
+  d = validDateOrNull(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   if (d) { return d; }
 
   // then UK
   d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[1]), dt[0], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   if (d) { return d; }
 
-  // then US
-  d = validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), correctYear(dt[1]), dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
-  if (d) { return d; }
+  // then US guess
+  return validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[0]), dt[1], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
 
   return null;
 }

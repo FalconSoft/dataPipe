@@ -4,7 +4,7 @@ export class ParsingOptions {
   delimiter = ',';
   skipRows = 0;
   textFields: string[] = [];
-  dateFields: string[] = [];
+  dateFields: (string | string[])[] = [];
   numberFields: string[] = [];
   booleanFields: string[] = [];
   skipUntil?: (tokens: string[]) => boolean;

@@ -1,4 +1,4 @@
-import { parseCsv, toCsv, parseCsvToTable } from '../utils';
+import { parseCsv, toCsv, parseCsvToTable, dateToString } from '../utils';
 import { ParsingOptions, DataTypeName } from '../types';
 
 describe('Dsv Parser specification', () => {
@@ -242,6 +242,38 @@ describe ('Parse Csv To Table', () => {
     expect(result.fieldDescriptions[0].isNullable).toBe(false);
     // everything returns as a string
     expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('1');
+  });
+
+  it('Date parse', () => {
+    const csv = ["F1,F2", "1,06/02/2020", "1.3,06/07/2020"].join('\n')
+    const result = parseCsv(csv, {dateFields: [['F2','MM/dd/yyyy']]} as ParsingOptions);
+    expect(result.length).toBe(2);
+    expect(dateToString(result[0].F2 as Date)).toBe('2020-06-02');
+    expect(dateToString(result[1].F2 as Date)).toBe('2020-06-07');
+  });
+
+  it('Date parse 2', () => {
+    const csv = ["F1,F2", "1,20200602", "1.3,20200607"].join('\n')
+    const result = parseCsv(csv, {dateFields: [['F2','yyyyMMdd']]} as ParsingOptions);
+    expect(result.length).toBe(2);
+    expect(dateToString(result[0].F2 as Date)).toBe('2020-06-02');
+    expect(dateToString(result[1].F2 as Date)).toBe('2020-06-07');
+  });
+
+  it('Date parse 3', () => {
+    const csv = ["F1,F2", "1,202006", "1.3,202005"].join('\n')
+    const result = parseCsv(csv, {dateFields: [['F2','yyyyMM']]} as ParsingOptions);
+    expect(result.length).toBe(2);
+    expect(dateToString(result[0].F2 as Date)).toBe('2020-06-01');
+    expect(dateToString(result[1].F2 as Date)).toBe('2020-05-01');
+  });
+
+  it('Date parse 4', () => {
+    const csv = ["F1,F2", "1,06/02/2020", "1.3,06/07/2020"].join('\n')
+    const result = parseCsv(csv, {dateFields: [['F2','dd/MM/yyyy']]} as ParsingOptions);
+    expect(result.length).toBe(2);
+    expect(dateToString(result[0].F2 as Date)).toBe('2020-02-06');
+    expect(dateToString(result[1].F2 as Date)).toBe('2020-07-06');
   });
 
   it('boolean test', () => {

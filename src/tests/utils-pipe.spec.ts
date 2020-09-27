@@ -25,6 +25,16 @@ describe('Test dataUtils', () => {
     expect(dateToString(parseDatetimeOrNull(strDate) as Date)).toBe(strDate);
   });
 
+  it('parseDateTime with format', () => {
+    const dt = parseDatetimeOrNull('20200608', 'yyyyMMdd');
+    expect(dt).toBeInstanceOf(Date);
+    expect(dateToString(dt as Date)).toBe('2020-06-08');   
+    expect(dateToString(parseDatetimeOrNull('202006', 'yyyyMM') as Date)).toBe('2020-06-01');
+    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'MM/dd/yyyy') as Date)).toBe('2020-06-02');
+    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'dd/MM/yyyy') as Date)).toBe('2020-02-06');
+    expect(dateToString(parseDatetimeOrNull('2020-06-02', 'yyyy-mm-dd') as Date)).toBe('2020-06-02');
+  });
+
   it('parseNumber', () => {
     expect(parseNumberOrNull('')).toBe(null);
     expect(parseNumberOrNull('11')).toBe(11);

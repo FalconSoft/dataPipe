@@ -14,12 +14,17 @@ function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], opti
         const fieldDesc = fieldDescs[i];
         const fieldName = fieldDesc.fieldName;
         let value: ScalarType = tokens[i];
+        const dateFields = options?.dateFields?.map(r => Array.isArray(r)? r[0] : r) || [];
 
-        if (options.textFields && options.textFields.indexOf(fieldName) >= 0) {
+        if (options.textFields && options.textFields?.indexOf(fieldName) >= 0) {
             value = tokens[i];
         } else if (fieldDesc.dataTypeName === DataTypeName.DateTime
-            || (options.dateFields && options.dateFields.indexOf(fieldName) >= 0)) {
-            value = parseDatetimeOrNull(value as string);
+            || (dateFields.indexOf(fieldName) >= 0)) {
+
+            const ind = dateFields.indexOf(fieldName)
+            const dtField = ind >= 0? options?.dateFields[ind] : [];
+            const format = Array.isArray(dtField)? dtField[1] : null;
+            value = parseDatetimeOrNull(value as string, format || null);
         } else if (fieldDesc.dataTypeName === DataTypeName.WholeNumber
             || fieldDesc.dataTypeName === DataTypeName.FloatNumber
             || fieldDesc.dataTypeName === DataTypeName.BigIntNumber
