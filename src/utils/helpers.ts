@@ -1,4 +1,4 @@
-import { Selector, FieldDescription, DataTypeName, ScalarType } from "../types";
+import { Selector, FieldDescription, DataTypeName, ScalarType, PrimitiveType } from "../types";
 
 /**
  * Formats selected value to number.
@@ -129,7 +129,7 @@ export function parseDatetimeOrNull(value: string | Date, format: string | null 
     return validDateOrNull(correctYear(dt[2]), parseMonth(strTokens[1]), dt[0], dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
   } else if (format.startsWith('yyyy-mm')) {
     return validDateOrNull(dt[0], parseMonth(strTokens[1]), dt[2] || 1, dt[3] || 0, dt[4] || 0, dt[5] || 0, dt[6] || 0);
-  } else if(format.length){
+  } else if (format.length) {
     throw new Error(`Unrecognized format '${format}'`);
   }
 
@@ -283,21 +283,45 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
   return undefined;
 }
 
-export function getFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
+/**
+   * generates a field descriptions (first level only) that can be used for relational table definition.
+   * if any properties are Objects, it would use JSON.stringify to calculate maxSize field.
+ * @param items 
+ */
+export function createFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
 
   const resultMap: Record<string, FieldDescription> = Object.create(null);
+  const valuesMap: Record<string, Set<string>> = Object.create(null);
+
+  let index = 0;
   for (const item of items) {
 
     for (const [name, value] of Object.entries(item)) {
       let fDesc = resultMap[name];
+      let valuesSet = valuesMap[name];
+
+      if (valuesSet === undefined) {
+        valuesSet = valuesMap[name] = new Set<string>();
+      }
 
       if (fDesc === undefined) {
         fDesc = {
+          index: index++,
           fieldName: name,
           isNullable: false
         } as FieldDescription;
         resultMap[name] = fDesc;
       }
+
+      const strValue: PrimitiveType =
+        value instanceof Date ? dateToString(value)
+          : typeof value === 'object' ? JSON.stringify(value)
+            : String(value);
+
+      if (!fDesc.isObject) {
+        fDesc.isObject = typeof value === 'object';
+      }
+
       if (value === null || value === undefined) {
         fDesc.isNullable = true
       } else {
@@ -306,19 +330,23 @@ export function getFieldDescriptions(items: Record<string, ScalarType>[]): Field
           fDesc.dataTypeName = newType;
         }
 
-        if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && String(value).length > (fDesc.maxSize || 0)) {
-          fDesc.maxSize = String(value).length;
+        if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && strValue.length > (fDesc.maxSize || 0)) {
+          fDesc.maxSize = strValue.length;
         }
       }
 
-      // const pValue: PrimitiveType = value instanceof Date ? dateToString(value) : value;
-      // if (fDesc.valuesMap.get(pValue) === undefined) {
-      //   fDesc.valuesMap.set(pValue, 0);
-      // }
-
-      // fDesc.valuesMap?.set(pValue, (fDesc.valuesMap.get(pValue) || 0) + 1);
+      if (!valuesSet.has(strValue)) {
+        valuesSet.add(strValue);
+      }
     }
   }
 
-  return Object.values(resultMap);
+  const fields = Object.values(resultMap)
+    .sort((a: FieldDescription, b: FieldDescription) => (a.index > b.index) ? 1 : ((b.index > a.index) ? -1 : 0))
+
+  return fields
+    .map(r => {
+      r.isUnique = valuesMap[r.fieldName].size === items.length;
+      return r;
+    });
 }

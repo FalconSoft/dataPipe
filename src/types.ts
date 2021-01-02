@@ -69,6 +69,7 @@ export interface FieldDescription {
   fieldName: string;
   isNullable: boolean;
   isUnique: boolean;
+  isObject: boolean;
   maxSize?: number;
   dataTypeName?: DataTypeName;
 }

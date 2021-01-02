@@ -103,6 +103,7 @@ when in browser.
  - **parseNumberOrNull**(value: string | number): convert to number or returns null
  - **parseBooleanOrNull**(val: boolean | string): convert to Boolean or returns null. It is treating `['1', 'yes', 'true', 'on']` as true and `['0', 'no', 'false', 'off']` as false 
  - **deepClone** returns a deep copy of your object or array.
+ - **createFieldDescriptions**(items: Record<string, ScalarType>[]): FieldDescription[] : Generates a field descriptions (first level only) from array of items. That eventually can be used for relational table definition. If any properties are Objects, it would use JSON.stringify to calculate maxSize field.
 
 ## License
 A permissive [MIT](https://github.com/FalconSoft/dataPipe/blob/master/LICENSE) (c) - FalconSoft Ltd

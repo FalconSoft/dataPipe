@@ -1,7 +1,7 @@
-import { sum, avg, count, min, max, first, last, countBy, mean, quantile, variance, median, stdev } from './array/stats';
+import { sum, avg, count, min, max, first, last, mean, quantile, variance, median, stdev } from './array/stats';
 import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName } from './types';
-import { parseCsv, fromTable, toTable, getFieldDescriptions, toCsv } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, flatten, sort, pivot, transpose, toObject } from './array';
+import { parseCsv, fromTable, toTable, createFieldDescriptions, toCsv } from './utils';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, sort, pivot, transpose, toObject } from './array';
 
 
 export class DataPipe {
@@ -298,8 +298,11 @@ export class DataPipe {
 
   // end of transformation functions
 
-  getFieldDescriptions(): FieldDescription[] {
-    return getFieldDescriptions(this.data)
+  /**
+   * generates a field descriptions (first level only) that can be used for relational table definition.
+   * if any properties are Objects, it would use JSON.stringify to calculate maxSize field.
+   */
+  createFieldDescriptions(): FieldDescription[] {
+    return createFieldDescriptions(this.data)
   }
-
 }

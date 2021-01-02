@@ -1,4 +1,4 @@
-import { parseDatetimeOrNull, parseNumberOrNull, getFieldDescriptions, dateToString } from "../utils";
+import { parseDatetimeOrNull, parseNumberOrNull, createFieldDescriptions, dateToString } from "../utils";
 import { FieldDescription, DataTypeName } from "../types";
 
 
@@ -44,27 +44,27 @@ describe('Test dataUtils', () => {
     expect(parseNumberOrNull(NaN)).toBe(NaN);
   })
 
-  it('getFieldDescriptions', () => {
+  it('createFieldDescriptions', () => {
     const arr = [2, 4, 5].map(r => ({ val1: r }));
-    const ff = getFieldDescriptions(arr);
+    const ff = createFieldDescriptions(arr);
     expect(ff.length).toBe(1);
     expect(ff[0].fieldName).toBe('val1');
     expect(ff[0].dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(ff[0].isNullable).toBe(false);
   });
 
-  it('getFieldDescriptions2', () => {
+  it('createFieldDescriptions2', () => {
     const arr = [2, '4', 5].map(r => ({ val1: r }));
-    const ff = getFieldDescriptions(arr);
+    const ff = createFieldDescriptions(arr);
     expect(ff.length).toBe(1);
     expect(ff[0].fieldName).toBe('val1');
     expect(ff[0].dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(ff[0].isNullable).toBe(false);
   });
 
-  it('getFieldDescriptions numbers check', () => {
+  it('createFieldDescriptions numbers check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
 
     expect(fdFn([2, 4, 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(fdFn([2, 4, 5]).isNullable).toBe(false);
@@ -77,9 +77,9 @@ describe('Test dataUtils', () => {
     expect(fdFn([2, '4', 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
   });
 
-  it('getFieldDescriptions DateTime check', () => {
+  it('createFieldDescriptions DateTime check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
 
     expect(fdFn(['2019-01-01', '2019-01-02']).dataTypeName).toBe(DataTypeName.DateTime);
     expect(fdFn(['2019-01-01', '2019-01-02']).isNullable).toBe(false);
@@ -94,9 +94,9 @@ describe('Test dataUtils', () => {
     expect(fdFn([new Date(2001, 1, 1), 'NOT A DATE', new Date()]).dataTypeName).toBe(DataTypeName.String);
   });
 
-  it('getFieldDescriptions size check', () => {
+  it('createFieldDescriptions size check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
 
     const longestText = 'Longest Text';
     expect(fdFn(['Test1', 'Longer', longestText]).maxSize).toBe(longestText.length);
