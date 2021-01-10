@@ -99,12 +99,14 @@ when in browser.
 
 ### Other helpful utilities for working with data in JavaScript or JSPython
  - **parseDatetimeOrNull**(dateString[, formats]) - a bit wider date time parser than JS's `parseDate()`. Be aware. It gives UK time format (dd/MM/yyyy) a priority! e.g. '8/2/2019' will be parsed to 8th of February 2019
- - **dateToString**(date) - converts date to string without applying time zone. It returns ISO formated date with time (if time present). Otherwise it will return just a date - yyyy-MM-dd
+ - **dateToString**(date, format) - converts date to string without applying time zone. It returns ISO formated date with time (if time present). Otherwise it will return just a date - yyyy-MM-dd
  - **parseNumberOrNull**(value: string | number): convert to number or returns null
  - **parseBooleanOrNull**(val: boolean | string): convert to Boolean or returns null. It is treating `['1', 'yes', 'true', 'on']` as true and `['0', 'no', 'false', 'off']` as false 
  - **deepClone** returns a deep copy of your object or array.
  - **createFieldDescriptions**(items: Record<string, ScalarType>[]): FieldDescription[] : Generates a field descriptions (first level only) from array of items. That eventually can be used for relational table definition. If any properties are Objects, it would use JSON.stringify to calculate maxSize field.
-
+- **addDays**(date: Date, daysOffset: number): Date:  add days to the current date. `daysOffset` can be positive or negative number
+- **addBusinessDays**(date: Date, bDaysOffset: number): Date:  Worksout a business date (excludes Saturdays and Sundays) based on bDaysOffset count. `bDaysOffset` can be positive or negative number.
+ 
 ## License
 A permissive [MIT](https://github.com/FalconSoft/dataPipe/blob/master/LICENSE) (c) - FalconSoft Ltd
 

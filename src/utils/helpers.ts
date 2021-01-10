@@ -167,10 +167,65 @@ export function parseBooleanOrNull(val: boolean | string): boolean | null {
   return null;
 }
 
-export function dateToString(d: Date): string {
+export function addDays(dt: Date, daysOffset: number): Date {
+  dt.setDate(dt.getDate() + daysOffset);
+  return dt;
+}
+
+export function addBusinessDays(dt: Date, bDaysOffset: number): Date {
+  dt.setDate(dt.getDate() + bDaysOffset);
+
+  // skip saturdays and sundays
+  if (bDaysOffset < 0) {
+    while (dt.getDay() === 0 || dt.getDay() === 6) {
+      dt.setDate(dt.getDate() - 1);
+    }
+  } else {
+    while (dt.getDay() === 0 || dt.getDay() === 6) {
+      dt.setDate(dt.getDate() + 1);
+    }
+  }
+  return dt;
+}
+
+
+export function dateToString(d: Date, format?: string): string {
   const date = new Date(d.getTime());
   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-  return date.toISOString().replace('T00:00:00.000Z', '');
+  const strDate = date.toISOString().replace('T00:00:00.000Z', '');
+
+  if (format) {
+    // a quick and dirty way to achive a most used formats
+    const t = strDate.split(/[.T:Z /-]/);
+    const f = {
+      yyyy: t[0],
+      yy: t[0].slice(2),
+      mm: t[1],
+      dd: t[2]
+    }
+
+    if (format.toLowerCase() === 'dd/mm/yyyy') {
+      return `${f.dd}/${f.mm}/${f.yyyy}`;
+    } else if (format.toLowerCase() === 'mm/dd/yyyy') {
+      return `${f.mm}/${f.dd}/${f.yyyy}`;
+    } else if (format.toLowerCase() === 'dd/mm/yy') {
+      return `${f.dd}/${f.mm}/${f.yy}`;
+    } else if (format.toLowerCase() === 'yyyymmdd') {
+      return `${f.yyyy}${f.mm}${f.dd}`;
+    } else if (format.toLowerCase() === 'mm-dd-yyyy') {
+      return `${f.mm}-${f.dd}-${f.yyyy}`;
+    } else if (format.toLowerCase() === 'mm-dd-yy') {
+      return `${f.mm}-${f.dd}-${f.yy}`;
+    } else if (format.toLowerCase() === 'dd-mm-yyyy') {
+      return `${f.dd}-${f.mm}-${f.yyyy}`;
+    } else if (format.toLowerCase() === 'yyyy-mm-dd') {
+      return `${f.yyyy}-${f.mm}-${f.dd}`;
+    } else {
+      throw new Error(`Unsupported format ${format}`);
+    }
+  }
+
+  return strDate;
 }
 
 export function deepClone(obj: any): any {

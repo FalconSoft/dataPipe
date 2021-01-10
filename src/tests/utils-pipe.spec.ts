@@ -1,4 +1,4 @@
-import { parseDatetimeOrNull, parseNumberOrNull, createFieldDescriptions, dateToString } from "../utils";
+import { parseDatetimeOrNull, parseNumberOrNull, createFieldDescriptions, dateToString, addBusinessDays } from "../utils";
 import { FieldDescription, DataTypeName } from "../types";
 
 
@@ -34,6 +34,14 @@ describe('Test dataUtils', () => {
     expect(dateToString(parseDatetimeOrNull('06/02/2020', 'dd/MM/yyyy') as Date)).toBe('2020-02-06');
     expect(dateToString(parseDatetimeOrNull('2020-06-02', 'yyyy-mm-dd') as Date)).toBe('2020-06-02');
   });
+
+  it('last business date', () => {
+    const dt = parseDatetimeOrNull('20210111', 'yyyyMMdd');
+    expect(dt).toBeInstanceOf(Date);
+    expect(dateToString(dt as Date, "yyyyMMdd")).toBe('20210111');
+    expect(dateToString(addBusinessDays(dt as Date, -1), "yyyyMMdd")).toBe('20210108');
+  });
+
 
   it('parseNumber', () => {
     expect(parseNumberOrNull('')).toBe(null);
