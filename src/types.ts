@@ -3,6 +3,7 @@ export type Selector<T = any, V = any> = (p: T) => V;
 export class ParsingOptions {
   delimiter = ',';
   skipRows = 0;
+  keepOriginalHeaders = false;
   textFields: string[] = [];
   dateFields: (string | string[])[] = [];
   numberFields: string[] = [];

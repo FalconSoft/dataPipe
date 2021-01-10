@@ -334,4 +334,17 @@ describe ('Parse Csv To Table', () => {
     expect(result.rows[0][result.fieldDescriptions[0].index]).toBe(null);
   });  
 
+  it('header smoothing', () => {
+    const csv = ["F 1,F 2", "11,12", "21,22"].join('\n')
+    const result = parseCsvToTable(csv);
+    expect(result.fieldNames.length).toBe(2);
+    expect(result.fieldNames[0]).toBe('F_1');
+    expect(result.fieldNames[1]).toBe('F_2');
+  });  
+
+  it('toCsv/parse', () => {
+    expect(toCsv(parseCsv("F 1,F 2\n11,12\n21,22"))).toBe("F_1,F_2\n11,12\n21,22");
+    expect(toCsv(parseCsv("F 1,F 2\n11,12\n21,22", {keepOriginalHeaders: true} as ParsingOptions))).toBe("F 1,F 2\n11,12\n21,22");
+  });  
+
 });

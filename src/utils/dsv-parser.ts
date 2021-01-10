@@ -134,10 +134,14 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
 
             for (let i = 0; i < rowTokens.length; i++) {
                 // if empty then _
-                const token = rowTokens[i].trim().length ? rowTokens[i].trim() : '_';
+                let token = rowTokens[i].trim().length ? rowTokens[i].trim() : '_';
+
+                if(!options.keepOriginalHeaders){
+                    token = token.replace(/\W/g, '_');
+                }
 
                 // just to ensure no dublicated field names
-                fieldNames.push(fieldNames.indexOf(token) >= 0 ? token + i : token)
+                fieldNames.push(fieldNames.indexOf(token) >= 0 ? `${token}_${i}` : token)
 
                 fieldDescriptions.push({
                     fieldName: fieldNames[fieldNames.length - 1],
@@ -213,7 +217,7 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
 
 export function parseCsv(content: string, options?: ParsingOptions): ScalarObject[] {
     content = content || '';
-    options = options || {} as ParsingOptions;
+    options = Object.assign(new ParsingOptions(), options || {});
     if (!content.length) {
         return [];
     }
