@@ -14,7 +14,7 @@ function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], opti
         const fieldDesc = fieldDescs[i];
         const fieldName = fieldDesc.fieldName;
         let value: ScalarType = tokens[i];
-        const dateFields = options?.dateFields?.map(r => Array.isArray(r)? r[0] : r) || [];
+        const dateFields = options?.dateFields?.map(r => Array.isArray(r) ? r[0] : r) || [];
 
         if (options.textFields && options.textFields?.indexOf(fieldName) >= 0) {
             value = tokens[i];
@@ -22,8 +22,8 @@ function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], opti
             || (dateFields.indexOf(fieldName) >= 0)) {
 
             const ind = dateFields.indexOf(fieldName)
-            const dtField = ind >= 0? options?.dateFields[ind] : [];
-            const format = Array.isArray(dtField)? dtField[1] : null;
+            const dtField = ind >= 0 ? options?.dateFields[ind] : [];
+            const format = Array.isArray(dtField) ? dtField[1] : null;
             value = parseDatetimeOrNull(value as string, format || null);
         } else if (fieldDesc.dataTypeName === DataTypeName.WholeNumber
             || fieldDesc.dataTypeName === DataTypeName.FloatNumber
@@ -50,6 +50,10 @@ function nextLineTokens(context: ParsingContext, delimiter = ','): string[] {
 
     do {
         const currentChar = context.content[context.currentIndex];
+        if (currentChar === '\r') {
+            continue;
+        }
+
         if (currentChar === '\n') {
             if (context.content[context.currentIndex + 1] === '\r') { context.currentIndex++; }
             break;
@@ -136,7 +140,7 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
                 // if empty then _
                 let token = rowTokens[i].trim().length ? rowTokens[i].trim() : '_';
 
-                if(!options.keepOriginalHeaders){
+                if (!options.keepOriginalHeaders) {
                     token = token.replace(/\W/g, '_');
                 }
 
@@ -197,7 +201,7 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
             if (value === EmptySymbol) {
                 value = (fDesc.dataTypeName === DataTypeName.String || fDesc.dataTypeName === DataTypeName.LargeString) ?
                     '' : null
-            } else if (!value.length){
+            } else if (!value.length) {
                 value = null;
             }
             rowValues.push(value as string);
@@ -269,8 +273,13 @@ export function toCsv(array: ScalarObject[], delimiter = ','): string {
             let value: ScalarType = item[name];
             if (value instanceof Date) {
                 value = dateToString(value);
-            } else if (typeof value === "string" && value.indexOf(delimiter) >= 0) {
-                value = '"' + value + '"';
+            } else if (typeof value === "string" && (
+                value.indexOf(delimiter) >= 0
+                || value.indexOf('"') >= 0
+            )) {
+                // excel style csv
+                value = value.replace(new RegExp('"', 'g'), '""');
+                value = `"${value}"`;
             }
             value = (value !== null && value !== undefined) ? value : '';
             values.push(String(value))

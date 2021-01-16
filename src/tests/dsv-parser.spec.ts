@@ -347,4 +347,9 @@ describe ('Parse Csv To Table', () => {
     expect(toCsv(parseCsv("F 1,F 2\n11,12\n21,22", {keepOriginalHeaders: true} as ParsingOptions))).toBe("F 1,F 2\n11,12\n21,22");
   });  
 
+  it('toCsv', () => {
+    const obj = [{f1: 1, f2: "test"}, {f1: 2, f2: "test\""}, {f1: 3, f2: "te,st"} ];
+    expect(toCsv(obj)).toBe(`f1,f2\n1,test\n2,"test"""\n3,"te,st"`);
+  });  
+
 });

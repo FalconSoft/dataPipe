@@ -168,11 +168,18 @@ export function parseBooleanOrNull(val: boolean | string): boolean | null {
 }
 
 export function addDays(dt: Date, daysOffset: number): Date {
+  if (!dt || !(dt instanceof Date)) {
+    throw new Error('First parameter must be Date');
+  }
+
   dt.setDate(dt.getDate() + daysOffset);
   return dt;
 }
 
 export function addBusinessDays(dt: Date, bDaysOffset: number): Date {
+  if (!dt || !(dt instanceof Date)) {
+    throw new Error('First parameter must be Date');
+  }
   dt.setDate(dt.getDate() + bDaysOffset);
 
   // skip saturdays and sundays
