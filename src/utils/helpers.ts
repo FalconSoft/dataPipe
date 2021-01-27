@@ -171,33 +171,39 @@ export function addDays(dt: Date, daysOffset: number): Date {
   if (!dt || !(dt instanceof Date)) {
     throw new Error('First parameter must be Date');
   }
-
+  dt = new Date(dt.valueOf());
   dt.setDate(dt.getDate() + daysOffset);
   return dt;
 }
 
-export function addBusinessDays(dt: Date, bDaysOffset: number): Date {
-  if (!dt || !(dt instanceof Date)) {
-    throw new Error('First parameter must be Date');
+export function addBusinessDays(dt: Date, bDaysOffset: number, holidays?: (Date | string)[]): Date {
+  const date = parseDatetimeOrNull(dt);
+  const holidayDates = holidays?.map(d => parseDatetimeOrNull(d))?.filter(d => !!d)?.map(d => d?.toDateString()) || [];
+  if (!date) {
+    throw new Error(`A first parameter to 'addBusinessdays' must be Date`);
   }
+  dt = new Date(date.valueOf());
   dt.setDate(dt.getDate() + bDaysOffset);
 
   // skip saturdays and sundays
   if (bDaysOffset < 0) {
-    while (dt.getDay() === 0 || dt.getDay() === 6) {
+    while (dt.getDay() === 0 || dt.getDay() === 6 || holidayDates.includes(dt.toDateString())) {
       dt.setDate(dt.getDate() - 1);
     }
   } else {
-    while (dt.getDay() === 0 || dt.getDay() === 6) {
+    while (dt.getDay() === 0 || dt.getDay() === 6 || holidayDates.includes(dt.toDateString())) {
       dt.setDate(dt.getDate() + 1);
     }
   }
   return dt;
 }
 
-
 export function dateToString(d: Date, format?: string): string {
-  const date = new Date(d.getTime());
+  if (!(d instanceof Date)) {
+    throw new Error(`A first parameter to 'dateToString' must be Date`);
+  }
+
+  const date = new Date(d.valueOf());
   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
   const strDate = date.toISOString().replace('T00:00:00.000Z', '');
 
