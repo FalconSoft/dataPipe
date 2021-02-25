@@ -1,5 +1,5 @@
 import * as pipeFuncs from '../array'
-import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first, fullJoin, innerJoin, toObject } from '../array';
+import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first, fullJoin, innerJoin, toObject, toSeries } from '../array';
 
 export const data = [
   { name: "John", country: "US", age: 32 },
@@ -431,6 +431,21 @@ describe('Test array methods', () => {
 
     expect(toObject(array, i => i.date)['2020-01-02'].name).toBe('Bob')
     expect(toObject(array, 'date')['2020-01-02'].name).toBe('Bob')
+  });
+
+  it('toSeries > ', () => {
+    const array = [
+      { name: 'Tom', age: 7, date: new Date(2020, 0, 8) },
+      { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
+      { age: 5, date: new Date(2020, 0, 3) },
+      { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
+    ];
+
+    expect(toSeries(array, 'name').length).toBe(4);
+    expect((toSeries(array, 'name') as any)[2]).toBe(null);
+    expect((toSeries(array) as any)['name'].length).toBe(4);
+    expect((toSeries(array) as any)['age'].length).toBe(4);
+    expect(Object.keys(toSeries(array, ['name', 'age'])).length).toBe(2);
   });
 
 });

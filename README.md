@@ -94,6 +94,7 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
 
  - **toArray**() - output your pipe result into JavaScript array.
  - **toObject**(nameSelector, valueSelector) - output your pipe result into JavaScript object, based of name and value selectors.
+ - **toSeries**(propertyNames) - convert array into an object of series.
  - **toCsv**([delimiter]) - output pipe result into string formated as CSV
 when in browser.
 

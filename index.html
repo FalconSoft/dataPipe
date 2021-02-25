@@ -13,8 +13,18 @@
 
   <script>
     function onButtonClick() {
-      const text = "f 1, f 2\n11,12\n21,22";
-      console.log(dp.dataPipe().fromCsv(text).toArray());
+
+      const array = [
+        { name: 'Tom', age: 7, date: new Date(2020, 0, 8) },
+        { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
+        { age: 5, date: new Date(2020, 0, 3) },
+        { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
+      ];
+      data = dp
+        .dataPipe(array)
+        .toSeries();
+      
+      console.log('==>', data)
 
       // fetch("https://restcountries.eu/rest/v2/regionalbloc/eu")
       // .then(r => {

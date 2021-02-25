@@ -1,5 +1,5 @@
 import { parseNumber, parseDatetimeOrNull, dateToString } from "../utils";
-import { Selector } from "..";
+import { ScalarType, Selector } from "..";
 import { fieldSelector } from "../_internals";
 
 function compareStrings(a: string, b: any): number {
@@ -122,5 +122,40 @@ export function toObject(array: any[], keyField: string | string[] | Selector<an
   }
 
   return result;
+}
+
+/**
+ * Convert array of items to into series array or series record. 
+ * @param array Array to be converted
+ * @param propertyName optional parameter to define a property to be unpacked. 
+ * If it is string the array with values will be returned, otherwise an object with a list of series map
+ */
+export function toSeries(array: any[], propertyName?: string | string[]): Record<string, ScalarType[]> | ScalarType[] {
+  if (!array?.length) { return {}; }
+
+  // a single property
+  if (typeof propertyName == 'string') {
+    return array.map(r => r[propertyName] === undefined ? null : r[propertyName]);
+  }
+
+  const seriesRecord: Record<string, ScalarType[]> = {};
+
+  const seriesNames = (Array.isArray(propertyName) && propertyName.length) ? propertyName : Object.keys(array[0]);
+
+  for (let i = 0; i < array.length; i++) {
+
+    for (let j = 0; j < seriesNames.length; j++) {
+      const seriesName = seriesNames[j];
+      if (!seriesRecord[seriesName]) {
+        seriesRecord[seriesName] = [];
+      }
+      const value = array[i][seriesName];
+      seriesRecord[seriesName].push(value === undefined ? null : value);
+    }
+
+  }
+
+  return seriesRecord;
+
 }
 

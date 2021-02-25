@@ -1,7 +1,7 @@
 import { sum, avg, count, min, max, first, last, mean, quantile, variance, median, stdev } from './array/stats';
-import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName } from './types';
+import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName, ScalarType } from './types';
 import { parseCsv, fromTable, toTable, createFieldDescriptions, toCsv } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, sort, pivot, transpose, toObject } from './array';
+import { leftJoin, innerJoin, fullJoin, merge, groupBy, sort, pivot, transpose, toObject, toSeries } from './array';
 
 
 export class DataPipe {
@@ -51,6 +51,15 @@ export class DataPipe {
    */
   toObject(keyField: string | string[] | Selector<any, string>): Record<string, any> {
     return toObject(this.data, keyField);
+  }
+
+  /**
+ * Convert array of items to into series array or series record. 
+ * @param propertyName optional parameter to define a property to be unpacked. 
+ * If it is string the array with values will be returned, otherwise an object with a list of series map
+ */
+  toSeries(propertyName?: string | string[]): Record<string, ScalarType[]> | ScalarType[] {
+    return toSeries(this.data, propertyName);
   }
 
   /**
