@@ -305,7 +305,7 @@ describe ('Parse Csv To Table', () => {
     const result = parseCsvToTable(csv);
     expect(result.rows.length).toBe(2);
     expect(result.fieldDescriptions[0].isNullable).toBe(true);
-    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.DateTime);
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.Date);
 
     expect(result.rows[0][result.fieldDescriptions[0].index]).toBe('2020-02-02');
     expect(result.rows[1][result.fieldDescriptions[0].index]).toBe(null);
@@ -316,7 +316,7 @@ describe ('Parse Csv To Table', () => {
     const result = parseCsvToTable(csv);
     expect(result.rows.length).toBe(2);
     expect(result.fieldDescriptions[0].isNullable).toBe(true);
-    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.DateTime);
+    expect(result.fieldDescriptions[0].dataTypeName).toBe(DataTypeName.Date);
 
     expect(result.rows[1][result.fieldDescriptions[0].index]).toBe('2020-02-02');
     expect(result.rows[0][result.fieldDescriptions[0].index]).toBe(null);

@@ -292,16 +292,25 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
 
     let num = null;
     let bl = null;
+    let dt = null;
 
     switch (typeof val) {
       case 'boolean': return DataTypeName.Boolean;
       case 'number':
         return processNumber(val)
       case 'object':
-        if (val instanceof Date) return DataTypeName.DateTime;
+        if (val instanceof Date) {
+          const dt = val;
+          return (dt.getUTCHours() === 0 && dt.getUTCMinutes() === 0 && dt.getUTCSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
+        }
+
         return DataTypeName.String;
       case 'string':
-        if (parseDatetimeOrNull(val)) { return DataTypeName.DateTime; }
+        dt = parseDatetimeOrNull(val);
+        if (dt) {
+          return (dt.getUTCHours() === 0 && dt.getUTCMinutes() === 0 && dt.getUTCSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
+        }
+
         num = parseNumberOrNull(val);
         if (num !== null) { return processNumber(num); }
 
@@ -326,6 +335,15 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
   } else {
     // normal case. Means all values in column are the same
     if (inType === realType) { return inType; }
+
+    // date / datetime case
+    if (
+      (inType === DataTypeName.Date && realType === DataTypeName.DateTime)
+      || (inType === DataTypeName.DateTime && realType === DataTypeName.Date)
+    ) {
+      return DataTypeName.DateTime;
+    }
+
 
     // if any of items are string, then it must be string
     if (realType === DataTypeName.String) { return DataTypeName.String; }
@@ -394,7 +412,12 @@ export function createFieldDescriptions(items: Record<string, ScalarType>[]): Fi
         fDesc.isNullable = true
       } else {
         const newType = workoutDataType(value, fDesc.dataTypeName);
-        if (newType !== fDesc.dataTypeName) {
+
+
+        if (newType !== fDesc.dataTypeName
+          // special case when datetime can't be date again
+          && !(fDesc.dataTypeName === DataTypeName.DateTime && newType === DataTypeName.Date)
+        ) {
           fDesc.dataTypeName = newType;
         }
 

@@ -28,7 +28,7 @@ export function fromTable(rowsOrTable: PrimitiveType[][] | TableDto, fieldNames?
 
       const fieldName = fieldNames[i];
       const dataType = fieldDataTypes.length ? fieldDataTypes[i] : null;
-      value[fieldName] = (dataType === DataTypeName.DateTime && row[i]) ?
+      value[fieldName] = ((dataType === DataTypeName.DateTime || dataType === DataTypeName.Date) && row[i]) ?
         parseDatetimeOrNull(row[i] as string | Date)
         : row[i];
     }

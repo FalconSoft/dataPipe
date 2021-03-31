@@ -14,16 +14,21 @@
   <script>
     function onButtonClick() {
 
-      const array = [
-        { name: 'Tom', age: 7, date: new Date(2020, 0, 8) },
-        { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
-        { age: 5, date: new Date(2020, 0, 3) },
-        { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
-      ];
-      data = dp
-        .dataPipe(array)
-        .toSeries();
-      
+      const mapFn = r => ({ val1: r });
+      const fdFn = (arr) => dp.dataPipe(arr.map(mapFn)).createFieldDescriptions();
+
+      const data = fdFn([new Date(2001, 1, 1), new Date()]);
+
+      // const array = [
+      //   { name: 'Tom', age: 7, date: new Date(2020, 0, 8) },
+      //   { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
+      //   { age: 5, date: new Date(2020, 0, 3) },
+      //   { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
+      // ];
+      // data = dp
+      //   .dataPipe(array)
+      //   .toSeries();
+
       console.log('==>', data)
 
       // fetch("https://restcountries.eu/rest/v2/regionalbloc/eu")

@@ -89,9 +89,9 @@ describe('Test dataUtils', () => {
     const mapFn = (r: any): any => ({ val1: r });
     const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
 
-    expect(fdFn(['2019-01-01', '2019-01-02']).dataTypeName).toBe(DataTypeName.DateTime);
+    expect(fdFn(['2019-01-01', '2019-01-02']).dataTypeName).toBe(DataTypeName.Date);
     expect(fdFn(['2019-01-01', '2019-01-02']).isNullable).toBe(false);
-    expect(fdFn(['2019-01-01', null, '2019-01-02']).dataTypeName).toBe(DataTypeName.DateTime);
+    expect(fdFn(['2019-01-01', null, '2019-01-02']).dataTypeName).toBe(DataTypeName.Date);
     expect(fdFn(['2019-01-01', null, '2019-01-02']).isNullable).toBe(true);
     expect(fdFn([new Date(2001, 1, 1), new Date()]).dataTypeName).toBe(DataTypeName.DateTime);
 

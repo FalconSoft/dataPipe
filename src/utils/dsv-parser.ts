@@ -18,7 +18,7 @@ function getObjectElement(fieldDescs: FieldDescription[], tokens: string[], opti
 
         if (options.textFields && options.textFields?.indexOf(fieldName) >= 0) {
             value = tokens[i];
-        } else if (fieldDesc.dataTypeName === DataTypeName.DateTime
+        } else if ((fieldDesc.dataTypeName === DataTypeName.DateTime || fieldDesc.dataTypeName === DataTypeName.Date)
             || (dateFields.indexOf(fieldName) >= 0)) {
 
             const ind = dateFields.indexOf(fieldName)

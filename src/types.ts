@@ -43,6 +43,7 @@ export enum DataTypeName {
   BigIntNumber = 'BigIntNumber',
   FloatNumber = 'FloatNumber',
   DateTime = 'DateTime',
+  Date = 'Date',
   Boolean = 'Boolean'
 }
 
