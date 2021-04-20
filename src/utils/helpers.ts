@@ -301,14 +301,14 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
       case 'object':
         if (val instanceof Date) {
           const dt = val;
-          return (dt.getUTCHours() === 0 && dt.getUTCMinutes() === 0 && dt.getUTCSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
+          return (dt.getHours() === 0 && dt.getMinutes() === 0 && dt.getSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
         }
 
         return DataTypeName.String;
       case 'string':
         dt = parseDatetimeOrNull(val);
         if (dt) {
-          return (dt.getUTCHours() === 0 && dt.getUTCMinutes() === 0 && dt.getUTCSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
+          return (dt.getHours() === 0 && dt.getMinutes() === 0 && dt.getSeconds() === 0) ? DataTypeName.Date : DataTypeName.DateTime;
         }
 
         num = parseNumberOrNull(val);
@@ -420,6 +420,9 @@ export function createFieldDescriptions(items: Record<string, ScalarType>[]): Fi
         ) {
           fDesc.dataTypeName = newType;
         }
+
+        console.log(' > ', fDesc.dataTypeName, newType, name, value, strValue)
+
 
         if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && strValue.length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = strValue.length;
