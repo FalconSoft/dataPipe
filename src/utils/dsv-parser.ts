@@ -213,8 +213,6 @@ function parseLineTokens(content: string, options: ParsingOptions): StringsDataT
     }
     while (++ctx.currentIndex < ctx.content.length)
 
-    // console.log('** uniqueValues =>', uniqueValues);
-
     result.fieldDataTypes = result.fieldDescriptions.map(f => f.dataTypeName as DataTypeName);
     return result;
 }

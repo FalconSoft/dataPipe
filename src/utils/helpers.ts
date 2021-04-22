@@ -421,9 +421,6 @@ export function createFieldDescriptions(items: Record<string, ScalarType>[]): Fi
           fDesc.dataTypeName = newType;
         }
 
-        console.log(' > ', fDesc.dataTypeName, newType, name, value, strValue)
-
-
         if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && strValue.length > (fDesc.maxSize || 0)) {
           fDesc.maxSize = strValue.length;
         }
