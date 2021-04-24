@@ -15,26 +15,21 @@
     function onButtonClick() {
 
       // const mapFn = r => ({ val1: r });
-      // const fdFn = (arr) => dp.dataPipe(arr.map(mapFn)).createFieldDescriptions();
+      // const fdFn = (arr) => dp.dataPipe(arr.map(mapFn)).getFieldsInfo();
 
       // const data = fdFn([new Date(2001, 1, 1), new Date()]);
 
-      const array = [
-        { name: 'Tom', age: 7, date: new Date(2020, 5, 8) },
-        { name: 'Bob', age: 10, date: new Date(2020, 0, 2) },
-        { age: 5, date: new Date(2020, 0, 3) },
-        { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
-      ];
+      const array = ['2021-05-01', null, '2021-05-01'];
       data = dp
         .dataPipe(array)
-        .createFieldDescriptions();
+        .getFieldsInfo();
 
       console.log('==>', data)
 
       // fetch("https://restcountries.eu/rest/v2/regionalbloc/eu")
       // .then(r => {
       //   r.json().then(items => {
-      //     console.log('==>', items, dp.dataPipe(items).createFieldDescriptions());
+      //     console.log('==>', items, dp.dataPipe(items).getFieldsInfo());
       //   });
       // })
 

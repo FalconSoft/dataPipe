@@ -374,61 +374,71 @@ export function workoutDataType(value: ScalarType, inType: DataTypeName | undefi
    * if any properties are Objects, it would use JSON.stringify to calculate maxSize field.
  * @param items 
  */
-export function createFieldDescriptions(items: Record<string, ScalarType>[]): FieldDescription[] {
-
+export function getFieldsInfo(items: Record<string, ScalarType>[] | ScalarType[]): FieldDescription[] {
   const resultMap: Record<string, FieldDescription> = Object.create(null);
-  const valuesMap: Record<string, Set<string>> = Object.create(null);
-
+  const valuesMap: Record<string, Set<string | null>> = Object.create(null);
   let index = 0;
-  for (const item of items) {
 
-    for (const [name, value] of Object.entries(item)) {
-      let fDesc = resultMap[name];
-      let valuesSet = valuesMap[name];
+  function processItem(name: string, value: string | number | bigint | boolean | Date | null): void {
+    let fDesc = resultMap[name];
+    let valuesSet = valuesMap[name];
 
-      if (valuesSet === undefined) {
-        valuesSet = valuesMap[name] = new Set<string>();
-      }
+    if (valuesSet === undefined) {
+      valuesSet = valuesMap[name] = new Set<string>();
+    }
 
-      if (fDesc === undefined) {
-        fDesc = {
-          index: index++,
-          fieldName: name,
-          isNullable: false
-        } as FieldDescription;
-        resultMap[name] = fDesc;
-      }
+    if (fDesc === undefined) {
+      fDesc = {
+        index: index++,
+        fieldName: name,
+        isNullable: false,
+        isObject: false
+      } as FieldDescription;
+      resultMap[name] = fDesc;
+    }
 
-      const strValue: PrimitiveType =
-        value instanceof Date ? dateToString(value)
-          : typeof value === 'object' ? JSON.stringify(value)
-            : String(value);
+    let strValue: PrimitiveType | null = null;
+    if (value === null || value === undefined) {
+      fDesc.isNullable = true;
+    } else {
+      strValue = value instanceof Date ? dateToString(value)
+        : typeof value === 'object' ? JSON.stringify(value)
+          : String(value);
 
-      if (!fDesc.isObject) {
+      if (!fDesc.isObject && !(value instanceof Date)) {
         fDesc.isObject = typeof value === 'object';
       }
 
-      if (value === null || value === undefined) {
-        fDesc.isNullable = true
-      } else {
-        const newType = workoutDataType(value, fDesc.dataTypeName);
+      const newType = workoutDataType(value, fDesc.dataTypeName);
 
-
-        if (newType !== fDesc.dataTypeName
-          // special case when datetime can't be date again
-          && !(fDesc.dataTypeName === DataTypeName.DateTime && newType === DataTypeName.Date)
-        ) {
-          fDesc.dataTypeName = newType;
-        }
-
-        if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && strValue.length > (fDesc.maxSize || 0)) {
-          fDesc.maxSize = strValue.length;
-        }
+      if (newType !== fDesc.dataTypeName
+        // special case when datetime can't be date again
+        && !(fDesc.dataTypeName === DataTypeName.DateTime && newType === DataTypeName.Date)) {
+        fDesc.dataTypeName = newType;
       }
 
-      if (!valuesSet.has(strValue)) {
-        valuesSet.add(strValue);
+      if ((fDesc.dataTypeName == DataTypeName.String || fDesc.dataTypeName == DataTypeName.LargeString) && strValue.length > (fDesc.maxSize || 0)) {
+        fDesc.maxSize = strValue.length;
       }
+    }
+
+    if (!valuesSet.has(strValue)) {
+      valuesSet.add(strValue);
+    }
+  }
+
+  for (const item of items) {
+    if (item !== null
+      && item !== undefined
+      && typeof item === 'object'
+      && !(item instanceof Date)
+      && !Array.isArray(item)
+    ) {
+      for (const [name, value] of Object.entries(item as Record<string, ScalarType>)) {
+        processItem(name, value);
+      }
+    } else {
+      processItem('_value_', item as ScalarType);
     }
   }
 

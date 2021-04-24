@@ -1,4 +1,4 @@
-import { parseDatetimeOrNull, parseNumberOrNull, createFieldDescriptions, dateToString, addBusinessDays } from "../utils";
+import { parseDatetimeOrNull, parseNumberOrNull, getFieldsInfo, dateToString, addBusinessDays } from "../utils";
 import { FieldDescription, DataTypeName } from "../types";
 
 
@@ -52,32 +52,33 @@ describe('Test dataUtils', () => {
     expect(parseNumberOrNull(NaN)).toBe(NaN);
   })
 
-  it('createFieldDescriptions', () => {
+  it('getFieldsInfo', () => {
     const arr = [2, 4, 5].map(r => ({ val1: r }));
-    const ff = createFieldDescriptions(arr);
+    const ff = getFieldsInfo(arr);
     expect(ff.length).toBe(1);
     expect(ff[0].fieldName).toBe('val1');
     expect(ff[0].dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(ff[0].isNullable).toBe(false);
   });
 
-  it('createFieldDescriptions2', () => {
+  it('getFieldsInfo2', () => {
     const arr = [2, '4', 5].map(r => ({ val1: r }));
-    const ff = createFieldDescriptions(arr);
+    const ff = getFieldsInfo(arr);
     expect(ff.length).toBe(1);
     expect(ff[0].fieldName).toBe('val1');
     expect(ff[0].dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(ff[0].isNullable).toBe(false);
   });
 
-  it('createFieldDescriptions numbers check', () => {
+  it('getFieldsInfo numbers check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     expect(fdFn([2, 4, 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(fdFn([2, 4, 5]).isNullable).toBe(false);
     expect(fdFn([2, 4, null, 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(fdFn([2, 4, null, 5]).isNullable).toBe(true);
+    expect(fdFn([2, 4, null, 5]).isObject).toBe(false);
     expect(fdFn([2, 4.3, 5]).dataTypeName).toBe(DataTypeName.FloatNumber);
     expect(fdFn([2, 4.3, null, 5]).dataTypeName).toBe(DataTypeName.FloatNumber);
     expect(fdFn([2, 2147483699, 5]).dataTypeName).toBe(DataTypeName.BigIntNumber);
@@ -85,15 +86,17 @@ describe('Test dataUtils', () => {
     expect(fdFn([2, '4', 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
   });
 
-  it('createFieldDescriptions DateTime check', () => {
+  it('getFieldsInfo DateTime check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     expect(fdFn(['2019-01-01', '2019-01-02']).dataTypeName).toBe(DataTypeName.Date);
     expect(fdFn(['2019-01-01', '2019-01-02']).isNullable).toBe(false);
     expect(fdFn(['2019-01-01', null, '2019-01-02']).dataTypeName).toBe(DataTypeName.Date);
     expect(fdFn(['2019-01-01', null, '2019-01-02']).isNullable).toBe(true);
+    expect(fdFn(['2019-01-01', null, '2019-01-02']).isObject).toBe(false);
     expect(fdFn([new Date(2001, 1, 1), new Date()]).dataTypeName).toBe(DataTypeName.DateTime);
+    expect(fdFn([new Date(2001, 1, 1), new Date()]).isObject).toBe(false);
 
     expect(fdFn(['2019-01-01', 'NOT A DATE', '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
@@ -102,9 +105,9 @@ describe('Test dataUtils', () => {
     expect(fdFn([new Date(2001, 1, 1), 'NOT A DATE', new Date()]).dataTypeName).toBe(DataTypeName.String);
   });
 
-  it('createFieldDescriptions size check', () => {
+  it('getFieldsInfo size check', () => {
     const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => createFieldDescriptions(arr.map(mapFn))[0];
+    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     const longestText = 'Longest Text';
     expect(fdFn(['Test1', 'Longer', longestText]).maxSize).toBe(longestText.length);
@@ -113,6 +116,22 @@ describe('Test dataUtils', () => {
     expect(fdFn([87, longestText, '2019-01-01']).maxSize).toBe(longestText.length);
     expect(fdFn([87, longestText, '2019-01-01']).dataTypeName).toBe(DataTypeName.String);
   });
+
+  it('check value types array', () => {
+    const fields = getFieldsInfo([1,2,3])
+
+    expect(fields.length).toBe(1);
+    expect(fields[0].dataTypeName).toBe(DataTypeName.WholeNumber);
+    expect(fields[0].fieldName).toBe('_value_');
+
+    expect(getFieldsInfo(['a', 'b'])[0].dataTypeName).toBe(DataTypeName.String);
+    expect(getFieldsInfo(['a', 'b']).length).toBe(1);
+
+    expect(getFieldsInfo(['2021-06-02', '2021-06-02']).length).toBe(1);
+    expect(getFieldsInfo(['2021-06-02', '2021-06-02'])[0].dataTypeName).toBe(DataTypeName.Date);
+    
+  });
+
 
 })
 
