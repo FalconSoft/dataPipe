@@ -17,6 +17,10 @@ export class DataPipe {
     return this;
   }
 
+  parseCsv(content: string, options?: ParsingOptions): DataPipe {
+    return this.fromCsv(content, options);
+  }
+
   /**
    * Loads dataPipe with Table information
    * @param rowsOrTable a datarows with 2 dimentional arrays or entire table. If you provide rows, then you have to specify fieldNames
