@@ -1,6 +1,6 @@
 {
     "name": "datapipe-js",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "description": "dataPipe is a data processing and data analytics library for JavaScript. Inspired by LINQ (C#) and Pandas (Python)",
     "main": "dist/cjs/data-pipe.js",
     "module": "dist/esm/data-pipe.mjs",
@@ -43,7 +43,7 @@
     "bugs": {
         "url": "https://github.com/falconsoft/dataPipe/issues"
     },
-    "homepage": "https://github.com/falconsoft/dataPipe#readme",
+    "homepage": "https://www.datapipe-js.com/",
     "keywords": [
         "data",
         "data-analysis",

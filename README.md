@@ -106,6 +106,7 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
  - [**toCsv**](https://www.datapipe-js.com/docs/datapipe-js-utils#tocsv) ([delimiter]) - output pipe result into string formated as CSV
 when in browser.
 
+
 ### Other helpful utilities for working with data in JavaScript or JSPython
  - [**parseDatetimeOrNull**](https://www.datapipe-js.com/docs/datapipe-js-utils#parsedatetimeornull) (dateString[, formats]) - a bit wider date time parser than JS's `parseDate()`. Be aware. It gives UK time format (dd/MM/yyyy) a priority! e.g. '8/2/2019' will be parsed to 8th of February 2019
  - [**dateToString**](https://www.datapipe-js.com/docs/datapipe-js-utils#datetostring) (date, format) - converts date to string without applying time zone. It returns ISO formated date with time (if time present). Otherwise it will return just a date - yyyy-MM-dd
@@ -115,7 +116,15 @@ when in browser.
  - [**getFieldsInfo**](https://www.datapipe-js.com/docs/datapipe-js-utils#getfieldsinfo) (items: Record<string, ScalarType>[]): FieldDescription[] : Generates a field descriptions (first level only) from array of items. That eventually can be used for relational table definition. If any properties are Objects, it would use JSON.stringify to calculate maxSize field.
 - [**addDays**](https://www.datapipe-js.com/docs/datapipe-js-utils#adddays) (date: Date, daysOffset: number): Date:  add days to the current date. `daysOffset` can be positive or negative number
 - [**addBusinessDays**](https://www.datapipe-js.com/docs/datapipe-js-utils#addbusinessdays) (date: Date, bDaysOffset: number): Date:  Worksout a business date (excludes Saturdays and Sundays) based on bDaysOffset count. `bDaysOffset` can be positive or negative number.
- 
+
+### String Utils
+ - [**replaceAll**](https://www.datapipe-js.com/docs/datapipe-js-string#replaceall) (text, searchValue, replaceValue) - Replace all string function
+ - [**formatCamelStr**](https://www.datapipe-js.com/docs/datapipe-js-string#formatcamelstr) (text) - Formats string to the Camel Case
+ - [**trimStart**](https://www.datapipe-js.com/docs/datapipe-js-string#trimstart) (text, charactersToTrim) - Trims characters from the start
+ - [**trimEnd**](https://www.datapipe-js.com/docs/datapipe-js-string#trimend) (text, charactersToTrim) - Trims characters at the end
+ - [**trim**](https://www.datapipe-js.com/docs/datapipe-js-string#trim) (text, charactersToTrim) - Trims characters in both sides
+
+
 ## License
 A permissive [MIT](https://github.com/FalconSoft/dataPipe/blob/master/LICENSE) (c) - FalconSoft Ltd
 
