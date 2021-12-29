@@ -123,7 +123,8 @@ when in browser.
  - [**trimStart**](https://www.datapipe-js.com/docs/datapipe-js-string#trimstart) (text, charactersToTrim) - Trims characters from the start
  - [**trimEnd**](https://www.datapipe-js.com/docs/datapipe-js-string#trimend) (text, charactersToTrim) - Trims characters at the end
  - [**trim**](https://www.datapipe-js.com/docs/datapipe-js-string#trim) (text, charactersToTrim) - Trims characters in both sides
-
+ - [**split**](https://www.datapipe-js.com/docs/datapipe-js-string#split) (text, separator, brackets): string - Splits text into tokens. Whick supports multiple separators and can respect open/close brackets. e.g. `split('field1=func(a,b,c),field2=4', ',', ['()'])` will result into `["field1=func(a,b,c)", "field2=4"]`
+ 
 
 ## License
 A permissive [MIT](https://github.com/FalconSoft/dataPipe/blob/master/LICENSE) (c) - FalconSoft Ltd
