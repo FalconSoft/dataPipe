@@ -7,23 +7,45 @@ import { sum } from "./stats";
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function groupBy(array: any[], groupByFields: string | string[] | Selector): any[] {
-    if (!Array.isArray(array)) { throw Error('An array is not provided') }
+export function groupBy(
+  array: any[],
+  groupByFields: string | string[] | Selector
+): any[] {
+  if (!Array.isArray(array)) {
+    throw Error("An array is not provided");
+  }
 
-    if (!array.length) { return array; }
+  if (!array.length) {
+    return array;
+  }
 
-    const groups: { [key: string]: any[] } = {};
+  const groups: { [key: string]: any[] } = {};
 
-    const elementSelector = fieldSelector(groupByFields);
+  const elementSelector = fieldSelector(groupByFields);
 
-    for (let i = 0; i < array.length; i++) {
-        const item = array[i];
-        const group = elementSelector(item);
-        groups[group] = groups[group] || [];
-        groups[group].push(item);
-    }
+  for (let i = 0; i < array.length; i++) {
+    const item = array[i];
+    const group = elementSelector(item);
+    groups[group] = groups[group] || [];
+    groups[group].push(item);
+  }
 
-    return Object.values(groups);
+  return Object.values(groups);
+}
+
+/**
+ * Returns a distinct elements from array. 
+ * Optional parameter *elementSelector* will create new array based on a callback function, 
+ * then will eliminate dublicates
+ * @param array 
+ * @param elementSelector 
+ * @returns 
+ */
+export function distinct(array: any[], elementSelector?: Selector): any[] {
+  if (elementSelector) {
+    array = array.map(elementSelector);
+  }
+  return Array.from(new Set(array));
 }
 
 /**
@@ -33,22 +55,26 @@ export function groupBy(array: any[], groupByFields: string | string[] | Selecto
  * flatten([1, 4, [2, [5, 5, [9, 7]], 11], 0]); // length 9
  */
 export function flatten(array: any[]): any[] {
-    if (!Array.isArray(array)) { throw Error('An array is not provided') }
+  if (!Array.isArray(array)) {
+    throw Error("An array is not provided");
+  }
 
-    if (!array.length) { return array; }
+  if (!array.length) {
+    return array;
+  }
 
-    let res: any = [];
-    const length = array.length;
+  let res: any = [];
+  const length = array.length;
 
-    for (let i = 0; i < length; i++) {
-        const value = array[i];
-        if (Array.isArray(value)) {
-            res = [...res, ...flatten(value)];
-        } else {
-            res.push(value);
-        }
+  for (let i = 0; i < length; i++) {
+    const value = array[i];
+    if (Array.isArray(value)) {
+      res = [...res, ...flatten(value)];
+    } else {
+      res.push(value);
     }
-    return res;
+  }
+  return res;
 }
 
 /**
@@ -60,57 +86,64 @@ export function flatten(array: any[]): any[] {
  * @param aggFunction an aggregation function. Default value is sum. data field will be aggregated by this function
  * @param columnValues an optional initial column values. Use it to define a set of columns/values you would expect
  */
-export function pivot(array: any, rowFields: string | string[],columnField: string, dataField: string,
-    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): any[] {
+export function pivot(
+  array: any,
+  rowFields: string | string[],
+  columnField: string,
+  dataField: string,
+  aggFunction?: (array: any[]) => any | null,
+  columnValues?: string[]
+): any[] {
+  if (!Array.isArray(array)) {
+    throw Error("An array is not provided");
+  }
 
-    if (!Array.isArray(array)) { throw Error('An array is not provided') }
+  if (!array.length) {
+    return array;
+  }
 
-    if (!array.length) { return array; }
+  const groups: { [key: string]: any[] } = Object.create(null);
+  columnValues = columnValues || [];
+  aggFunction = aggFunction || ((a: any[]): number | null => sum(a));
 
+  const elementSelector = fieldSelector(rowFields);
 
-    const groups: { [key: string]: any[] } = Object.create(null);
-    columnValues = columnValues || [];
-    aggFunction = aggFunction || ((a: any[]): number | null => sum(a));
+  rowFields = Array.isArray(rowFields) ? rowFields : [rowFields];
 
-    const elementSelector = fieldSelector(rowFields);
+  // group by rows
+  for (let i = 0; i < array.length; i++) {
+    const item = array[i];
+    const group = elementSelector(item);
+    groups[group] = groups[group] || [];
+    groups[group].push(item);
 
-    rowFields = Array.isArray(rowFields) ? rowFields : [rowFields];
+    // accumulate column values
+    const columnValue = item[columnField];
+    if (columnValues.indexOf(columnValue) < 0) {
+      columnValues.push(columnValue);
+    }
+  }
 
-    // group by rows
-    for (let i = 0; i < array.length; i++) {
-        const item = array[i];
-        const group = elementSelector(item);
-        groups[group] = groups[group] || [];
-        groups[group].push(item);
-
-        // accumulate column values
-        const columnValue = item[columnField];
-        if (columnValues.indexOf(columnValue) < 0) {
-            columnValues.push(columnValue);
-        }
+  const result: any[] = [];
+  for (const groupName of Object.keys(groups)) {
+    const item = Object.create(null);
+    // row fields first
+    for (const rowField of rowFields) {
+      item[rowField] = groups[groupName][0][rowField];
     }
 
-    const result: any[] = [];
-    for (const groupName of Object.keys(groups)) {
-
-        const item = Object.create(null);
-        // row fields first
-        for (const rowField of rowFields) {
-            item[rowField] = groups[groupName][0][rowField];
-        }
-
-        // then aggregated data for each colum value
-        for (const columnValue of columnValues) {
-            const dataArray = groups[groupName]
-                .filter(r => r[columnField] === columnValue)
-                .map(r => r[dataField]);
-            item[columnValue] = aggFunction(dataArray);
-        }
-
-        result.push(item);
+    // then aggregated data for each colum value
+    for (const columnValue of columnValues) {
+      const dataArray = groups[groupName]
+        .filter((r) => r[columnField] === columnValue)
+        .map((r) => r[dataField]);
+      item[columnValue] = aggFunction(dataArray);
     }
 
-    return result;
+    result.push(item);
+  }
+
+  return result;
 }
 
 /**
@@ -118,21 +151,25 @@ export function pivot(array: any, rowFields: string | string[],columnField: stri
  * @param data
  */
 export function transpose(data: any[]): any[] {
-    if (!Array.isArray(data)) { throw Error('An array is not provided') }
+  if (!Array.isArray(data)) {
+    throw Error("An array is not provided");
+  }
 
-    if (!data.length) { return data; }
+  if (!data.length) {
+    return data;
+  }
 
-    return Object.keys(data[0]).map(key => {
-      const res: { [key: string]: any } = {};
-      data.forEach((item, i) => {
-        if (i === 0) {
-          res.fieldName = key;
-        }
+  return Object.keys(data[0]).map((key) => {
+    const res: { [key: string]: any } = {};
+    data.forEach((item, i) => {
+      if (i === 0) {
+        res.fieldName = key;
+      }
 
-        res['row' + i] = item[key];
-      });
-      return res;
+      res["row" + i] = item[key];
     });
+    return res;
+  });
 }
 
 /**
@@ -140,10 +177,17 @@ export function transpose(data: any[]): any[] {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function select(data: any[], selector: string | string[] | Selector): any[] {
-  if (!Array.isArray(data)) { throw Error('An array is not provided') }
+export function select(
+  data: any[],
+  selector: string | string[] | Selector
+): any[] {
+  if (!Array.isArray(data)) {
+    throw Error("An array is not provided");
+  }
 
-  if (!data.length) { return data; }
+  if (!data.length) {
+    return data;
+  }
   const elementSelector = fieldSelector(selector);
   return data.map(elementSelector);
 }
@@ -154,8 +198,9 @@ export function select(data: any[], selector: string | string[] | Selector): any
  * @param elementSelector Function invoked per iteration.
  */
 export function where(data: any[], predicate: Predicate): any[] {
-  if (!Array.isArray(data)) { throw Error('An array is not provided') }
+  if (!Array.isArray(data)) {
+    throw Error("An array is not provided");
+  }
 
   return data.filter(predicate);
 }
-

@@ -72,6 +72,7 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
  - [**select**](https://www.datapipe-js.com/docs/datapipe-js-array#select) (elementSelector) synonym **map** - creates a new element for each element in a pipe based on elementSelector callback.
  - [**where**](https://www.datapipe-js.com/docs/datapipe-js-array#where) (predicate) / **filter** - filters elements in a pipe based on predicate
  - [**groupBy**](https://www.datapipe-js.com/docs/datapipe-js-array#groupby) (keySelector) - groups elements in a pipe according to the keySelector callback-function. Returns a pipe with new group objects.
+ - [**distinct**](https://www.datapipe-js.com/docs/datapipe-js-array#distinct) (elementSelector) / **unique** - returns distinct elements from array. Optional parameter *elementSelector* will create new array based on a callback function, then will eliminate dublicates
  - [**pivot**](https://www.datapipe-js.com/docs/datapipe-js-array#pivot) (array, rowFields, columnField, dataField, aggFunction?, columnValues?) - Returns a reshaped (pivoted) array based on unique column values.
  - [**transpose**](https://www.datapipe-js.com/docs/datapipe-js-array#transpose) (array) - Transpose rows to columns in an array
  - [**sort**](https://www.datapipe-js.com/docs/datapipe-js-array#sort) ([fieldName(s)]) - Sort array of elements according to a field and direction specified. e.g. sort(array, 'name ASC', 'age DESC')

@@ -298,6 +298,8 @@ export class DataPipe {
     return this;
   }
 
+  distinct = this.unique.bind(this);
+
   /**
    * Sort array.
    * @param fields sorts order.
