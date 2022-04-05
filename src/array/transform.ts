@@ -1,18 +1,15 @@
-import { Selector, Predicate } from "../types";
-import { fieldSelector } from "../_internals";
-import { sum } from "./stats";
+import { Selector, Predicate } from '../types';
+import { fieldSelector } from '../_internals';
+import { sum } from './stats';
 
 /**
  * Groups array items based on elementSelector function
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function groupBy(
-  array: any[],
-  groupByFields: string | string[] | Selector
-): any[] {
+export function groupBy(array: any[], groupByFields: string | string[] | Selector): any[] {
   if (!Array.isArray(array)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   if (!array.length) {
@@ -34,12 +31,12 @@ export function groupBy(
 }
 
 /**
- * Returns a distinct elements from array. 
- * Optional parameter *elementSelector* will create new array based on a callback function, 
+ * Returns a distinct elements from array.
+ * Optional parameter *elementSelector* will create new array based on a callback function,
  * then will eliminate dublicates
- * @param array 
- * @param elementSelector 
- * @returns 
+ * @param array
+ * @param elementSelector
+ * @returns
  */
 export function distinct(array: any[], elementSelector?: Selector): any[] {
   if (elementSelector) {
@@ -56,7 +53,7 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
  */
 export function flatten(array: any[]): any[] {
   if (!Array.isArray(array)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   if (!array.length) {
@@ -95,7 +92,7 @@ export function pivot(
   columnValues?: string[]
 ): any[] {
   if (!Array.isArray(array)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   if (!array.length) {
@@ -135,8 +132,8 @@ export function pivot(
     // then aggregated data for each colum value
     for (const columnValue of columnValues) {
       const dataArray = groups[groupName]
-        .filter((r) => r[columnField] === columnValue)
-        .map((r) => r[dataField]);
+        .filter(r => r[columnField] === columnValue)
+        .map(r => r[dataField]);
       item[columnValue] = aggFunction(dataArray);
     }
 
@@ -152,21 +149,21 @@ export function pivot(
  */
 export function transpose(data: any[]): any[] {
   if (!Array.isArray(data)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   if (!data.length) {
     return data;
   }
 
-  return Object.keys(data[0]).map((key) => {
+  return Object.keys(data[0]).map(key => {
     const res: { [key: string]: any } = {};
     data.forEach((item, i) => {
       if (i === 0) {
         res.fieldName = key;
       }
 
-      res["row" + i] = item[key];
+      res['row' + i] = item[key];
     });
     return res;
   });
@@ -177,12 +174,9 @@ export function transpose(data: any[]): any[] {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function select(
-  data: any[],
-  selector: string | string[] | Selector
-): any[] {
+export function select(data: any[], selector: string | string[] | Selector): any[] {
   if (!Array.isArray(data)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   if (!data.length) {
@@ -199,7 +193,7 @@ export function select(
  */
 export function where(data: any[], predicate: Predicate): any[] {
   if (!Array.isArray(data)) {
-    throw Error("An array is not provided");
+    throw Error('An array is not provided');
   }
 
   return data.filter(predicate);

@@ -1,8 +1,40 @@
-import { sum, avg, count, min, max, first, last, mean, quantile, variance, median, stdev } from './array/stats';
-import { Selector, Predicate, ParsingOptions, FieldDescription, PrimitiveType, TableDto, DataTypeName, ScalarType } from './types';
+import {
+  sum,
+  avg,
+  count,
+  min,
+  max,
+  first,
+  last,
+  mean,
+  quantile,
+  variance,
+  median,
+  stdev
+} from './array/stats';
+import {
+  Selector,
+  Predicate,
+  ParsingOptions,
+  FieldDescription,
+  PrimitiveType,
+  TableDto,
+  DataTypeName,
+  ScalarType
+} from './types';
 import { parseCsv, fromTable, toTable, getFieldsInfo, toCsv } from './utils';
-import { leftJoin, innerJoin, fullJoin, merge, groupBy, sort, pivot, transpose, toObject, toSeries } from './array';
-
+import {
+  leftJoin,
+  innerJoin,
+  fullJoin,
+  merge,
+  groupBy,
+  sort,
+  pivot,
+  transpose,
+  toObject,
+  toSeries
+} from './array';
 
 export class DataPipe {
   private data: any[];
@@ -27,8 +59,11 @@ export class DataPipe {
    * @param fieldNames fieldNames what correspond to the rows
    * @param fieldDataTypes  fieldNames what correspond to the rows
    */
-  fromTable(rowsOrTable: PrimitiveType[][] | TableDto, fieldNames?: string[],
-    fieldDataTypes?: DataTypeName[]): DataPipe {
+  fromTable(
+    rowsOrTable: PrimitiveType[][] | TableDto,
+    fieldNames?: string[],
+    fieldDataTypes?: DataTypeName[]
+  ): DataPipe {
     this.data = fromTable(rowsOrTable, fieldNames, fieldDataTypes);
     return this;
   }
@@ -43,10 +78,10 @@ export class DataPipe {
 
   /**
    * Outputs Pipe value as CSV content
-   * @param delimiter 
+   * @param delimiter
    */
   toCsv(delimiter = ','): string {
-    return toCsv(this.data, delimiter)
+    return toCsv(this.data, delimiter);
   }
 
   /**
@@ -58,10 +93,10 @@ export class DataPipe {
   }
 
   /**
- * Convert array of items to into series array or series record. 
- * @param propertyName optional parameter to define a property to be unpacked. 
- * If it is string the array with values will be returned, otherwise an object with a list of series map
- */
+   * Convert array of items to into series array or series record.
+   * @param propertyName optional parameter to define a property to be unpacked.
+   * If it is string the array with values will be returned, otherwise an object with a list of series map
+   */
   toSeries(propertyName?: string | string[]): Record<string, ScalarType[]> | ScalarType[] {
     return toSeries(this.data, propertyName);
   }
@@ -74,10 +109,9 @@ export class DataPipe {
   }
   // end of output functions
 
-
   /**
    * This method allows you to examine a state of the data during pipe execution.
-   * @param dataFunc 
+   * @param dataFunc
    */
   tap(dataFunc: (d: any[]) => void): DataPipe {
     if (typeof dataFunc === 'function') {
@@ -194,7 +228,6 @@ export class DataPipe {
     return median(this.data, field);
   }
 
-
   // Data Transformation functions
   /**
    * Groups array items based on elementSelector function
@@ -212,7 +245,8 @@ export class DataPipe {
    * @param rightKey
    * @param resultSelector
    */
-  innerJoin(rightArray: any[],
+  innerJoin(
+    rightArray: any[],
     leftKey: string | string[] | Selector<any, string>,
     rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
@@ -221,17 +255,18 @@ export class DataPipe {
     return this;
   }
 
-  leftJoin(rightArray: any[],
+  leftJoin(
+    rightArray: any[],
     leftKey: string | string[] | Selector<any, string>,
     rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
   ): DataPipe {
-
     this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
     return this;
   }
 
-  fullJoin(rightArray: any[],
+  fullJoin(
+    rightArray: any[],
     leftKey: string | string[] | Selector<any, string>,
     rightKey: string | string[] | Selector<any, string>,
     resultSelector: (leftItem: any, rightItem: any) => any
@@ -263,10 +298,14 @@ export class DataPipe {
     return this;
   }
 
-  pivot(rowFields: string | string[], columnField: string, dataField: string,
-    aggFunction?: (array: any[]) => any | null, columnValues?: string[]): DataPipe {
-
-    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues)
+  pivot(
+    rowFields: string | string[],
+    columnField: string,
+    dataField: string,
+    aggFunction?: (array: any[]) => any | null,
+    columnValues?: string[]
+  ): DataPipe {
+    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues);
     return this;
   }
 
@@ -308,7 +347,7 @@ export class DataPipe {
    */
   sort(...fields: string[]): DataPipe {
     sort(this.data, ...fields);
-    return this
+    return this;
   }
 
   // end of transformation functions
@@ -318,6 +357,6 @@ export class DataPipe {
    * if any properties are Objects, it would use JSON.stringify to calculate maxSize field.
    */
   getFieldsInfo(): FieldDescription[] {
-    return getFieldsInfo(this.data)
+    return getFieldsInfo(this.data);
   }
 }

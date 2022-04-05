@@ -1,19 +1,33 @@
-import * as pipeFuncs from '../array'
-import { leftJoin, pivot, avg, sum, quantile, mean, variance, stdev, median, first, fullJoin, innerJoin, toObject, toSeries } from '../array';
+import * as pipeFuncs from '../array';
+import {
+  leftJoin,
+  pivot,
+  avg,
+  sum,
+  quantile,
+  mean,
+  variance,
+  stdev,
+  median,
+  first,
+  fullJoin,
+  innerJoin,
+  toObject,
+  toSeries
+} from '../array';
 
 export const data = [
-  { name: "John", country: "US", age: 32 },
-  { name: "Joe", country: "US", age: 24 },
-  { name: "Bill", country: "US", age: 27 },
-  { name: "Adam", country: "UK", age: 18 },
-  { name: "Scott", country: "UK", age: 45 },
-  { name: "Diana", country: "UK" },
-  { name: "Marry", country: "FR", age: 18 },
-  { name: "Luc", country: "FR", age: null }
-]
+  { name: 'John', country: 'US', age: 32 },
+  { name: 'Joe', country: 'US', age: 24 },
+  { name: 'Bill', country: 'US', age: 27 },
+  { name: 'Adam', country: 'UK', age: 18 },
+  { name: 'Scott', country: 'UK', age: 45 },
+  { name: 'Diana', country: 'UK' },
+  { name: 'Marry', country: 'FR', age: 18 },
+  { name: 'Luc', country: 'FR', age: null }
+];
 
 describe('Test array methods', () => {
-
   const testNumberArray = [2, 6, 3, 7, 11, 7, -1];
   const testNumberArraySum = 35;
   const testNumberArrayAvg = 5;
@@ -25,20 +39,25 @@ describe('Test array methods', () => {
   const testAnyPrimitiveArrayMax = 33;
 
   const testObjArray = testNumberArray.map(value => ({ value }));
-  const dates = [new Date('10/01/12'), new Date('10/01/10'), new Date('10/01/09'), new Date('10/01/11')]
+  const dates = [
+    new Date('10/01/12'),
+    new Date('10/01/10'),
+    new Date('10/01/09'),
+    new Date('10/01/11')
+  ];
 
   it('count', () => {
     expect(pipeFuncs.count(testNumberArray)).toBe(testNumberArray.length);
     expect(pipeFuncs.count(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArray.length);
     expect(pipeFuncs.count(testObjArray)).toBe(testObjArray.length);
     expect(pipeFuncs.count(data, i => i.country === 'US')).toBe(3);
-  })
+  });
 
   it('sum', () => {
     expect(pipeFuncs.sum(testNumberArray)).toBe(testNumberArraySum);
     expect(pipeFuncs.sum(testAnyPrimitiveArray)).toBe(testAnyPrimitiveArraySum);
     expect(pipeFuncs.sum(testObjArray, obj => obj.value)).toBe(testNumberArraySum);
-  })
+  });
 
   it('avg', () => {
     expect(pipeFuncs.avg(testNumberArray)).toBe(testNumberArrayAvg);
@@ -50,7 +69,7 @@ describe('Test array methods', () => {
     } else {
       throw Error('testAnyPrimitiveArray failed');
     }
-  })
+  });
 
   it('min', () => {
     expect(pipeFuncs.min(testNumberArray)).toBe(Math.min(...testNumberArray));
@@ -60,9 +79,9 @@ describe('Test array methods', () => {
     const mindate = pipeFuncs.min(dates);
     expect(mindate).toBeInstanceOf(Date);
     if (mindate instanceof Date) {
-      expect(mindate.getFullYear()).toBe(2009)
+      expect(mindate.getFullYear()).toBe(2009);
     }
-  })
+  });
 
   it('max', () => {
     expect(pipeFuncs.max(testNumberArray)).toBe(Math.max(...testNumberArray));
@@ -72,14 +91,14 @@ describe('Test array methods', () => {
     const maxdate = pipeFuncs.max(dates);
     expect(maxdate).toBeInstanceOf(Date);
     if (maxdate instanceof Date) {
-      expect(maxdate.getFullYear()).toBe(2012)
+      expect(maxdate.getFullYear()).toBe(2012);
     }
-  })
+  });
 
   it('first', () => {
     expect(pipeFuncs.first(testNumberArray)).toBe(testNumberArray[0]);
     expect(pipeFuncs.first(testNumberArray, v => v > 6)).toBe(7);
-  })
+  });
 
   it('last', () => {
     const last = pipeFuncs.last(data, item => item.country === 'UK');
@@ -88,12 +107,12 @@ describe('Test array methods', () => {
     } else {
       throw Error('Not found');
     }
-  })
+  });
 
   it('groupBy', () => {
     const groups = pipeFuncs.groupBy(data, item => item.country);
     expect(groups.length).toBe(3);
-  })
+  });
 
   it('flatten', () => {
     const testArray = [1, 4, [2, [5, 5, [9, 7]], 11], 0, [], []];
@@ -103,7 +122,7 @@ describe('Test array methods', () => {
     const testArray2 = [testArray, [data], [], [testAnyPrimitiveArray]];
     const flatten2 = pipeFuncs.flatten(testArray2);
     expect(flatten2.length).toBe(9 + data.length + testAnyPrimitiveArray.length);
-  })
+  });
 
   it('countBy', () => {
     const countriesCount = pipeFuncs.countBy(data, i => i.country);
@@ -132,17 +151,25 @@ describe('Test array methods', () => {
     expect(pipeFuncs.quantile([], 0)).toBe(null);
   });
 
-
   it('leftJoin', () => {
-    const countries = [{ code: 'US', capital: 'Washington' }, { code: 'UK', capital: 'London' }];
-    const joinedArray = leftJoin(data, countries, i => i.country, i2 => i2.code, (l, r) => ({ ...r, ...l }));
+    const countries = [
+      { code: 'US', capital: 'Washington' },
+      { code: 'UK', capital: 'London' }
+    ];
+    const joinedArray = leftJoin(
+      data,
+      countries,
+      i => i.country,
+      i2 => i2.code,
+      (l, r) => ({ ...r, ...l })
+    );
     expect(joinedArray.length).toBe(8);
     const item = pipeFuncs.first(joinedArray, i => i.country === 'US');
     expect(item.country).toBe('US');
     expect(item.code).toBe('US');
     expect(item.capital).toBe('Washington');
     expect(item.name).toBeTruthy();
-  })
+  });
 
   it('leftJoin 2', () => {
     const arr1 = [
@@ -159,12 +186,18 @@ describe('Test array methods', () => {
       { keyField: 'k8', value2: 38 }
     ];
 
-    const joinedArray = leftJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
+    const joinedArray = leftJoin(
+      arr1,
+      arr2,
+      l => l.keyField,
+      r => r.keyField,
+      (l, r) => ({ ...r, ...l })
+    );
     expect(joinedArray.length).toBe(4);
     expect(joinedArray[1].keyField).toBe('k2');
     expect(joinedArray[1].value1).toBe(22);
     expect(joinedArray[1].value2).toBe(32);
-  })
+  });
 
   it('innerJoin', () => {
     const arr1 = [
@@ -181,12 +214,18 @@ describe('Test array methods', () => {
       { keyField: 'k8', value2: 38 }
     ];
 
-    const joinedArray = innerJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
+    const joinedArray = innerJoin(
+      arr1,
+      arr2,
+      l => l.keyField,
+      r => r.keyField,
+      (l, r) => ({ ...r, ...l })
+    );
     expect(joinedArray.length).toBe(2);
     expect(joinedArray[1].keyField).toBe('k2');
     expect(joinedArray[1].value1).toBe(22);
     expect(joinedArray[1].value2).toBe(32);
-  })
+  });
 
   it('fullJoin', () => {
     const arr1 = [
@@ -203,27 +242,32 @@ describe('Test array methods', () => {
       { keyField: 'k8', value2: 38 }
     ];
 
-    const joinedArray = fullJoin(arr1, arr2, l => l.keyField, r => r.keyField, (l, r) => ({ ...r, ...l }));
+    const joinedArray = fullJoin(
+      arr1,
+      arr2,
+      l => l.keyField,
+      r => r.keyField,
+      (l, r) => ({ ...r, ...l })
+    );
     expect(joinedArray.length).toBe(6);
     expect(joinedArray[1].keyField).toBe('k2');
     expect(joinedArray[1].value1).toBe(22);
     expect(joinedArray[1].value2).toBe(32);
-  })
-
+  });
 
   it('simple pivot', () => {
     const arr = [
       { product: 'P1', year: '2018', sale: '11' },
       { product: 'P1', year: '2019', sale: '12' },
       { product: 'P2', year: '2018', sale: '21' },
-      { product: 'P2', year: '2019', sale: '22' },
+      { product: 'P2', year: '2019', sale: '22' }
     ];
 
-    const res = pivot(arr, 'product', 'year', 'sale')
+    const res = pivot(arr, 'product', 'year', 'sale');
     expect(res.length).toBe(2);
     expect(res.filter(r => r.product === 'P1')[0]['2018']).toBe(11);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
-  })
+  });
 
   it('pivot with default sum', () => {
     const arr = [
@@ -231,14 +275,14 @@ describe('Test array methods', () => {
       { product: 'P1', year: '2019', sale: '12' },
       { product: 'P1', year: '2019', sale: '22' },
       { product: 'P2', year: '2018', sale: '21' },
-      { product: 'P2', year: '2019', sale: '22' },
+      { product: 'P2', year: '2019', sale: '22' }
     ];
 
-    const res = pivot(arr, 'product', 'year', 'sale')
+    const res = pivot(arr, 'product', 'year', 'sale');
     expect(res.length).toBe(2);
     expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(34);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
-  })
+  });
 
   it('pivot with specified AVG', () => {
     const arr = [
@@ -246,15 +290,14 @@ describe('Test array methods', () => {
       { product: 'P1', year: '2019', sale: '12' },
       { product: 'P1', year: '2019', sale: '22' },
       { product: 'P2', year: '2018', sale: '21' },
-      { product: 'P2', year: '2019', sale: '22' },
+      { product: 'P2', year: '2019', sale: '22' }
     ];
 
-    const res = pivot(arr, 'product', 'year', 'sale', avg)
+    const res = pivot(arr, 'product', 'year', 'sale', avg);
     expect(res.length).toBe(2);
     expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(17);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
-  })
-
+  });
 
   it('pivot with null value', () => {
     const arr = [
@@ -263,16 +306,16 @@ describe('Test array methods', () => {
       { product: 'P1', year: '2019', sale: '22' },
       { product: 'P2', year: '2018', sale: '21' },
       { product: 'P2', year: '2019', sale: '22' },
-      { product: 'P3', year: '2019', sale: '33' },
+      { product: 'P3', year: '2019', sale: '33' }
     ];
 
-    const res = pivot(arr, 'product', 'year', 'sale', avg)
+    const res = pivot(arr, 'product', 'year', 'sale', avg);
     expect(res.length).toBe(3);
     expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(17);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
     expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe(33);
     expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
-  })
+  });
 
   it('pivot with null value with sum', () => {
     const arr = [
@@ -281,16 +324,16 @@ describe('Test array methods', () => {
       { product: 'P1', year: '2019', sale: '22' },
       { product: 'P2', year: '2018', sale: '21' },
       { product: 'P2', year: '2019', sale: '22' },
-      { product: 'P3', year: '2019', sale: '33' },
+      { product: 'P3', year: '2019', sale: '33' }
     ];
 
-    const res = pivot(arr, 'product', 'year', 'sale', sum)
+    const res = pivot(arr, 'product', 'year', 'sale', sum);
     expect(res.length).toBe(3);
     expect(res.filter(r => r.product === 'P1')[0]['2019']).toBe(34);
     expect(res.filter(r => r.product === 'P2')[0]['2018']).toBe(21);
     expect(res.filter(r => r.product === 'P3')[0]['2019']).toBe(33);
     expect(res.filter(r => r.product === 'P3')[0]['2018']).toBe(null);
-  })
+  });
 
   it('pivot not string data value', () => {
     const arr = [
@@ -298,7 +341,7 @@ describe('Test array methods', () => {
       { product: 'P1', year: '2019', notAString: 'Data12' },
       { product: 'P2', year: '2018', notAString: 'Data21' },
       { product: 'P2', year: '2019', notAString: 'Data22' },
-      { product: 'P3', year: '2019', notAString: 'Data33' },
+      { product: 'P3', year: '2019', notAString: 'Data33' }
     ];
 
     const res = pivot(arr, 'year', 'product', 'notAString', first);
@@ -391,7 +434,8 @@ describe('Test array methods', () => {
       { name: 'Tom', age: 7 },
       { name: 'Bob', age: 10 },
       { age: 5 },
-      { name: 'Jerry', age: 3 }];
+      { name: 'Jerry', age: 3 }
+    ];
     arr = pipeFuncs.sort(arrWithUndefinedProps, 'name ASC') || [];
     expect(arr[0].age).toBe(5);
     arr = pipeFuncs.sort(arrWithUndefinedProps, 'name DESC') || [];
@@ -406,16 +450,16 @@ describe('Test array methods', () => {
       { name: 'Jerry', age: 3 }
     ];
 
-    const obj1 = toObject(array, "name")
-    expect(Object.keys(obj1).length).toBe(array.length)
-    expect(obj1['Bob'].age).toBe(10)
-    expect(obj1['undefined'].age).toBe(5)
+    const obj1 = toObject(array, 'name');
+    expect(Object.keys(obj1).length).toBe(array.length);
+    expect(obj1['Bob'].age).toBe(10);
+    expect(obj1['undefined'].age).toBe(5);
 
-    const obj2 = toObject(array, i => i.name)
-    expect(Object.keys(obj2).length).toBe(array.length)
+    const obj2 = toObject(array, i => i.name);
+    expect(Object.keys(obj2).length).toBe(array.length);
 
     // make sure both are thesame
-    expect(JSON.stringify(obj1)).toBe(JSON.stringify(obj2))
+    expect(JSON.stringify(obj1)).toBe(JSON.stringify(obj2));
   });
 
   it('toObject NOT string', () => {
@@ -426,11 +470,11 @@ describe('Test array methods', () => {
       { name: 'Jerry', age: 3, date: new Date(2020, 0, 4) }
     ];
 
-    expect(toObject(array, i => i.age)['7'].name).toBe('Tom')
-    expect(toObject(array, 'age')['7'].name).toBe('Tom')
+    expect(toObject(array, i => i.age)['7'].name).toBe('Tom');
+    expect(toObject(array, 'age')['7'].name).toBe('Tom');
 
-    expect(toObject(array, i => i.date)['2020-01-02'].name).toBe('Bob')
-    expect(toObject(array, 'date')['2020-01-02'].name).toBe('Bob')
+    expect(toObject(array, i => i.date)['2020-01-02'].name).toBe('Bob');
+    expect(toObject(array, 'date')['2020-01-02'].name).toBe('Bob');
   });
 
   it('toSeries > ', () => {
@@ -447,5 +491,4 @@ describe('Test array methods', () => {
     expect((toSeries(array) as any)['age'].length).toBe(4);
     expect(Object.keys(toSeries(array, ['name', 'age'])).length).toBe(2);
   });
-
 });

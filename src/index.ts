@@ -1,6 +1,6 @@
-import { DataPipe } from "./data-pipe";
+import { DataPipe } from './data-pipe';
 
-export * from "./types"
+export * from './types';
 
 /**
  * Data Pipeline factory function what creates DataPipe

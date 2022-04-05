@@ -1,16 +1,12 @@
-export function formatCamelStr(str = ""): string {
+export function formatCamelStr(str = ''): string {
   return str
-    .replace(/^\w/, (c) => c.toUpperCase())
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/_/g, " ");
+    .replace(/^\w/, c => c.toUpperCase())
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/_/g, ' ');
 }
 
-export function replaceAll(
-  text: string,
-  searchValue: string,
-  replaceValue = ""
-): string {
-  return text.replace(new RegExp(searchValue, "g"), replaceValue || "");
+export function replaceAll(text: string, searchValue: string, replaceValue = ''): string {
+  return text.replace(new RegExp(searchValue, 'g'), replaceValue || '');
 }
 
 /**
@@ -19,7 +15,7 @@ export function replaceAll(
  * @param characters character to trim
  * @returns trimmed string
  */
-export function trimStart(text: string, characters = " \n\t\r"): string {
+export function trimStart(text: string, characters = ' \n\t\r'): string {
   let startIndex = 0;
   while (characters.indexOf(text.charAt(startIndex)) >= 0) {
     startIndex++;
@@ -33,7 +29,7 @@ export function trimStart(text: string, characters = " \n\t\r"): string {
  * @param characters character to trim
  * @returns trimmed string
  */
-export function trimEnd(text: string, characters = " \n\t\r"): string {
+export function trimEnd(text: string, characters = ' \n\t\r'): string {
   let endIndex = text.length;
   while (characters.indexOf(text.charAt(endIndex - 1)) >= 0) {
     endIndex--;
@@ -47,7 +43,7 @@ export function trimEnd(text: string, characters = " \n\t\r"): string {
  * @param characters character to trim
  * @returns trimmed string
  */
-export function trim(text: string, characters = " \n\t\r"): string {
+export function trim(text: string, characters = ' \n\t\r'): string {
   return trimStart(trimEnd(text, characters), characters);
 }
 
@@ -61,11 +57,7 @@ export function trim(text: string, characters = " \n\t\r"): string {
  * @param openClose
  * @returns
  */
-export function split(
-  text: string,
-  separator = ",",
-  openClose?: string[]
-): string[] {
+export function split(text: string, separator = ',', openClose?: string[]): string[] {
   const res: string[] = [];
 
   if (!text) {
@@ -75,11 +67,11 @@ export function split(
   openClose = openClose || [];
   let index = -1;
 
-  let token = "";
+  let token = '';
   while (++index < text.length) {
     let currentChar = text[index];
 
-    const oIndex = openClose.findIndex((s) => s[0] === currentChar);
+    const oIndex = openClose.findIndex(s => s[0] === currentChar);
     if (oIndex >= 0) {
       token += text[index];
       let innerBrackets = 0;
@@ -105,7 +97,7 @@ export function split(
 
     if (separator.includes(currentChar)) {
       res.push(token);
-      token = "";
+      token = '';
     } else {
       token += currentChar;
     }

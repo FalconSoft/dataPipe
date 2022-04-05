@@ -1,6 +1,11 @@
-import { parseDatetimeOrNull, parseNumberOrNull, getFieldsInfo, dateToString, addBusinessDays } from "../utils";
-import { FieldDescription, DataTypeName } from "../types";
-
+import {
+  parseDatetimeOrNull,
+  parseNumberOrNull,
+  getFieldsInfo,
+  dateToString,
+  addBusinessDays
+} from '../utils';
+import { FieldDescription, DataTypeName } from '../types';
 
 describe('Test dataUtils', () => {
   it('parseDate', () => {
@@ -25,23 +30,36 @@ describe('Test dataUtils', () => {
     expect(dateToString(parseDatetimeOrNull(strDate) as Date)).toBe(strDate);
   });
 
+  it('parseDateTime with larger miliseconds', () => {
+    const dt = parseDatetimeOrNull('2020-06-08T13:49:15.16789');
+    expect(dt).toBeInstanceOf(Date);
+    expect(dateToString(dt as Date)).toBe('2020-06-08T13:49:15.167Z');
+    const strDate = '2020-02-21T13:49:15.167Z';
+    expect(dateToString(parseDatetimeOrNull(strDate) as Date)).toBe(strDate);
+  });
+
   it('parseDateTime with format', () => {
     const dt = parseDatetimeOrNull('20200608', 'yyyyMMdd');
     expect(dt).toBeInstanceOf(Date);
-    expect(dateToString(dt as Date)).toBe('2020-06-08');   
+    expect(dateToString(dt as Date)).toBe('2020-06-08');
     expect(dateToString(parseDatetimeOrNull('202006', 'yyyyMM') as Date)).toBe('2020-06-01');
-    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'MM/dd/yyyy') as Date)).toBe('2020-06-02');
-    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'dd/MM/yyyy') as Date)).toBe('2020-02-06');
-    expect(dateToString(parseDatetimeOrNull('2020-06-02', 'yyyy-mm-dd') as Date)).toBe('2020-06-02');
+    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'MM/dd/yyyy') as Date)).toBe(
+      '2020-06-02'
+    );
+    expect(dateToString(parseDatetimeOrNull('06/02/2020', 'dd/MM/yyyy') as Date)).toBe(
+      '2020-02-06'
+    );
+    expect(dateToString(parseDatetimeOrNull('2020-06-02', 'yyyy-mm-dd') as Date)).toBe(
+      '2020-06-02'
+    );
   });
 
   it('last business date', () => {
     const dt = parseDatetimeOrNull('20210111', 'yyyyMMdd');
     expect(dt).toBeInstanceOf(Date);
-    expect(dateToString(dt as Date, "yyyyMMdd")).toBe('20210111');
-    expect(dateToString(addBusinessDays(dt as Date, -1), "yyyyMMdd")).toBe('20210108');
+    expect(dateToString(dt as Date, 'yyyyMMdd')).toBe('20210111');
+    expect(dateToString(addBusinessDays(dt as Date, -1), 'yyyyMMdd')).toBe('20210108');
   });
-
 
   it('parseNumber', () => {
     expect(parseNumberOrNull('')).toBe(null);
@@ -50,7 +68,7 @@ describe('Test dataUtils', () => {
     expect(parseNumberOrNull('-11.1')).toBe(-11.1);
     expect(parseNumberOrNull(11.1)).toBe(11.1);
     expect(parseNumberOrNull(NaN)).toBe(NaN);
-  })
+  });
 
   it('getFieldsInfo', () => {
     const arr = [2, 4, 5].map(r => ({ val1: r }));
@@ -101,8 +119,12 @@ describe('Test dataUtils', () => {
     expect(fdFn(['2019-01-01', 'NOT A DATE', '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
     expect(fdFn(['2019-01-01', 76, false, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
-    expect(fdFn(['2019-01-01', 76, false, null, '2019-01-02']).dataTypeName).toBe(DataTypeName.String);
-    expect(fdFn([new Date(2001, 1, 1), 'NOT A DATE', new Date()]).dataTypeName).toBe(DataTypeName.String);
+    expect(fdFn(['2019-01-01', 76, false, null, '2019-01-02']).dataTypeName).toBe(
+      DataTypeName.String
+    );
+    expect(fdFn([new Date(2001, 1, 1), 'NOT A DATE', new Date()]).dataTypeName).toBe(
+      DataTypeName.String
+    );
   });
 
   it('getFieldsInfo size check', () => {
@@ -118,7 +140,7 @@ describe('Test dataUtils', () => {
   });
 
   it('check value types array', () => {
-    const fields = getFieldsInfo([1,2,3])
+    const fields = getFieldsInfo([1, 2, 3]);
 
     expect(fields.length).toBe(1);
     expect(fields[0].dataTypeName).toBe(DataTypeName.WholeNumber);
@@ -129,9 +151,5 @@ describe('Test dataUtils', () => {
 
     expect(getFieldsInfo(['2021-06-02', '2021-06-02']).length).toBe(1);
     expect(getFieldsInfo(['2021-06-02', '2021-06-02'])[0].dataTypeName).toBe(DataTypeName.Date);
-    
   });
-
-
-})
-
+});

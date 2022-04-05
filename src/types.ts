@@ -53,7 +53,6 @@ export interface Table<T> {
   rows: T[][];
 }
 
-
 /**
  * A simple data table structure what provides a most efficient way
  * to send data across the wire
