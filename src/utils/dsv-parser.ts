@@ -301,6 +301,8 @@ export function toCsv(array: ScalarObject[], delimiter = ','): string {
       let value: ScalarType = item[name];
       if (value instanceof Date) {
         value = dateToString(value);
+      } else if (value && typeof value === 'object') {
+        value = `"${JSON.stringify(value).replace(new RegExp('"', 'g'), '""')}"`;
       } else if (
         typeof value === 'string' &&
         (value.indexOf(delimiter) >= 0 || value.indexOf('"') >= 0)
