@@ -16,11 +16,15 @@ export function replaceAll(text: string, searchValue: string, replaceValue = '')
  * @returns trimmed string
  */
 export function trimStart(text: string, characters = ' \n\t\r'): string {
+  if (!text) {
+    return text;
+  }
+  
   let startIndex = 0;
   while (characters.indexOf(text.charAt(startIndex)) >= 0) {
     startIndex++;
   }
-  return text.substr(startIndex);
+  return text.substring(startIndex);
 }
 
 /**
@@ -30,11 +34,15 @@ export function trimStart(text: string, characters = ' \n\t\r'): string {
  * @returns trimmed string
  */
 export function trimEnd(text: string, characters = ' \n\t\r'): string {
+  if (!text) {
+    return text;
+  }
+
   let endIndex = text.length;
   while (characters.indexOf(text.charAt(endIndex - 1)) >= 0) {
     endIndex--;
   }
-  return text.substr(0, endIndex);
+  return text.substring(0, endIndex);
 }
 
 /**

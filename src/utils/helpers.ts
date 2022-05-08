@@ -57,7 +57,7 @@ export function parseNumberOrNull(value: string | number): number | null {
  * @param value
  */
 export function parseDatetimeOrNull(
-  value: string | Date,
+  value: string | Date | number,
   format: string | null = null
 ): Date | null {
   format = (format || '').toLowerCase();
@@ -67,10 +67,16 @@ export function parseDatetimeOrNull(
   if (value instanceof Date && !isNaN(value.valueOf())) {
     return value;
   }
+
   // only string values can be converted to Date
-  if (typeof value !== 'string') {
+  const tpOf = typeof value;
+  if (tpOf === 'number' || tpOf === 'bigint') {
+    return new Date(value);
+  } else if (tpOf !== 'string') {
     return null;
   }
+
+  value = value as string;
 
   const strValue = String(value);
   if (!strValue.length) {
@@ -240,16 +246,18 @@ export function parseDatetimeOrNull(
     return d;
   }
 
-  // then US guess
-  return validDateOrNull(
-    correctYear(dt[2]),
-    parseMonth(strTokens[0]),
-    dt[1],
-    dt[3] || 0,
-    dt[4] || 0,
-    dt[5] || 0,
-    dt[6] || 0
-  );
+  // we can't accept both UK and US format as it is ambiguous
+  // for US use format parameter e.g. MM/dd/yyyy
+  // // then US guess
+  // return validDateOrNull(
+  //   correctYear(dt[2]),
+  //   parseMonth(strTokens[0]),
+  //   dt[1],
+  //   dt[3] || 0,
+  //   dt[4] || 0,
+  //   dt[5] || 0,
+  //   dt[6] || 0
+  // );
 
   return null;
 }
