@@ -22,7 +22,7 @@ import {
   DataTypeName,
   ScalarType
 } from './types';
-import { parseCsv, fromTable, toTable, getFieldsInfo, toCsv } from './utils';
+import { parseCsv, fromTable, toTable, getFieldsInfo, toCsv, JSONParser } from './utils';
 import {
   leftJoin,
   innerJoin,
@@ -358,5 +358,9 @@ export class DataPipe {
    */
   getFieldsInfo(): FieldDescription[] {
     return getFieldsInfo(this.data);
+  }
+
+  parseJson(text: any): any{
+    return JSONParser.parseJson(text);
   }
 }
