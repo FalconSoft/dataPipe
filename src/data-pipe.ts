@@ -360,7 +360,10 @@ export class DataPipe {
     return getFieldsInfo(this.data);
   }
 
-  parseJson(text: any): any{
+  JSONParser(): JSONParser {
+    return new JSONParser();
+  }
+  parseJson(text: any): any {
     return JSONParser.parseJson(text);
   }
 }
