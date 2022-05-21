@@ -22,18 +22,15 @@
         return;
       }
       firstChar = '';
-      result = null;
+      result = [];
       const parser = dp.dataPipe().JSONParser();
 
       iterateChunks(file, chunkText => {
         for (const ch of chunkText) {
-          if (!firstChar) {
-            firstChar = ch;
-            result = ch === '[' ? [] : Object.create(null);
-            continue;
-          }
           parser.processFirstLevel(ch, (itemString, key) => {
-            result.push(JSON.parse(itemString))            
+            console.log('====>');
+            console.log(itemString);
+            result.push(JSON.parse(itemString))
           });
         }
       });

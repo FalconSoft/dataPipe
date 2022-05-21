@@ -7,23 +7,34 @@ export class JSONParser {
   private openObjectCount = 0;
   private openArrayCount = 0;
   private count = 0;
+  private firstChar = '';
+
+  private isString = false;
+  private prevChar = '';
 
   processFirstLevel(
     ch: string,
     processCallback: (obj: string, key: string | number) => void
   ): void {
+    if (!this.firstChar) {
+      this.firstChar = ch;
+      return;
+    }
+
     if (this.ignoreWhiteSpace && this.whitespaces.indexOf(ch) >= 0) {
       return;
     }
 
-    if (ch === '{') {
+    if (!this.isString && ch === '{') {
       this.openObjectCount++;
-    } else if (ch === '}') {
+    } else if (!this.isString && ch === '}') {
       this.openObjectCount--;
-    } else if (ch === '[') {
+    } else if (!this.isString && ch === '[') {
       this.openArrayCount++;
-    } else if (ch === ']') {
+    } else if (!this.isString && ch === ']') {
       this.openArrayCount--;
+    } else if (ch === '"' && this.prevChar !== '\\') {
+      this.isString = !this.isString;
     }
 
     const objectDone = this.openArrayCount === 0 && this.openObjectCount === 0;
@@ -33,6 +44,7 @@ export class JSONParser {
     }
 
     this.token += ch;
+    this.prevChar = ch;
 
     if (objectDone && this.token.trim()) {
       processCallback(this.token, this.count++);
@@ -54,9 +66,9 @@ export class JSONParser {
 
       return token;
     }
-    if(text.trim()[0] === '{'){
+    if (text.trim()[0] === '{') {
       const iter = text[Symbol.iterator]();
-        
+
       iterateTo(iter, '{[');
       return JSONParser.parseObject(iter, false);
     }
@@ -74,7 +86,7 @@ export class JSONParser {
       }
       parser.processFirstLevel(ch, (itemString, key) => {
         const iter = itemString[Symbol.iterator]();
-        
+
         iterateTo(iter, '{[').trim();
         const f = itemString.trim()[0];
         const item = JSONParser.parseObject(iter, f === '[');
@@ -141,5 +153,4 @@ export class JSONParser {
 
     return result;
   }
-
 }
