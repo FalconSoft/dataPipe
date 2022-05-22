@@ -10,14 +10,22 @@ export class JSONParser {
   private firstChar = '';
 
   private isString = false;
+  private isKeyCollector = false;
   private prevChar = '';
+  private itemKey = '';
+  private isObjectMap = false;
 
-  processFirstLevel(
-    ch: string,
-    processCallback: (obj: string, key: string | number) => void
-  ): void {
+  processJsonItems(ch: string, processCallback: (obj: string, key: string | number) => void): void {
     if (!this.firstChar) {
+      // ignore begining whitespaces
+      if (!ch.trim().length) {
+        return;
+      }
       this.firstChar = ch;
+      if (this.firstChar === '{') {
+        this.isKeyCollector = true;
+        this.isObjectMap = true;
+      }
       return;
     }
 
@@ -33,11 +41,17 @@ export class JSONParser {
       this.openArrayCount++;
     } else if (!this.isString && ch === ']') {
       this.openArrayCount--;
-    } else if (ch === '"' && this.prevChar !== '\\') {
+    } else if (!this.isString && this.isKeyCollector && ch === ':') {
+      this.itemKey = this.token;
+      this.token = '';
+      this.isKeyCollector = false;
+      return;
+    } else if (ch === '"' && (this.prevChar !== '\\' || this.token.endsWith('\\\\'))) {
       this.isString = !this.isString;
     }
 
-    const objectDone = this.openArrayCount === 0 && this.openObjectCount === 0;
+    const objectDone =
+      !this.isKeyCollector && this.openArrayCount === 0 && this.openObjectCount === 0;
 
     if (objectDone && ch === ',') {
       return;
@@ -47,110 +61,16 @@ export class JSONParser {
     this.prevChar = ch;
 
     if (objectDone && this.token.trim()) {
-      processCallback(this.token, this.count++);
+      const key = this.itemKey ? trim(this.itemKey, `\n\t ,"'`) : this.count;
+      processCallback(this.token, key);
+
+      if (this.isObjectMap) {
+        this.isKeyCollector = true;
+      }
+
+      this.count++;
+      this.itemKey = '';
       this.token = '';
     }
-  }
-
-  static parseJson(text: string): any {
-    function iterateTo(iterator: Iterator<string>, searchChar: string): string {
-      let item: IteratorResult<string, string>;
-      let token = '';
-      while (((item = iterator.next()), !item.done)) {
-        const ch = item.value;
-        if (searchChar.indexOf(ch) >= 0) {
-          break;
-        }
-        token += ch;
-      }
-
-      return token;
-    }
-    if (text.trim()[0] === '{') {
-      const iter = text[Symbol.iterator]();
-
-      iterateTo(iter, '{[');
-      return JSONParser.parseObject(iter, false);
-    }
-
-    const parser = new JSONParser();
-
-    let result: any = null;
-    let firstChar = '';
-
-    for (const ch of text) {
-      if (!firstChar) {
-        firstChar = ch;
-        result = ch === '[' ? [] : Object.create(null);
-        continue;
-      }
-      parser.processFirstLevel(ch, (itemString, key) => {
-        const iter = itemString[Symbol.iterator]();
-
-        iterateTo(iter, '{[').trim();
-        const f = itemString.trim()[0];
-        const item = JSONParser.parseObject(iter, f === '[');
-        if (Array.isArray(result)) {
-          result.push(item);
-        } else {
-          result[key] = item;
-        }
-      });
-    }
-
-    return result;
-  }
-
-  private static parseObject(iterator: Iterator<string>, isArray = false): Record<string, any> {
-    function setValue(obj: Record<string, any> | any[], key: string, value: any): void {
-      if (typeof value !== 'object') {
-        const strValue = trim(value, `"'`);
-        value = isNaN(+strValue) ? strValue : +strValue;
-      }
-
-      if (Array.isArray(obj)) {
-        obj.push(value);
-      } else {
-        obj[trim(key, `"' `)] = value;
-      }
-    }
-
-    let item: IteratorResult<string, string>;
-    let token = '';
-    let key = '';
-    const result: Record<string, any> | any = isArray ? [] : Object.create(null);
-
-    const closeSymbol = isArray ? ']' : '}';
-
-    while (((item = iterator.next()), !item.done)) {
-      const ch = item.value;
-
-      if (ch === closeSymbol) {
-        break;
-      }
-      if (ch === ':') {
-        key = token;
-        token = '';
-      } else if (ch === ',') {
-        if (token?.trim()?.length) {
-          setValue(result, key, token);
-        }
-        token = '';
-      } else if (ch === '{') {
-        const v = this.parseObject(iterator);
-        setValue(result, key, v);
-      } else if (ch === '[') {
-        const v = this.parseObject(iterator, true);
-        setValue(result, key, v);
-      } else {
-        token += ch;
-      }
-    }
-
-    if (token?.trim()?.length) {
-      setValue(result, key, token);
-    }
-
-    return result;
   }
 }

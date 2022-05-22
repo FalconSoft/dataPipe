@@ -363,7 +363,4 @@ export class DataPipe {
   JSONParser(): JSONParser {
     return new JSONParser();
   }
-  parseJson(text: any): any {
-    return JSONParser.parseJson(text);
-  }
 }
