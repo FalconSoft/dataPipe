@@ -33,7 +33,9 @@ import {
   pivot,
   transpose,
   toObject,
-  toSeries
+  toSeries,
+  flatten,
+  flattenObject
 } from './array';
 
 export class DataPipe {
@@ -296,6 +298,14 @@ export class DataPipe {
   ): DataPipe {
     this.data = merge(this.data, sourceArray, targetKey, sourceKey);
     return this;
+  }
+
+  flattenObject(): any {
+    return flattenObject(this.data);
+  }
+
+  flattern(): any {
+    return flatten(this.data);
   }
 
   pivot(

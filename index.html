@@ -17,28 +17,34 @@
     let result = null;
     let firstChar = '';
 
-    function fileChange(file) {
+    function readContent(file) {
+      const fr = new FileReader();
+      const promise = new Promise((success, fail) => {
+        fr.onload = e => success(e.target?.result);
+        fr.onerror = e => fail('Error loading file');
+      });
+      fr.readAsText(file);
+
+      return promise;
+
+    }
+    async function fileChange(file) {
+      //file
       if (!file) {
         return;
       }
-      firstChar = '';
-      result = [];
-      const parser = dp.dataPipe().JSONParser();
 
-      iterateChunks(file, chunkText => {
-        for (const ch of chunkText) {
-          parser.processJsonItems(ch, (itemString, key) => {
-            console.log('====>', `'${key}'`, itemString);
-            var item = JSON.parse(itemString);
-            if (item.id == "2489660416") {
-              console.log('s')
-            }
-            // "2489660416"
-            result.push(JSON.parse(itemString))
-          });
+      if (file) {
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+          const data = JSON.parse(evt.target.result);
+          console.log('* fieldsInfo => ', dp.dataPipe(data).getFieldsInfo(), data);
         }
-      });
-
+        reader.onerror = function (evt) {
+          console.log("error reading file");
+        }
+      }
     }
 
     function iterateChunks(file, callback) {
@@ -72,7 +78,31 @@
       }
     }
 
+    function jsonProcessor(text) {
+      const result = [];
+      const parser = new dp.dataPipe().JSONParser();
+      for (const ch of text) {
+        parser.processJsonItems(ch, (itemText, key) => {
+          let item = JSON.parse(itemText);
+
+          if (typeof key === 'string') {
+            item = { key, item };
+          }
+
+          result.push(item);
+        });
+      }
+
+      return result;
+    }
+
     function onButtonClick() {
+      const data = [{ a: 1, d:{d1:22, d2:33} }, { b: 2, d:{d1:221, d2:331} }];
+      console.log('* fieldsInfo => ', dp.dataPipe(data).flattenObject());
+      // const json = `[{"value":"test value\\\\d"}]`;
+      // console.log(json)
+      // console.log(JSON.parse(json)[0].value)
+      // console.log(jsonProcessor(json))
       // const iterator = dp.dataPipe()
       //   .jsonParseIterator('{v:{vi:test}, arr:{vi:test2}}');
 

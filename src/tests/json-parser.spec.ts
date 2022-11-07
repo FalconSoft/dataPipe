@@ -60,13 +60,21 @@ describe('Json Parser specification', () => {
   });
 
   
-  // it('Simple JSON with " to escape', () => {
-  //   const result = jsonProcessor('[{"value":"test "value"}]');
+  it('Simple JSON with " to escape', () => {
+    const result = jsonProcessor('[{"value":"test \\"value"}]');
+    expect(result[0].value).toBe('test "value');
+  });
 
-  //   expect(result.length).toBe(3);
-  //   expect(result[0].value).toBe('test "value');
-  //   expect(result[1].value).toBe(2);
-  // });
+  it('Simple JSON with " to escape in the end', () => {
+    const result = jsonProcessor('[{"value":"test value\\""}]');
+    expect(result[0].value).toBe('test value\"');
+  });
 
+  it('Simple JSON with \\ to escape in the end', () => {
+    const result = jsonProcessor(`[{"value":"test value\\\\d"}]`);
+    expect(result[0].value).toBe('test value\\d');
+  });
+
+// 
   //
 });

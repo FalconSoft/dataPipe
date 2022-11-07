@@ -45,6 +45,40 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
   return Array.from(new Set(array));
 }
 
+export function flattenObject(data: any): any {
+  function iterate(rootData: any, obj: any, prefix: string): void {
+    const keys = Object.keys(rootData);
+
+    for (let i = 0; i < keys.length; i++) {
+      const pName = prefix? `${prefix}.${keys[i]}`: keys[i];
+
+      const value = rootData[keys[i]];
+      if (typeof value === 'object' && !(value instanceof Date)) {
+        iterate(value, obj, pName);
+      } else if (typeof value === 'function') {
+        continue;
+      } else {
+        obj[pName] = value;
+      }
+    }
+  }
+
+  if (Array.isArray(data)) {
+    const arr = [];
+    for (let i = 0; i < data.length; i++) {
+      const obj = flattenObject(data[i]);
+      arr.push(obj);
+    }
+    return arr;
+  } else {
+    const obj: any = {};
+
+    iterate(data, obj, '');
+
+    return obj;
+  }
+}
+
 /**
  * Flattens array.
  * @param array The array to flatten recursively.
