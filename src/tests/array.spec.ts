@@ -127,7 +127,7 @@ describe('Test array methods', () => {
   it('flattenObject', () => {
     const testArray = [{ a: 1, d:{d1:22, d2:33} }, { b: 2, d:{d1:221, d2:331} }];
     const flatten = pipeFuncs.flattenObject(testArray);
-    expect(Object.keys(flatten.length)).toBe(2);
+    expect(flatten.length).toBe(2);
     expect(Object.keys(flatten[0]).join(',')).toBe('a,d.d1,d.d2');
   });
 
