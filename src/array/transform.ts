@@ -44,16 +44,33 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
   }
   return Array.from(new Set(array));
 }
-
+/**
+ * Flatten Object or array of objects
+ * Object 
+ * [{ a: 1, d:{d1: 22, d2: 33} }, { b: 2, d:{d1:221, d2:331} }]
+ * will become
+ * [{ a: 1, d.d1: 22, d.d2: 33 }, { b: 2, d.d1: 221, d.d2: 331 }]
+ * @param data 
+ * @returns 
+ */
 export function flattenObject(data: any): any {
+  if (!data || typeof data !== 'object') {
+    return data;
+  }
+
   function iterate(rootData: any, obj: any, prefix: string): void {
     const keys = Object.keys(rootData);
 
     for (let i = 0; i < keys.length; i++) {
-      const pName = prefix? `${prefix}.${keys[i]}`: keys[i];
+      const pName = prefix ? `${prefix}.${keys[i]}` : keys[i];
 
       const value = rootData[keys[i]];
-      if (typeof value === 'object' && !(value instanceof Date)) {
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        value !== undefined &&
+        !(value instanceof Date)
+      ) {
         iterate(value, obj, pName);
       } else if (typeof value === 'function') {
         continue;

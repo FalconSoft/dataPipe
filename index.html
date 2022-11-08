@@ -97,7 +97,7 @@
     }
 
     function onButtonClick() {
-      const data = [{ a: 1, d:{d1:22, d2:33} }, { b: 2, d:{d1:221, d2:331} }];
+      const data = [{ a: null, d:{d1:22, d2:33} }, { b: 2, d:{d1:221, d2:331, d3: null} }];
       console.log('* fieldsInfo => ', dp.dataPipe(data).flattenObject());
       // const json = `[{"value":"test value\\\\d"}]`;
       // console.log(json)
