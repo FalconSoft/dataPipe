@@ -57,7 +57,7 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
 export function unflattenObject(data: any): any {
 
 
-  function setProperty(data: any, pName: string, value: any) {
+  function setProperty(data: any, pName: string, value: any): any {
     const pNames = pName.split('.')
     let parent: any = data
     /** 
@@ -85,7 +85,7 @@ export function unflattenObject(data: any): any {
     }
     return arr;
   } else {
-    let obj: any = {}
+    const obj: any = {}
     const keys = Object.keys(data);
     for (let i = 0; i < keys.length; i++) {
       setProperty(obj, keys[i], data[keys[i]])
