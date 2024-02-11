@@ -131,6 +131,15 @@ describe('Test array methods', () => {
     expect(Object.keys(flatten[0]).join(',')).toBe('a,d.d1,d.d2');
   });
 
+  it('unflattenObject', () => {
+    const testArray = [{"a": 1, "b.e": 2,"b.c.d": 2,"b.c.f": 3,"b.f": 5},{"a": -1, "b.e": -2,"b.c.d": -2,"b.c.f": -3,"b.f": -5}];
+    const unflatten = pipeFuncs.unflattenObject(testArray);
+    expect(unflatten.length).toBe(2);
+    expect(Object.keys(unflatten[0]).join(',')).toBe('a,b');
+    expect(unflatten[0].b.c['d']).toBe(2);
+    expect(unflatten[1].b.c['d']).toBe(-2);
+  });
+
   it('countBy', () => {
     const countriesCount = pipeFuncs.countBy(data, i => i.country);
     expect(countriesCount['US']).toBe(3);

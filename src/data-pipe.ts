@@ -35,7 +35,8 @@ import {
   toObject,
   toSeries,
   flatten,
-  flattenObject
+  flattenObject,
+  unflattenObject
 } from './array';
 
 export class DataPipe {
@@ -304,7 +305,11 @@ export class DataPipe {
     return flattenObject(this.data);
   }
 
-  flattern(): any {
+  unflattenObject(): any {
+    return unflattenObject(this.data);
+  }
+
+  flatten(): any {
     return flatten(this.data);
   }
 
