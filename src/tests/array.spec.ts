@@ -114,7 +114,7 @@ describe('Test array methods', () => {
     expect(groups.length).toBe(3);
   });
 
-  it('flattern', () => {
+  it('flatten', () => {
     const testArray = [1, 4, [2, [5, 5, [9, 7]], 11], 0, [], []];
     const flatten = pipeFuncs.flatten(testArray);
     expect(flatten.length).toBe(9);

@@ -76,6 +76,8 @@ Loading and parsing data from a common file formats like: CSV, JSON, TSV either 
  - [**pivot**](https://www.datapipe-js.com/docs/datapipe-js-array#pivot) (array, rowFields, columnField, dataField, aggFunction?, columnValues?) - Returns a reshaped (pivoted) array based on unique column values.
  - [**transpose**](https://www.datapipe-js.com/docs/datapipe-js-array#transpose) (array) - Transpose rows to columns in an array
  - [**sort**](https://www.datapipe-js.com/docs/datapipe-js-array#sort) ([fieldName(s)]) - Sort array of elements according to a field and direction specified. e.g. sort(array, 'name ASC', 'age DESC')
+ - [**flattenObject**](https://www.datapipe-js.com/docs/datapipe-js-array#flattenObject) (Object) - flattens complex nested object into simple object. e.g. flattenObject(obj)
+ - [**unflattenObject**](https://www.datapipe-js.com/docs/datapipe-js-array#unflattenObject) (Object) - unflattens simple object into complex nested object. e.g. unflattenObject(obj)
 
 ### Joining data arrays
 

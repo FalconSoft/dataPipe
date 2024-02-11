@@ -60,11 +60,6 @@ export function unflattenObject(data: any): any {
   function setProperty(data: any, pName: string, value: any): any {
     const pNames = pName.split('.')
     let parent: any = data
-    /** 
-    data['p1'] = {}
-    parent = data.p1
-    parent['p2'] = 123
-    */
 
     for (let i = 0; i < pNames.length - 1; i++) {
       if (pNames[i] in parent) {

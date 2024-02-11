@@ -309,7 +309,7 @@ export class DataPipe {
     return unflattenObject(this.data);
   }
 
-  flattern(): any {
+  flatten(): any {
     return flatten(this.data);
   }
 
