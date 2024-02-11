@@ -114,7 +114,7 @@ describe('Test array methods', () => {
     expect(groups.length).toBe(3);
   });
 
-  it('flattern', () => {
+  it('flatten', () => {
     const testArray = [1, 4, [2, [5, 5, [9, 7]], 11], 0, [], []];
     const flatten = pipeFuncs.flatten(testArray);
     expect(flatten.length).toBe(9);
@@ -129,6 +129,15 @@ describe('Test array methods', () => {
     const flatten = pipeFuncs.flattenObject(testArray);
     expect(flatten.length).toBe(2);
     expect(Object.keys(flatten[0]).join(',')).toBe('a,d.d1,d.d2');
+  });
+
+  it('unflattenObject', () => {
+    const testArray = [{"a": 1, "b.e": 2,"b.c.d": 2,"b.c.f": 3,"b.f": 5},{"a": -1, "b.e": -2,"b.c.d": -2,"b.c.f": -3,"b.f": -5}];
+    const unflatten = pipeFuncs.unflattenObject(testArray);
+    expect(unflatten.length).toBe(2);
+    expect(Object.keys(unflatten[0]).join(',')).toBe('a,b');
+    expect(unflatten[0].b.c['d']).toBe(2);
+    expect(unflatten[1].b.c['d']).toBe(-2);
   });
 
   it('countBy', () => {

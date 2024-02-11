@@ -53,6 +53,42 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
  * @param data 
  * @returns 
  */
+
+export function unflattenObject(data: any): any {
+
+
+  function setProperty(data: any, pName: string, value: any): any {
+    const pNames = pName.split('.')
+    let parent: any = data
+
+    for (let i = 0; i < pNames.length - 1; i++) {
+      if (pNames[i] in parent) {
+        parent = parent[pNames[i]]
+      } else {
+        parent[pNames[i]] = {}
+        parent = parent[pNames[i]]
+      }
+    }
+    parent[pNames[pNames.length - 1]] = value
+  }
+  
+  if (Array.isArray(data)) {
+    const arr = [];
+    for (let i = 0; i < data.length; i++) {
+      const obj = unflattenObject(data[i]);
+      arr.push(obj);
+    }
+    return arr;
+  } else {
+    const obj: any = {}
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
+      setProperty(obj, keys[i], data[keys[i]])
+    }
+    return obj
+  }
+}
+
 export function flattenObject(data: any): any {
   if (!data || typeof data !== 'object') {
     return data;
