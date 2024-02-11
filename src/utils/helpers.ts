@@ -612,3 +612,114 @@ export function getFieldsInfo(
     return r;
   });
 }
+
+export function processJson(
+  jsonString: string,
+  handlePathFunc: (path: (string | number)[], row: number, col: number) => boolean
+): void {
+  if (typeof handlePathFunc !== 'function') {
+    throw new Error('handlePathFunc is not provided.');
+  }
+
+  function tokenize(
+    json: string,
+    tokenFunc: (token: string, row: number, column: number) => boolean
+  ): void {
+    let line = 1,
+      column = 0;
+
+    let isString = false;
+    let currentString = '';
+    let previousToken = '';
+
+    for (let i = 0; i < json.length; i++) {
+      column++;
+      const currChar = json[i];
+      if (currChar === '\n') {
+        line++;
+        column = 0;
+        continue;
+      }
+
+      if (currChar === '"' && json[i - 1] !== '\\') {
+        isString = !isString;
+        // skip string value and empty strings
+        if (currentString && previousToken !== ':') {
+          if (typeof tokenFunc === 'function' && tokenFunc(currentString, line, column)) {
+            break;
+          }
+          previousToken = currentString;
+        }
+        currentString = '';
+        continue;
+      }
+
+      if (isString) {
+        currentString += currChar;
+      } else if (['[', ']', ':', '{', '}', ','].indexOf(currChar) >= 0) {
+        if (typeof tokenFunc === 'function' && tokenFunc(currChar, line, column)) {
+          break;
+        }
+        previousToken = currentString;
+      }
+    }
+  }
+
+  const currentPath: (string | number)[] = [];
+  let isNextTokenAKey = false;
+
+  function handleToken(token: string, row: number, column: number): boolean {
+    const isArrayLevel: () => boolean = () =>
+      typeof currentPath[currentPath.length - 1] === 'number';
+
+    if (token === '{') {
+      if (isArrayLevel()) {
+        (currentPath[currentPath.length - 1] as number)++;
+        if (handlePathFunc([...currentPath], row, column)) {
+          return true;
+        }
+      }
+
+      isNextTokenAKey = true;
+
+      return false;
+    }
+    if (token === '}') {
+      if (!isNextTokenAKey) {
+        currentPath.pop();
+      }
+      isNextTokenAKey = false;
+      return false;
+    }
+
+    if (token === ',') {
+      if (!isArrayLevel()) {
+        isNextTokenAKey = true;
+        currentPath.pop();
+      }
+      return false;
+    }
+
+    if (token === '[') {
+      currentPath.push(-1);
+      return false;
+    }
+
+    if (token === ']') {
+      currentPath.pop();
+      return false;
+    }
+
+    if (isNextTokenAKey) {
+      isNextTokenAKey = false;
+      currentPath.push(token);
+      if (handlePathFunc([...currentPath], row, column)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  tokenize(jsonString, handleToken);
+}
