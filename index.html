@@ -14,123 +14,19 @@
   <input id="input" type="file" onchange="fileChange(this.files[0])" />
 
   <script>
-    let result = null;
-    let firstChar = '';
-
-    function readContent(file) {
-      const fr = new FileReader();
-      const promise = new Promise((success, fail) => {
-        fr.onload = e => success(e.target?.result);
-        fr.onerror = e => fail('Error loading file');
-      });
-      fr.readAsText(file);
-
-      return promise;
-
-    }
-    async function fileChange(file) {
-      //file
-      if (!file) {
-        return;
-      }
-
-      if (file) {
-        var reader = new FileReader();
-        reader.readAsText(file, "UTF-8");
-        reader.onload = function (evt) {
-          const data = JSON.parse(evt.target.result);
-          console.log('* fieldsInfo => ', dp.dataPipe(data).getFieldsInfo(), data);
-        }
-        reader.onerror = function (evt) {
-          console.log("error reading file");
-        }
-      }
-    }
-
-    function iterateChunks(file, callback) {
-      const chunkSize = 1024; // 10 * 64 * 64 * 1024;
-      let offset = 0;
-      const decoder = new TextDecoder();
-      const fr = new FileReader();
-      fr.onload = () => {
-        const view = new Uint8Array(fr.result);
-        const text = decoder.decode(view);
-        callback(text);
-
-        offset += chunkSize;
-        seek();
-      }
-      fr.onerror = (err) => {
-        console.log(err)
-      };
-
-      seek();
-
-      function seek() {
-        if (offset >= file.size) {
-          console.log('==> done ==>', result)
-
-          return;
-        }
-
-        const slice = file.slice(offset, offset + chunkSize);
-        fr.readAsArrayBuffer(slice)
-      }
-    }
-
-    function jsonProcessor(text) {
-      const result = [];
-      const parser = new dp.dataPipe().JSONParser();
-      for (const ch of text) {
-        parser.processJsonItems(ch, (itemText, key) => {
-          let item = JSON.parse(itemText);
-
-          if (typeof key === 'string') {
-            item = { key, item };
-          }
-
-          result.push(item);
-        });
-      }
-
-      return result;
-    }
 
     function onButtonClick() {
-      const data = [{ a: null, d:{d1:22, d2:33} }, { b: 2, d:{d1:221, d2:331, d3: null} }];
-      console.log('* fieldsInfo => ', dp.dataPipe(data).flattenObject());
-      // const json = `[{"value":"test value\\\\d"}]`;
-      // console.log(json)
-      // console.log(JSON.parse(json)[0].value)
-      // console.log(jsonProcessor(json))
-      // const iterator = dp.dataPipe()
-      //   .jsonParseIterator('{v:{vi:test}, arr:{vi:test2}}');
 
-      // for (let v of iterator) {
-      //   console.log(v);
-      // }
-      // console.log(Array.from(iterator));
-      return;
+      const data = [
+        {
+          "dt2": "2020-02-21T13:49:15.167Z",
+          "dt": "20-Aug-2019",
+          "dt1": "06-Aug-2019",
+          "value": "8=FIX.4.4^9=58^35=0^49=BuySide^56=SellSide^34=3^52=20190605-12:29:20.259^10=172^"
+        }
+      ]
 
-      // const mapFn = r => ({ val1: r });
-      // const fdFn = (arr) => dp.dataPipe(arr.map(mapFn)).getFieldsInfo();
-
-      // const data = fdFn([new Date(2001, 1, 1), new Date()]);
-
-      const array = ['2021-05-01', null, '2021-05-01'];
-      data = dp
-        .dataPipe(array)
-        .getFieldsInfo();
-
-      console.log('==>', dp.dataPipe().rtrim('net.', '.'))
-
-      // fetch("https://restcountries.eu/rest/v2/regionalbloc/eu")
-      // .then(r => {
-      //   r.json().then(items => {
-      //     console.log('==>', items, dp.dataPipe(items).getFieldsInfo());
-      //   });
-      // })
-
+      console.log('* fieldsInfo => ', dp.dataPipe(data).getFieldsInfo());
     }
 
     onButtonClick();

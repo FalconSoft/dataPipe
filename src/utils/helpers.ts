@@ -164,10 +164,11 @@ export function parseDatetimeOrNull(
 
   const strTokens = strValue
     .replace('T', ' ')
+    .replace('Z', ' ')
     .replace('.', ' ')
     .toLowerCase()
     .split(/[: /-]/);
-  const dt = strTokens.map(parseFloat);
+  const dt = strTokens.map(s => parseNumberOrNull(s) ?? Number.NaN);
 
   let d: Date | null = null;
 

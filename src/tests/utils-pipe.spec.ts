@@ -30,6 +30,14 @@ describe('Test dataUtils', () => {
     expect(dateToString(parseDatetimeOrNull(strDate) as Date)).toBe(strDate);
   });
 
+  it('parseDateTime 1', () => {
+    const dt = parseDatetimeOrNull('06-Aug-2020');
+    expect(dt).toBeInstanceOf(Date);
+
+    const dt2 = parseDatetimeOrNull('8=FIX.4.4^9=58^35=0^49=BuySide^56=SellSide^34=3^52=20190605-12:29:20.259^10=172^');
+    expect(dt2).toBeNull();
+  });  
+
   it('parseDateTime with larger miliseconds', () => {
     const dt = parseDatetimeOrNull('2020-06-08T13:49:15.16789');
     expect(dt).toBeInstanceOf(Date);
