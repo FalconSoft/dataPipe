@@ -1,12 +1,12 @@
 import { Selector } from '../types';
 import { fieldSelector } from '../_internals';
 
-function verifyJoinArgs(
-  leftArray: any[],
-  rightArray: any[],
-  leftKeySelector: (item: any) => string,
-  rightKeySelector: (item: any) => string,
-  resultSelector: (leftItem: any, rightItem: any) => any
+function verifyJoinArgs<TLeft, TRight, TResult>(
+  leftArray: TLeft[],
+  rightArray: TRight[],
+  leftKeySelector: (item: TLeft) => string,
+  rightKeySelector: (item: TRight) => string,
+  resultSelector: (leftItem: TLeft | null, rightItem: TRight | null) => TResult
 ): void {
   if (!leftArray || !Array.isArray(leftArray)) {
     throw Error('leftArray is not provided or not a valid');
@@ -28,26 +28,26 @@ function verifyJoinArgs(
   }
 }
 
-function leftOrInnerJoin(
+function leftOrInnerJoin<TLeft, TRight, TResult>(
   isInnerJoin: boolean,
-  leftArray: any[],
-  rightArray: any[],
-  leftKey: string | string[] | Selector<any, string>,
-  rightKey: string | string[] | Selector<any, string>,
-  resultSelector: (leftItem: any, rightItem: any) => any
-): any[] {
+  leftArray: TLeft[],
+  rightArray: TRight[],
+  leftKey: string | string[] | Selector<TLeft, string>,
+  rightKey: string | string[] | Selector<TRight, string>,
+  resultSelector: (leftItem: TLeft | null, rightItem: TRight | null) => TResult
+): TResult[] {
   const leftKeySelector = fieldSelector(leftKey);
   const rightKeySelector = fieldSelector(rightKey);
 
   verifyJoinArgs(leftArray, rightArray, leftKeySelector, rightKeySelector, resultSelector);
 
   // build a lookup map
-  const rightArrayMap = Object.create(null);
+  const rightArrayMap: Record<string, TRight> = Object.create(null);
   for (const item of rightArray) {
     rightArrayMap[rightKeySelector(item)] = item;
   }
 
-  const result: any[] = [];
+  const result: TResult[] = [];
   for (const leftItem of leftArray) {
     const leftKey = leftKeySelector(leftItem);
     const rightItem = rightArrayMap[leftKey] || null;
@@ -59,7 +59,7 @@ function leftOrInnerJoin(
     const resultItem = resultSelector(leftItem, rightItem);
 
     // if result is null then probably a left item was modified
-    result.push(resultItem || leftItem);
+    result.push((resultItem || leftItem) as TResult);
   }
 
   return result;
@@ -74,13 +74,13 @@ function leftOrInnerJoin(
  * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
-export function leftJoin(
-  leftArray: any[],
-  rightArray: any[],
-  leftKeySelector: string | string[] | Selector<any, string>,
-  rightKeySelector: string | string[] | Selector<any, string>,
-  resultSelector: (leftItem: any, rightItem: any) => any
-): any[] {
+export function leftJoin<TLeft, TRight, TResult = TLeft>(
+  leftArray: TLeft[],
+  rightArray: TRight[],
+  leftKeySelector: string | string[] | Selector<TLeft, string>,
+  rightKeySelector: string | string[] | Selector<TRight, string>,
+  resultSelector: (leftItem: TLeft | null, rightItem: TRight | null) => TResult
+): TResult[] {
   return leftOrInnerJoin(
     false,
     leftArray,
@@ -100,13 +100,13 @@ export function leftJoin(
  * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
-export function innerJoin(
-  leftArray: any[],
-  rightArray: any[],
-  leftKey: string | string[] | Selector<any, string>,
-  rightKey: string | string[] | Selector<any, string>,
-  resultSelector: (leftItem: any, rightItem: any) => any
-): any[] {
+export function innerJoin<TLeft, TRight, TResult = TLeft>(
+  leftArray: TLeft[],
+  rightArray: TRight[],
+  leftKey: string | string[] | Selector<TLeft, string>,
+  rightKey: string | string[] | Selector<TRight, string>,
+  resultSelector: (leftItem: TLeft | null, rightItem: TRight | null) => TResult
+): TResult[] {
   return leftOrInnerJoin(true, leftArray, rightArray, leftKey, rightKey, resultSelector);
 }
 
@@ -119,13 +119,13 @@ export function innerJoin(
  * @param rightKey A key from right side array. what can be as a fieldName, multiple fields or key Selector
  * @param resultSelector A callback function that returns result value
  */
-export function fullJoin(
-  leftArray: any[],
-  rightArray: any[],
-  leftKey: string | string[] | Selector<any, string>,
-  rightKey: string | string[] | Selector<any, string>,
-  resultSelector: (leftItem: any, rightItem: any) => any
-): any[] {
+export function fullJoin<TLeft, TRight, TResult = TLeft | TRight>(
+  leftArray: TLeft[],
+  rightArray: TRight[],
+  leftKey: string | string[] | Selector<TLeft, string>,
+  rightKey: string | string[] | Selector<TRight, string>,
+  resultSelector: (leftItem: TLeft | null, rightItem: TRight | null) => TResult
+): TResult[] {
   const leftKeySelector = fieldSelector(leftKey);
   const rightKeySelector = fieldSelector(rightKey);
 
@@ -133,17 +133,17 @@ export function fullJoin(
 
   // build a lookup maps for both arrays.
   // so, both of them have to be unique, otherwise it will flattern result
-  const leftArrayMap = Object.create(null);
-  for (const item of rightArray) {
+  const leftArrayMap: Record<string, TLeft> = Object.create(null);
+  for (const item of leftArray) {
     leftArrayMap[leftKeySelector(item)] = item;
   }
 
-  const rightArrayMap = Object.create(null);
+  const rightArrayMap: Record<string, TRight> = Object.create(null);
   for (const item of rightArray) {
     rightArrayMap[rightKeySelector(item)] = item;
   }
 
-  const result: any[] = [];
+  const result: TResult[] = [];
   for (const leftItem of leftArray) {
     const leftKey = leftKeySelector(leftItem);
     const rightItem = rightArrayMap[leftKey] || null;
@@ -151,7 +151,7 @@ export function fullJoin(
     const resultItem = resultSelector(leftItem, rightItem);
 
     // if result is null then probably a left item was modified
-    result.push(resultItem || leftItem);
+    result.push((resultItem || leftItem) as TResult);
     if (rightItem) {
       delete rightArrayMap[leftKey];
     }
@@ -163,7 +163,7 @@ export function fullJoin(
     const resultItem = resultSelector(null, rightItem);
 
     // if result is null then probably a left item was modified
-    result.push(resultItem || rightItem);
+    result.push(resultItem || (rightItem as unknown as TResult));
   }
 
   return result;
@@ -176,24 +176,24 @@ export function fullJoin(
  * @param targetKey tartget key field, arry of fields or field serlector
  * @param sourceKey source key field, arry of fields or field serlector
  */
-export function merge(
-  targetArray: any[],
-  sourceArray: any[],
-  targetKey: string | string[] | Selector<any, string>,
-  sourceKey: string | string[] | Selector<any, string>
-): any[] {
+export function merge<TTarget, TSource>(
+  targetArray: TTarget[],
+  sourceArray: TSource[],
+  targetKey: string | string[] | Selector<TTarget, string>,
+  sourceKey: string | string[] | Selector<TSource, string>
+): TTarget[] {
   const targetKeySelector = fieldSelector(targetKey);
   const sourceKeySelector = fieldSelector(sourceKey);
   verifyJoinArgs(targetArray, sourceArray, targetKeySelector, sourceKeySelector, () => false);
 
   // build a lookup maps for both arrays.
   // so, both of them have to be unique, otherwise it will flattern result
-  const targetArrayMap = Object.create(null);
-  for (const item of sourceArray) {
+  const targetArrayMap: Record<string, TTarget> = Object.create(null);
+  for (const item of targetArray) {
     targetArrayMap[targetKeySelector(item)] = item;
   }
 
-  const sourceArrayMap = Object.create(null);
+  const sourceArrayMap: Record<string, TSource> = Object.create(null);
   for (const item of sourceArray) {
     sourceArrayMap[sourceKeySelector(item)] = item;
   }
@@ -201,7 +201,7 @@ export function merge(
   for (const sourceItemKey of Object.keys(sourceArrayMap)) {
     const sourceItem = sourceArrayMap[sourceItemKey];
     if (!targetArrayMap[sourceItemKey]) {
-      targetArray.push(sourceItem);
+      targetArray.push(sourceItem as unknown as TTarget);
     } else {
       // merge properties in
       Object.assign(targetArrayMap[sourceItemKey], sourceItem);

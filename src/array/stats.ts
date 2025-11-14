@@ -1,20 +1,21 @@
-import { Selector, Predicate } from '../types';
+import { Selector, Predicate, ScalarType } from '../types';
 import { parseNumber } from '../utils';
 import { isArrayEmptyOrNull } from './utils';
 
-function fieldSelector(field?: string | Selector): Selector {
+function fieldSelector<T = unknown>(field?: string | Selector<T, ScalarType>): Selector<T, ScalarType> {
   if (!field) {
-    return (item: any): any => item;
+    return (item: T): ScalarType => item as unknown as ScalarType;
   }
   return typeof field === 'function'
-    ? (field as Selector)
-    : (item: any): any => item[String(field)];
+    ? (field as Selector<T, ScalarType>)
+    : (item: T): ScalarType => (item as Record<string, unknown>)[String(field)] as ScalarType;
 }
 
-function fieldComparator(field?: string | Selector): (a: any, b: any) => number {
-  return (a: any, b: any): number => {
-    const aVal = parseNumber(a, fieldSelector(field));
-    const bVal = parseNumber(b, fieldSelector(field));
+function fieldComparator<T = unknown>(field?: string | Selector<T, ScalarType>): (a: T, b: T) => number {
+  return (a: T, b: T): number => {
+    const selector = fieldSelector(field);
+    const aVal = parseNumber(selector(a) as ScalarType);
+    const bVal = parseNumber(selector(b) as ScalarType);
 
     if (bVal === undefined) {
       return 1;
@@ -28,10 +29,10 @@ function fieldComparator(field?: string | Selector): (a: any, b: any) => number 
   };
 }
 
-function getNumberValuesArray(array: any[], field?: string | Selector): number[] {
+function getNumberValuesArray<T = unknown>(array: T[], field?: string | Selector<T, ScalarType>): number[] {
   const elementSelector = fieldSelector(field);
   return array
-    .map(item => parseNumber(item, elementSelector))
+    .map(item => parseNumber(elementSelector(item) as ScalarType))
     .filter(v => v !== undefined) as number[];
 }
 
@@ -46,7 +47,7 @@ function getNumberValuesArray(array: any[], field?: string | Selector): number[]
  *
  * sum([{ val: 1 }, { val: 5 }], i => i.val); // 6
  */
-export function sum(array: any[], field?: Selector | string): number | null {
+export function sum<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -55,7 +56,7 @@ export function sum(array: any[], field?: Selector | string): number | null {
 
   let sum = 0;
   for (const item of array) {
-    const numberVal = parseNumber(item, elementSelector);
+    const numberVal = parseNumber(elementSelector(item) as ScalarType);
     if (numberVal) {
       sum += numberVal;
     }
@@ -72,7 +73,7 @@ export function sum(array: any[], field?: Selector | string): number | null {
  * @example
  * avg([1, 5, 3]); // 3
  */
-export function avg(array: any[], field?: Selector | string): number | null {
+export function avg<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -89,14 +90,14 @@ export function avg(array: any[], field?: Selector | string): number | null {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function min(array: any[], field?: Selector | string): number | Date | null {
+export function min<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | Date | null {
   const elementSelector = fieldSelector(field);
   const numberArray = getNumberValuesArray(array, elementSelector);
   if (isArrayEmptyOrNull(numberArray)) {
     return null;
   }
   const min = Math.min(...numberArray);
-  const item = elementSelector ? elementSelector(array[0]) : array[0];
+  const item = field ? elementSelector(array[0]) : array[0];
   if (item instanceof Date) {
     return new Date(min);
   }
@@ -109,14 +110,14 @@ export function min(array: any[], field?: Selector | string): number | Date | nu
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function max(array: any[], field?: Selector | string): number | Date | null {
+export function max<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | Date | null {
   const elementSelector = fieldSelector(field);
   const numberArray = getNumberValuesArray(array, elementSelector);
   if (isArrayEmptyOrNull(numberArray)) {
     return null;
   }
   const max = Math.max(...numberArray);
-  const item = elementSelector ? elementSelector(array[0]) : array[0];
+  const item = field ? elementSelector(array[0]) : array[0];
   if (item instanceof Date) {
     return new Date(max);
   }
@@ -129,7 +130,7 @@ export function max(array: any[], field?: Selector | string): number | Date | nu
  * @param array The array to process.
  * @param predicate Predicate function invoked per iteration.
  */
-export function count(array: any[], predicate?: Predicate): number | null {
+export function count<T = unknown>(array: T[], predicate?: Predicate<T>): number | null {
   if (!array || !Array.isArray(array)) return null;
 
   if (!predicate || typeof predicate !== 'function') {
@@ -143,7 +144,7 @@ export function count(array: any[], predicate?: Predicate): number | null {
  * @param array The array to process.
  * @param predicate Predicate function invoked per iteration.
  */
-export function first<T = any>(array: T[], predicate?: Predicate): T | null {
+export function first<T = unknown>(array: T[], predicate?: Predicate<T>): T | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -164,7 +165,7 @@ export function first<T = any>(array: T[], predicate?: Predicate): T | null {
  * @param array The array to process.
  * @param predicate Predicate function invoked per iteration.
  */
-export function last<T = any>(array: T[], predicate?: Predicate): T | null {
+export function last<T = unknown>(array: T[], predicate?: Predicate<T>): T | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -188,7 +189,7 @@ export function last<T = any>(array: T[], predicate?: Predicate): T | null {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function countBy(array: any[], elementSelector: Selector): Record<string, number> {
+export function countBy<T = unknown>(array: T[], elementSelector: Selector<T, ScalarType>): Record<string, number> {
   if (!array || !Array.isArray(array)) {
     throw Error('No array provided');
   }
@@ -198,7 +199,7 @@ export function countBy(array: any[], elementSelector: Selector): Record<string,
 
   for (let i = 0; i < length; i++) {
     const item = array[i];
-    const group = elementSelector(item);
+    const group = String(elementSelector(item));
     results[group] = results[group] || 0;
     results[group]++;
   }
@@ -211,14 +212,15 @@ export function countBy(array: any[], elementSelector: Selector): Record<string,
  * @param array The array to process.
  * @param field Property name or Selector function invoked per iteration.
  */
-export function mean(array: any[], field?: Selector | string): number | null {
+export function mean<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
 
   let res = 0;
   for (let i = 0, c = 0, len = array.length; i < len; ++i) {
-    const val = parseNumber(array[i], fieldSelector(field));
+    const selector = fieldSelector(field);
+    const val = parseNumber(selector(array[i]) as ScalarType);
     if (typeof val === 'number') {
       const delta = val - res;
       res = res + delta / ++c;
@@ -233,17 +235,17 @@ export function mean(array: any[], field?: Selector | string): number | null {
  * @param field Property name or Selector function invoked per iteration.
  * @param p quantile.
  */
-export function quantile(array: any[], p: number, field?: Selector | string): number | null {
+export function quantile<T = unknown>(array: T[], p: number, field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
 
-  const len = (array.length - 1) * p + 1;
+  const numberArray = getNumberValuesArray(array, field);
+  const len = (numberArray.length - 1) * p + 1;
   const l = Math.floor(len);
-  const elementSelector = fieldSelector(field);
-  const val = elementSelector ? elementSelector(array[l - 1]) : array[l - 1];
+  const val = numberArray[l - 1];
   const e = len - l;
-  return e ? val + e * (array[l] - val) : val;
+  return e ? val + e * (numberArray[l] - val) : val;
 }
 
 /**
@@ -251,7 +253,7 @@ export function quantile(array: any[], p: number, field?: Selector | string): nu
  * @param array The array to process.
  * @param field Property name or Selector function invoked per iteration.
  */
-export function variance(array: any[], field?: Selector | string): number | null {
+export function variance<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -264,7 +266,7 @@ export function variance(array: any[], field?: Selector | string): number | null
     M2 = 0,
     c = 0;
   for (let i = 0; i < array.length; ++i) {
-    const val = parseNumber(array[i], elementSelector);
+    const val = parseNumber(elementSelector(array[i]) as ScalarType);
     if (typeof val === 'number') {
       const delta = val - mean;
       mean = mean + delta / ++c;
@@ -280,7 +282,7 @@ export function variance(array: any[], field?: Selector | string): number | null
  * @param array The array to process.
  * @param field Property name or Selector function invoked per iteration.
  */
-export function stdev(array: any[], field?: Selector | string): number | null {
+export function stdev<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }
@@ -299,7 +301,7 @@ export function stdev(array: any[], field?: Selector | string): number | null {
  * @param array The array to process.
  * @param field Property name or Selector function invoked per iteration.
  */
-export function median(array: any[], field?: Selector | string): number | null {
+export function median<T = unknown>(array: T[], field?: Selector<T, ScalarType> | string): number | null {
   if (isArrayEmptyOrNull(array)) {
     return null;
   }

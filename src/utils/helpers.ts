@@ -6,7 +6,7 @@ import { Selector, FieldDescription, DataTypeName, ScalarType, PrimitiveType } f
  * @param val Primitive or object.
  * @param elementSelector Function invoked per iteration.
  */
-export function parseNumber(val: ScalarType, elementSelector?: Selector): number | undefined {
+export function parseNumber(val: ScalarType, elementSelector?: Selector<ScalarType, ScalarType>): number | undefined {
   if (elementSelector && typeof elementSelector === 'function') {
     val = elementSelector(val);
   }
@@ -364,23 +364,23 @@ export function dateToString(d: Date, format?: string): string {
   return strDate;
 }
 
-export function deepClone(obj: any): any {
+export function deepClone<T>(obj: T): T {
   if (obj == null || obj == undefined) {
     return obj;
   }
 
   if (obj instanceof Date) {
-    return new Date(obj.getTime());
+    return new Date(obj.getTime()) as unknown as T;
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(v => deepClone(v));
+    return obj.map(v => deepClone(v)) as unknown as T;
   }
 
   if (typeof obj === 'object') {
-    const clone = {} as any;
+    const clone = {} as Record<string, unknown>;
     for (const propName in obj) {
-      const propValue = obj[propName];
+      const propValue = (obj as Record<string, unknown>)[propName];
 
       if (propValue == null || propValue == undefined) {
         clone[propName] = propValue;
@@ -394,7 +394,7 @@ export function deepClone(obj: any): any {
         clone[propName] = propValue;
       }
     }
-    return clone;
+    return clone as T;
   }
 
   return obj;

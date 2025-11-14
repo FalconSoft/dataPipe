@@ -9,7 +9,7 @@ export * from './types';
  * @example
  * dataPipe([1, 2, 3])
  */
-export function dataPipe(data?: any[]): DataPipe {
+export function dataPipe<T = unknown>(data?: T[]): DataPipe<T> {
   data = data || [];
   return new DataPipe(data);
 }

@@ -1,13 +1,13 @@
-import { parseNumber, parseDatetimeOrNull, dateToString } from '../utils';
+import { parseNumber, parseDatetimeOrNull } from '../utils';
 import { ScalarType, Selector } from '..';
 import { fieldSelector } from '../_internals';
 
-function compareStrings(a: string, b: any): number {
-  return a.localeCompare(b);
+function compareStrings(a: string, b: unknown): number {
+  return a.localeCompare(String(b));
 }
 
-function compareNumbers(a: number, b: any): number {
-  const bNumVal = parseNumber(b);
+function compareNumbers(a: number, b: unknown): number {
+  const bNumVal = parseNumber(b as ScalarType);
   if (bNumVal === undefined) {
     return 1;
   }
@@ -15,9 +15,9 @@ function compareNumbers(a: number, b: any): number {
   return a - bNumVal;
 }
 
-function compareObjects(a: any, b: any): number {
-  const aDate = parseDatetimeOrNull(a);
-  const bDate = parseDatetimeOrNull(b);
+function compareObjects(a: unknown, b: unknown): number {
+  const aDate = parseDatetimeOrNull(a as string);
+  const bDate = parseDatetimeOrNull(b as string);
 
   if (!aDate && !bDate) {
     return 0;
@@ -34,7 +34,7 @@ function compareObjects(a: any, b: any): number {
   return aDate.getTime() - bDate.getTime();
 }
 
-function compare(a: any, b: any, { field, asc }: any): number {
+function compare(a: Record<string, unknown>, b: Record<string, unknown>, { field, asc }: { field: string; asc: boolean }): number {
   const valA = a[field];
   const valB = b[field];
   const order = asc ? 1 : -1;
@@ -56,9 +56,9 @@ function compare(a: any, b: any, { field, asc }: any): number {
   return 0;
 }
 
-function comparator(sortFields: any[]): (a: any, b: any) => number {
+function comparator(sortFields: Array<{ field: string; asc: boolean }>): (a: Record<string, unknown>, b: Record<string, unknown>) => number {
   if (sortFields.length) {
-    return (a: any, b: any): number => {
+    return (a: Record<string, unknown>, b: Record<string, unknown>): number => {
       for (let i = 0, len = sortFields.length; i < len; i++) {
         const res = compare(a, b, sortFields[i]);
 
@@ -77,7 +77,7 @@ function comparator(sortFields: any[]): (a: any, b: any) => number {
  * Checks if array is empty or null or array at all
  * @param array
  */
-export function isArrayEmptyOrNull(array: any[]): boolean {
+export function isArrayEmptyOrNull(array: unknown[]): boolean {
   return !array || !Array.isArray(array) || !array.length;
 }
 
@@ -89,7 +89,7 @@ export function isArrayEmptyOrNull(array: any[]): boolean {
  * @example
  * sort(array, 'name ASC', 'age DESC');
  */
-export function sort(array: any[], ...fields: string[]): any[] {
+export function sort<T = Record<string, unknown>>(array: T[], ...fields: string[]): T[] {
   if (!array || !Array.isArray(array)) {
     throw Error('Array is not provided');
   }
@@ -107,7 +107,7 @@ export function sort(array: any[], ...fields: string[]): any[] {
     };
   });
 
-  array.sort(comparator(sortFields));
+  array.sort(comparator(sortFields) as (a: T, b: T) => number);
   return array;
 }
 /**
@@ -115,17 +115,14 @@ export function sort(array: any[], ...fields: string[]): any[] {
  * @param array to be converted
  * @param keyField a selector or field name for a property name
  */
-export function toObject(
-  array: any[],
-  keyField: string | string[] | Selector<any, string>
-): Record<string, any> {
-  const result = {} as Record<string, any>;
+export function toObject<T = unknown>(
+  array: T[],
+  keyField: string | string[] | Selector<T, string>
+): Record<string, T> {
+  const result = {} as Record<string, T>;
 
   for (const item of array) {
-    let key = fieldSelector(keyField)(item);
-    if ((key as any) instanceof Date) {
-      key = dateToString(key as any);
-    }
+    const key = fieldSelector(keyField)(item);
     result[key] = item;
   }
 
@@ -139,7 +136,7 @@ export function toObject(
  * If it is string the array with values will be returned, otherwise an object with a list of series map
  */
 export function toSeries(
-  array: any[],
+  array: Array<Record<string, unknown>>,
   propertyName?: string | string[]
 ): Record<string, ScalarType[]> | ScalarType[] {
   if (!array?.length) {
@@ -148,7 +145,7 @@ export function toSeries(
 
   // a single property
   if (typeof propertyName == 'string') {
-    return array.map(r => (r[propertyName] === undefined ? null : r[propertyName]));
+    return array.map(r => (r[propertyName] === undefined ? null : (r[propertyName] as ScalarType)));
   }
 
   const seriesRecord: Record<string, ScalarType[]> = {};
@@ -163,7 +160,7 @@ export function toSeries(
         seriesRecord[seriesName] = [];
       }
       const value = array[i][seriesName];
-      seriesRecord[seriesName].push(value === undefined ? null : value);
+      seriesRecord[seriesName].push(value === undefined ? null : (value as ScalarType));
     }
   }
 

@@ -1,5 +1,5 @@
-export type Predicate<T = any> = (p: T) => boolean;
-export type Selector<T = any, V = any> = (p: T) => V;
+export type Predicate<T = unknown> = (p: T) => boolean;
+export type Selector<T = unknown, V = unknown> = (p: T) => V;
 export class ParsingOptions {
   delimiter = ',';
   skipRows = 0;
@@ -10,8 +10,8 @@ export class ParsingOptions {
   booleanFields: string[] = [];
   skipUntil?: (tokens: string[]) => boolean;
   takeWhile?: (tokens: string[]) => boolean;
-  parseFields?: {};
-  elementSelector?: (fieldDescriptions: FieldDescription[], tokens: string[]) => any;
+  parseFields?: Record<string, unknown>;
+  elementSelector?: (fieldDescriptions: FieldDescription[], tokens: string[]) => unknown;
 }
 
 export type PrimitiveType = string | number | bigint | boolean | null;

@@ -39,20 +39,20 @@ import {
   unflattenObject
 } from './array';
 
-export class DataPipe {
-  private data: any[];
+export class DataPipe<T = unknown> {
+  private data: T[];
 
-  constructor(data: any[] = []) {
+  constructor(data: T[] = []) {
     this.data = data || [];
   }
 
   // input methods
-  fromCsv(content: string, options?: ParsingOptions): DataPipe {
-    this.data = parseCsv(content, options);
+  fromCsv(content: string, options?: ParsingOptions): DataPipe<T> {
+    this.data = parseCsv(content, options) as unknown as T[];
     return this;
   }
 
-  parseCsv(content: string, options?: ParsingOptions): DataPipe {
+  parseCsv(content: string, options?: ParsingOptions): DataPipe<T> {
     return this.fromCsv(content, options);
   }
 
@@ -66,8 +66,8 @@ export class DataPipe {
     rowsOrTable: PrimitiveType[][] | TableDto,
     fieldNames?: string[],
     fieldDataTypes?: DataTypeName[]
-  ): DataPipe {
-    this.data = fromTable(rowsOrTable, fieldNames, fieldDataTypes);
+  ): DataPipe<T> {
+    this.data = fromTable(rowsOrTable, fieldNames, fieldDataTypes) as unknown as T[];
     return this;
   }
 
@@ -75,7 +75,7 @@ export class DataPipe {
   /**
    * Get pipes currrent array data.
    */
-  toArray(): any[] {
+  toArray(): T[] {
     return this.data;
   }
 
@@ -84,14 +84,14 @@ export class DataPipe {
    * @param delimiter
    */
   toCsv(delimiter = ','): string {
-    return toCsv(this.data, delimiter);
+    return toCsv(this.data as unknown as Array<Record<string, ScalarType>>, delimiter);
   }
 
   /**
    * Outputs pipe value as JavaScript object.
    * @param keyField a key selector represented as a string (field name) or array of stringa (fieldNames) or custom selectors
    */
-  toObject(keyField: string | string[] | Selector<any, string>): Record<string, any> {
+  toObject(keyField: string | string[] | Selector<T, string>): Record<string, T> {
     return toObject(this.data, keyField);
   }
 
@@ -101,14 +101,14 @@ export class DataPipe {
    * If it is string the array with values will be returned, otherwise an object with a list of series map
    */
   toSeries(propertyName?: string | string[]): Record<string, ScalarType[]> | ScalarType[] {
-    return toSeries(this.data, propertyName);
+    return toSeries(this.data as unknown as Array<Record<string, unknown>>, propertyName);
   }
 
   /**
    * Gets table data from JSON type array.
    */
   toTable(): TableDto {
-    return toTable(this.data);
+    return toTable(this.data as unknown as Array<Record<string, ScalarType>>);
   }
   // end of output functions
 
@@ -116,7 +116,7 @@ export class DataPipe {
    * This method allows you to examine a state of the data during pipe execution.
    * @param dataFunc
    */
-  tap(dataFunc: (d: any[]) => void): DataPipe {
+  tap(dataFunc: (d: T[]) => void): DataPipe<T> {
     if (typeof dataFunc === 'function') {
       dataFunc(this.data);
     }
@@ -133,7 +133,7 @@ export class DataPipe {
    *
    * dataPipe([{ val: 1 }, { val: 5 }]).sum(i => i.val); // 6
    */
-  sum(elementSelector?: Selector): number | null {
+  sum(elementSelector?: Selector<T, ScalarType> | string): number | null {
     return sum(this.data, elementSelector);
   }
 
@@ -143,7 +143,7 @@ export class DataPipe {
    * @example
    * dataPipe([1, 5, 3]).avg(); // 3
    */
-  avg(elementSelector?: Selector): number | null {
+  avg(elementSelector?: Selector<T, ScalarType> | string): number | null {
     return avg(this.data, elementSelector);
   }
 
@@ -153,7 +153,7 @@ export class DataPipe {
    * Count of elements in array.
    * @param predicate Predicate function invoked per iteration.
    */
-  count(predicate?: Predicate): number | null {
+  count(predicate?: Predicate<T>): number | null {
     return count(this.data, predicate);
   }
 
@@ -161,7 +161,7 @@ export class DataPipe {
    * Computes the minimum value of array.
    * @param elementSelector Function invoked per iteration.
    */
-  min(elementSelector?: Selector): number | Date | null {
+  min(elementSelector?: Selector<T, ScalarType> | string): number | Date | null {
     return min(this.data, elementSelector);
   }
 
@@ -169,7 +169,7 @@ export class DataPipe {
    * Computes the maximum value of array.
    * @param elementSelector Function invoked per iteration.
    */
-  max(elementSelector?: Selector): number | Date | null {
+  max(elementSelector?: Selector<T, ScalarType> | string): number | Date | null {
     return max(this.data, elementSelector);
   }
 
@@ -177,7 +177,7 @@ export class DataPipe {
    * Gets first item in array satisfies predicate.
    * @param predicate Predicate function invoked per iteration.
    */
-  first(predicate?: Predicate): any | undefined {
+  first(predicate?: Predicate<T>): T | null | undefined {
     return first(this.data, predicate);
   }
 
@@ -186,7 +186,7 @@ export class DataPipe {
    * @param array The array to process.
    * @param predicate Predicate function invoked per iteration.
    */
-  last(predicate?: Predicate): any | undefined {
+  last(predicate?: Predicate<T>): T | null | undefined {
     return last(this.data, predicate);
   }
 
@@ -194,7 +194,7 @@ export class DataPipe {
    * Get mean.
    * @param field Property name or Selector function invoked per iteration.
    */
-  mean(field?: Selector | string): number | null {
+  mean(field?: Selector<T, ScalarType> | string): number | null {
     return mean(this.data, field);
   }
 
@@ -203,7 +203,7 @@ export class DataPipe {
    * @param field Property name or Selector function invoked per iteration.
    * @param p quantile.
    */
-  quantile(p: number, field?: Selector | string): number | null {
+  quantile(p: number, field?: Selector<T, ScalarType> | string): number | null {
     return quantile(this.data, p, field);
   }
 
@@ -211,7 +211,7 @@ export class DataPipe {
    * Get variance.
    * @param field Property name or Selector function invoked per iteration.
    */
-  variance(field?: Selector | string): number | null {
+  variance(field?: Selector<T, ScalarType> | string): number | null {
     return variance(this.data, field);
   }
 
@@ -219,7 +219,7 @@ export class DataPipe {
    * Get the standard deviation.
    * @param field Property name or Selector function invoked per iteration.
    */
-  stdev(field?: Selector | string): number | null {
+  stdev(field?: Selector<T, ScalarType> | string): number | null {
     return stdev(this.data, field);
   }
 
@@ -227,7 +227,7 @@ export class DataPipe {
    * Get median.
    * @param field Property name or Selector function invoked per iteration.
    */
-  median(field?: Selector | string): number | null {
+  median(field?: Selector<T, ScalarType> | string): number | null {
     return median(this.data, field);
   }
 
@@ -236,9 +236,9 @@ export class DataPipe {
    * Groups array items based on elementSelector function
    * @param elementSelector Function invoked per iteration.
    */
-  groupBy(elementSelector: Selector): DataPipe {
-    this.data = groupBy(this.data, elementSelector);
-    return this;
+  groupBy(elementSelector: string | string[] | Selector<T, string>): DataPipe<T[]> {
+    this.data = groupBy(this.data, elementSelector as string | string[] | Selector) as unknown as T[];
+    return this as unknown as DataPipe<T[]>;
   }
 
   /**
@@ -248,34 +248,34 @@ export class DataPipe {
    * @param rightKey
    * @param resultSelector
    */
-  innerJoin(
-    rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-    this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
+  innerJoin<TRight, TResult = T>(
+    rightArray: TRight[],
+    leftKey: string | string[] | Selector<T, string>,
+    rightKey: string | string[] | Selector<TRight, string>,
+    resultSelector: (leftItem: T | null, rightItem: TRight | null) => TResult
+  ): DataPipe<TResult> {
+    this.data = innerJoin(this.data, rightArray, leftKey, rightKey, resultSelector) as unknown as T[];
+    return this as unknown as DataPipe<TResult>;
   }
 
-  leftJoin(
-    rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-    this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
+  leftJoin<TRight, TResult = T>(
+    rightArray: TRight[],
+    leftKey: string | string[] | Selector<T, string>,
+    rightKey: string | string[] | Selector<TRight, string>,
+    resultSelector: (leftItem: T | null, rightItem: TRight | null) => TResult
+  ): DataPipe<TResult> {
+    this.data = leftJoin(this.data, rightArray, leftKey, rightKey, resultSelector) as unknown as T[];
+    return this as unknown as DataPipe<TResult>;
   }
 
-  fullJoin(
-    rightArray: any[],
-    leftKey: string | string[] | Selector<any, string>,
-    rightKey: string | string[] | Selector<any, string>,
-    resultSelector: (leftItem: any, rightItem: any) => any
-  ): DataPipe {
-    this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector);
-    return this;
+  fullJoin<TRight, TResult = T | TRight>(
+    rightArray: TRight[],
+    leftKey: string | string[] | Selector<T, string>,
+    rightKey: string | string[] | Selector<TRight, string>,
+    resultSelector: (leftItem: T | null, rightItem: TRight | null) => TResult
+  ): DataPipe<TResult> {
+    this.data = fullJoin(this.data, rightArray, leftKey, rightKey, resultSelector) as unknown as T[];
+    return this as unknown as DataPipe<TResult>;
   }
 
   /**
@@ -285,31 +285,31 @@ export class DataPipe {
    *
    * dataPipe([{ val: 1 }, { val: 5 }]).select(i => i.val).toArray(); // [1, 5]
    */
-  select(elementSelector: Selector): DataPipe {
-    this.data = this.data.map(elementSelector);
-    return this;
+  select<TResult>(elementSelector: Selector<T, TResult>): DataPipe<TResult> {
+    this.data = this.data.map(elementSelector) as unknown as T[];
+    return this as unknown as DataPipe<TResult>;
   }
 
   map = this.select.bind(this);
 
-  merge(
-    sourceArray: any[],
-    targetKey: string | string[] | Selector<any, string>,
-    sourceKey: string | string[] | Selector<any, string>
-  ): DataPipe {
+  merge<TSource>(
+    sourceArray: TSource[],
+    targetKey: string | string[] | Selector<T, string>,
+    sourceKey: string | string[] | Selector<TSource, string>
+  ): DataPipe<T> {
     this.data = merge(this.data, sourceArray, targetKey, sourceKey);
     return this;
   }
 
-  flattenObject(): any {
+  flattenObject(): unknown {
     return flattenObject(this.data);
   }
 
-  unflattenObject(): any {
+  unflattenObject(): unknown {
     return unflattenObject(this.data);
   }
 
-  flatten(): any {
+  flatten(): unknown {
     return flatten(this.data);
   }
 
@@ -317,23 +317,23 @@ export class DataPipe {
     rowFields: string | string[],
     columnField: string,
     dataField: string,
-    aggFunction?: (array: any[]) => any | null,
+    aggFunction?: (array: unknown[]) => unknown | null,
     columnValues?: string[]
-  ): DataPipe {
-    this.data = pivot(this.data, rowFields, columnField, dataField, aggFunction, columnValues);
-    return this;
+  ): DataPipe<Record<string, unknown>> {
+    this.data = pivot(this.data as Array<Record<string, unknown>>, rowFields, columnField, dataField, aggFunction, columnValues) as unknown as T[];
+    return this as unknown as DataPipe<Record<string, unknown>>;
   }
 
-  transpose(): DataPipe {
-    this.data = transpose(this.data) || [];
-    return this;
+  transpose(): DataPipe<Record<string, unknown>> {
+    this.data = transpose(this.data as Array<Record<string, unknown>>) as unknown as T[] || [] as unknown as T[];
+    return this as unknown as DataPipe<Record<string, unknown>>;
   }
 
   /**
    * Filters array of items.
    * @param predicate Predicate function invoked per iteration.
    */
-  where(predicate: Predicate): DataPipe {
+  where(predicate: Predicate<T>): DataPipe<T> {
     this.data = this.data.filter(predicate);
     return this;
   }
@@ -344,12 +344,12 @@ export class DataPipe {
    * Get unique values
    * @param elementSelector Function invoked per iteration.
    */
-  unique(elementSelector?: Selector): DataPipe {
+  unique<TResult = T>(elementSelector?: Selector<T, TResult>): DataPipe<T | TResult> {
     if (elementSelector) {
       this.select(elementSelector);
     }
     this.data = Array.from(new Set(this.data));
-    return this;
+    return this as unknown as DataPipe<T | TResult>;
   }
 
   distinct = this.unique.bind(this);
@@ -360,7 +360,7 @@ export class DataPipe {
    * @example
    * dp.sort('name ASC', 'age DESC');
    */
-  sort(...fields: string[]): DataPipe {
+  sort(...fields: string[]): DataPipe<T> {
     sort(this.data, ...fields);
     return this;
   }
@@ -372,7 +372,7 @@ export class DataPipe {
    * if any properties are Objects, it would use JSON.stringify to calculate maxSize field.
    */
   getFieldsInfo(): FieldDescription[] {
-    return getFieldsInfo(this.data);
+    return getFieldsInfo(this.data as unknown as Array<Record<string, ScalarType>>);
   }
 
   JSONParser(): JSONParser {

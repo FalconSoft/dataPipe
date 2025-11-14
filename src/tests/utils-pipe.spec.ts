@@ -97,8 +97,8 @@ describe('Test dataUtils', () => {
   });
 
   it('getFieldsInfo numbers check', () => {
-    const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
+    const mapFn = (r: number | string | null): { val1: number | string | null } => ({ val1: r });
+    const fdFn = (arr: (number | string | null)[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     expect(fdFn([2, 4, 5]).dataTypeName).toBe(DataTypeName.WholeNumber);
     expect(fdFn([2, 4, 5]).isNullable).toBe(false);
@@ -113,8 +113,8 @@ describe('Test dataUtils', () => {
   });
 
   it('getFieldsInfo DateTime check', () => {
-    const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
+    const mapFn = (r: string | Date | number | boolean | null): { val1: string | Date | number | boolean | null } => ({ val1: r });
+    const fdFn = (arr: (string | Date | number | boolean | null)[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     expect(fdFn(['2019-01-01', '2019-01-02']).dataTypeName).toBe(DataTypeName.Date);
     expect(fdFn(['2019-01-01', '2019-01-02']).isNullable).toBe(false);
@@ -136,8 +136,8 @@ describe('Test dataUtils', () => {
   });
 
   it('getFieldsInfo size check', () => {
-    const mapFn = (r: any): any => ({ val1: r });
-    const fdFn = (arr: any[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
+    const mapFn = (r: string | number | null): { val1: string | number | null } => ({ val1: r });
+    const fdFn = (arr: (string | number | null)[]): FieldDescription => getFieldsInfo(arr.map(mapFn))[0];
 
     const longestText = 'Longest Text';
     expect(fdFn(['Test1', 'Longer', longestText]).maxSize).toBe(longestText.length);

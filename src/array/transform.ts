@@ -7,18 +7,18 @@ import { sum } from './stats';
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function groupBy(array: any[], groupByFields: string | string[] | Selector): any[] {
+export function groupBy<T>(array: T[], groupByFields: string | string[] | Selector): T[][] {
   if (!Array.isArray(array)) {
     throw Error('An array is not provided');
   }
 
   if (!array.length) {
-    return array;
+    return array as unknown as T[][];
   }
 
-  const groups: { [key: string]: any[] } = {};
+  const groups: { [key: string]: T[] } = {};
 
-  const elementSelector = fieldSelector(groupByFields);
+  const elementSelector = fieldSelector(groupByFields as Selector<T, string>);
 
   for (let i = 0; i < array.length; i++) {
     const item = array[i];
@@ -38,9 +38,10 @@ export function groupBy(array: any[], groupByFields: string | string[] | Selecto
  * @param elementSelector
  * @returns
  */
-export function distinct(array: any[], elementSelector?: Selector): any[] {
+export function distinct<T, V = T>(array: T[], elementSelector?: Selector<T, V>): (T | V)[] {
   if (elementSelector) {
-    array = array.map(elementSelector);
+    const mapped = array.map(elementSelector);
+    return Array.from(new Set(mapped));
   }
   return Array.from(new Set(array));
 }
@@ -54,19 +55,19 @@ export function distinct(array: any[], elementSelector?: Selector): any[] {
  * @returns 
  */
 
-export function unflattenObject(data: any): any {
+export function unflattenObject(data: unknown): unknown {
 
 
-  function setProperty(data: any, pName: string, value: any): any {
+  function setProperty(data: Record<string, unknown>, pName: string, value: unknown): void {
     const pNames = pName.split('.')
-    let parent: any = data
+    let parent: Record<string, unknown> = data
 
     for (let i = 0; i < pNames.length - 1; i++) {
       if (pNames[i] in parent) {
-        parent = parent[pNames[i]]
+        parent = parent[pNames[i]] as Record<string, unknown>
       } else {
         parent[pNames[i]] = {}
-        parent = parent[pNames[i]]
+        parent = parent[pNames[i]] as Record<string, unknown>
       }
     }
     parent[pNames[pNames.length - 1]] = value
@@ -80,21 +81,21 @@ export function unflattenObject(data: any): any {
     }
     return arr;
   } else {
-    const obj: any = {}
-    const keys = Object.keys(data);
+    const obj: Record<string, unknown> = {}
+    const keys = Object.keys(data as Record<string, unknown>);
     for (let i = 0; i < keys.length; i++) {
-      setProperty(obj, keys[i], data[keys[i]])
+      setProperty(obj, keys[i], (data as Record<string, unknown>)[keys[i]])
     }
     return obj
   }
 }
 
-export function flattenObject(data: any): any {
+export function flattenObject(data: unknown): Record<string, unknown>[] {
   if (!data || typeof data !== 'object') {
-    return data;
+    return data as Record<string, unknown>[];
   }
 
-  function iterate(rootData: any, obj: any, prefix: string): void {
+  function iterate(rootData: Record<string, unknown>, obj: Record<string, unknown>, prefix: string): void {
     const keys = Object.keys(rootData);
 
     for (let i = 0; i < keys.length; i++) {
@@ -107,7 +108,7 @@ export function flattenObject(data: any): any {
         value !== undefined &&
         !(value instanceof Date)
       ) {
-        iterate(value, obj, pName);
+        iterate(value as Record<string, unknown>, obj, pName);
       } else if (typeof value === 'function') {
         continue;
       } else {
@@ -122,13 +123,13 @@ export function flattenObject(data: any): any {
       const obj = flattenObject(data[i]);
       arr.push(obj);
     }
-    return arr;
+    return arr as unknown as Record<string, unknown>[];
   } else {
-    const obj: any = {};
+    const obj: Record<string, unknown> = {};
 
-    iterate(data, obj, '');
+    iterate(data as Record<string, unknown>, obj, '');
 
-    return obj;
+    return obj as unknown as Record<string, unknown>[];
   }
 }
 
@@ -138,7 +139,7 @@ export function flattenObject(data: any): any {
  * @example
  * flatten([1, 4, [2, [5, 5, [9, 7]], 11], 0]); // length 9
  */
-export function flatten(array: any[]): any[] {
+export function flatten<T>(array: T[]): T[] {
   if (!Array.isArray(array)) {
     throw Error('An array is not provided');
   }
@@ -147,13 +148,13 @@ export function flatten(array: any[]): any[] {
     return array;
   }
 
-  let res: any = [];
+  let res: T[] = [];
   const length = array.length;
 
   for (let i = 0; i < length; i++) {
     const value = array[i];
     if (Array.isArray(value)) {
-      res = [...res, ...flatten(value)];
+      res = [...res, ...flatten(value as T[])];
     } else {
       res.push(value);
     }
@@ -170,14 +171,14 @@ export function flatten(array: any[]): any[] {
  * @param aggFunction an aggregation function. Default value is sum. data field will be aggregated by this function
  * @param columnValues an optional initial column values. Use it to define a set of columns/values you would expect
  */
-export function pivot(
-  array: any,
+export function pivot<T extends Record<string, unknown>>(
+  array: T[],
   rowFields: string | string[],
   columnField: string,
   dataField: string,
-  aggFunction?: (array: any[]) => any | null,
+  aggFunction?: (array: unknown[]) => unknown | null,
   columnValues?: string[]
-): any[] {
+): Array<Record<string, unknown>> {
   if (!Array.isArray(array)) {
     throw Error('An array is not provided');
   }
@@ -186,9 +187,9 @@ export function pivot(
     return array;
   }
 
-  const groups: { [key: string]: any[] } = Object.create(null);
+  const groups: { [key: string]: T[] } = Object.create(null);
   columnValues = columnValues || [];
-  aggFunction = aggFunction || ((a: any[]): number | null => sum(a));
+  aggFunction = aggFunction || ((a: unknown[]): number | null => sum(a as number[]));
 
   const elementSelector = fieldSelector(rowFields);
 
@@ -202,15 +203,15 @@ export function pivot(
     groups[group].push(item);
 
     // accumulate column values
-    const columnValue = item[columnField];
+    const columnValue = item[columnField] as string;
     if (columnValues.indexOf(columnValue) < 0) {
       columnValues.push(columnValue);
     }
   }
 
-  const result: any[] = [];
+  const result: Array<Record<string, unknown>> = [];
   for (const groupName of Object.keys(groups)) {
-    const item = Object.create(null);
+    const item: Record<string, unknown> = Object.create(null);
     // row fields first
     for (const rowField of rowFields) {
       item[rowField] = groups[groupName][0][rowField];
@@ -234,7 +235,7 @@ export function pivot(
  * Transpose rows to columns in an array
  * @param data
  */
-export function transpose(data: any[]): any[] {
+export function transpose<T extends Record<string, unknown>>(data: T[]): Array<Record<string, unknown>> {
   if (!Array.isArray(data)) {
     throw Error('An array is not provided');
   }
@@ -244,7 +245,7 @@ export function transpose(data: any[]): any[] {
   }
 
   return Object.keys(data[0]).map(key => {
-    const res: { [key: string]: any } = {};
+    const res: Record<string, unknown> = {};
     data.forEach((item, i) => {
       if (i === 0) {
         res.fieldName = key;
@@ -261,13 +262,13 @@ export function transpose(data: any[]): any[] {
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function select(data: any[], selector: string | string[] | Selector): any[] {
+export function select<T>(data: T[], selector: string | string[] | Selector<T, string>): string[] {
   if (!Array.isArray(data)) {
     throw Error('An array is not provided');
   }
 
   if (!data.length) {
-    return data;
+    return [];
   }
   const elementSelector = fieldSelector(selector);
   return data.map(elementSelector);
@@ -278,7 +279,7 @@ export function select(data: any[], selector: string | string[] | Selector): any
  * @param array The array to process.
  * @param elementSelector Function invoked per iteration.
  */
-export function where(data: any[], predicate: Predicate): any[] {
+export function where<T>(data: T[], predicate: Predicate<T>): T[] {
   if (!Array.isArray(data)) {
     throw Error('An array is not provided');
   }

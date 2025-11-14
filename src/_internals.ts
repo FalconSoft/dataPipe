@@ -1,15 +1,21 @@
 import { Selector } from './types';
 import { dateToString } from './utils';
 
-export function fieldSelector(
-  input: string | string[] | Selector<any, string>
-): Selector<any, string> {
+export function fieldSelector<T = unknown>(
+  input: string | string[] | Selector<T, string>
+): Selector<T, string> {
   if (typeof input === 'function') {
-    return input;
+    return (item: T): string => {
+      const value = input(item) as unknown;
+      return value instanceof Date ? dateToString(value as Date) : String(value);
+    };
   } else if (typeof input === 'string') {
-    return (item): any => (item[input] instanceof Date ? dateToString(item[input]) : item[input]);
+    return (item: T): string => {
+      const value = (item as Record<string, unknown>)[input];
+      return value instanceof Date ? dateToString(value) : String(value);
+    };
   } else if (Array.isArray(input)) {
-    return (item): any => input.map(r => item[r]).join('|');
+    return (item: T): string => input.map(r => (item as Record<string, unknown>)[r]).join('|');
   } else {
     throw Error(`Unknown input. Can't create a fieldSelector`);
   }

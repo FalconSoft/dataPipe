@@ -263,7 +263,7 @@ export function parseCsv(content: string, options?: ParsingOptions): ScalarObjec
 
     if (obj) {
       // no need for null or empty objects
-      result.push(obj);
+      result.push(obj as ScalarObject);
     }
   }
 

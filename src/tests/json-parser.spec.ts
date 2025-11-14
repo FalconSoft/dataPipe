@@ -2,8 +2,8 @@
 import { JSONParser } from '../utils';
 
 describe('Json Parser specification', () => {
-  function jsonProcessor(text: string): any[] {
-    const result: any[] = [];
+  function jsonProcessor(text: string): Record<string, unknown>[] {
+    const result: Record<string, unknown>[] = [];
     const parser = new JSONParser();
     for (const ch of text) {
       parser.processJsonItems(ch, (itemText: string, key: string | number) => {
@@ -24,8 +24,8 @@ describe('Json Parser specification', () => {
     const result = jsonProcessor('[{"value":"test value"},{"value":2},{"value":3}]');
 
     expect(result.length).toBe(3);
-    expect(result[0].value).toBe('test value');
-    expect(result[1].value).toBe(2);
+    expect((result[0] as Record<string, unknown>).value).toBe('test value');
+    expect((result[1] as Record<string, unknown>).value).toBe(2);
   });
 
   // it('Simple JSV', () => {
@@ -40,7 +40,7 @@ describe('Json Parser specification', () => {
     const result = jsonProcessor('[{"value":"test"},{"value":2, "value1": 21},{"value":3}]');
 
     expect(result.length).toBe(3);
-    expect(result[1].value1).toBe(21);
+    expect((result[1] as Record<string, unknown>).value1).toBe(21);
   });
 
   it('json inner object', () => {
@@ -49,30 +49,30 @@ describe('Json Parser specification', () => {
     );
 
     expect(result.length).toBe(2);
-    expect(result[1].obj.v2).toBe(212);
+    expect(((result[1] as Record<string, unknown>).obj as Record<string, unknown>).v2).toBe(212);
   });
 
   it('JSON simple array', () => {
     const result = jsonProcessor('[{"v":"test", "arr":[{"v1":1}, {"v1":2}]}]');
 
     expect(result.length).toBe(1);
-    expect(result[0].arr[1].v1).toBe(2);
+    expect((((result[0] as Record<string, unknown>).arr as unknown[])[1] as Record<string, unknown>).v1).toBe(2);
   });
 
   
   it('Simple JSON with " to escape', () => {
     const result = jsonProcessor('[{"value":"test \\"value"}]');
-    expect(result[0].value).toBe('test "value');
+    expect((result[0] as Record<string, unknown>).value).toBe('test "value');
   });
 
   it('Simple JSON with " to escape in the end', () => {
     const result = jsonProcessor('[{"value":"test value\\""}]');
-    expect(result[0].value).toBe('test value\"');
+    expect((result[0] as Record<string, unknown>).value).toBe('test value\"');
   });
 
   it('Simple JSON with \\ to escape in the end', () => {
     const result = jsonProcessor(`[{"value":"test value\\\\d"}]`);
-    expect(result[0].value).toBe('test value\\d');
+    expect((result[0] as Record<string, unknown>).value).toBe('test value\\d');
   });
 
 // 
